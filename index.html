@@ -3,50 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KOL Campaign Performance Report</title>
+  <title>NAAP KOL Campaign Performance Report</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Chart.js for Pie/Doughnut Chart -->
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
-    .glass { background: rgba(255, 255, 255, 0.90); backdrop-filter: blur(14px); }
+    .glass { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(14px); }
   </style>
 </head>
 <body class="bg-neutral-50/70 text-neutral-900 antialiased min-h-screen pb-24">
 
-  <!-- Admin Link Generator Panel (MUNCUL PERTAMA JIKA BELUM ADA LINK NOTION) -->
-  <div id="adminPanel" class="max-w-3xl mx-auto my-12 p-8 bg-white border border-neutral-200 rounded-3xl shadow-xl hidden">
-    <div class="flex items-center gap-2 mb-2">
-      <span class="h-2.5 w-2.5 rounded-full bg-neutral-900"></span>
-      <h2 class="text-sm font-bold uppercase tracking-wider text-neutral-900">Campaign Report Generator</h2>
-    </div>
-    <p class="text-xs text-neutral-500 mb-6">Masukkan nama campaign (contoh: <b>NAAP</b>) dan link database Notion untuk membuat laporan performa live.</p>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-      <div>
-        <label class="block text-[11px] font-bold uppercase tracking-wider text-neutral-600 mb-1.5">Campaign / Brand Name</label>
-        <input id="inputBrandName" type="text" placeholder="e.g. NAAP" class="w-full px-4 py-2.5 text-xs bg-neutral-50 border border-neutral-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-900 outline-none transition">
-      </div>
-      <div>
-        <label class="block text-[11px] font-bold uppercase tracking-wider text-neutral-600 mb-1.5">Notion Database Link / ID</label>
-        <input id="inputNotionLink" type="text" placeholder="https://app.notion.com/p/NAAP-391ce5b809f980f2b664e3232612bf78..." class="w-full px-4 py-2.5 text-xs bg-neutral-50 border border-neutral-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-900 outline-none transition">
-      </div>
-    </div>
-    <div class="flex items-center gap-3">
-      <button onclick="generateShareableLink()" class="px-6 py-2.5 bg-neutral-900 text-white font-bold text-xs rounded-xl hover:bg-neutral-800 transition shadow-sm">
-        Generate & Open Dashboard ↗
-      </button>
-      <button onclick="loadSampleNAAP()" class="px-4 py-2.5 bg-neutral-100 text-neutral-700 font-semibold text-xs rounded-xl hover:bg-neutral-200 transition">
-        Lihat Preview Data NAAP
-      </button>
-    </div>
-  </div>
-
-  <!-- Sticky Header -->
-  <nav id="topNav" class="sticky top-0 z-50 glass border-b border-neutral-200/80 px-6 py-4 transition-all hidden">
+  <!-- Sticky Monochromatic Header -->
+  <nav class="sticky top-0 z-50 glass border-b border-neutral-200/80 px-6 py-4 transition-all">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div class="flex items-center gap-3">
         <span class="relative flex h-3 w-3">
@@ -54,37 +26,57 @@
           <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
         </span>
         <div>
-          <h1 id="brandTitle" class="text-base sm:text-lg font-extrabold text-neutral-900 tracking-tight">KOL Performance Report</h1>
+          <h1 id="brandTitle" class="text-base sm:text-lg font-extrabold text-neutral-900 tracking-tight">NAAP KOL Performance</h1>
           <p class="text-[11px] text-neutral-500 font-medium">Verified Deliverables & Engagement Analytics</p>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button onclick="changeCampaign()" class="px-3.5 py-2 bg-neutral-100 border border-neutral-200 text-neutral-700 text-xs font-semibold rounded-xl hover:bg-neutral-200 transition shadow-sm">
+        <button onclick="toggleSetupModal()" class="px-3.5 py-2 bg-neutral-100 border border-neutral-200 text-neutral-700 text-xs font-semibold rounded-xl hover:bg-neutral-200 transition shadow-sm">
           Change Campaign
         </button>
         <button onclick="copyCurrentLink()" class="px-3.5 py-2 bg-white border border-neutral-300 text-neutral-800 text-xs font-semibold rounded-xl hover:bg-neutral-50 transition shadow-sm">
           Copy Link
         </button>
-        <button onclick="downloadCSV()" class="px-3.5 py-2 bg-neutral-900 text-white text-xs font-semibold rounded-xl hover:bg-neutral-800 transition shadow-sm">
+        <button onclick="downloadCSV()" class="px-3.5 py-2 bg-neutral-900 text-white text-xs font-semibold rounded-xl hover:bg-neutral-800 transition shadow-sm flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
           Export CSV
         </button>
       </div>
     </div>
   </nav>
 
-  <!-- Loading State -->
-  <div id="loadingBox" class="max-w-7xl mx-auto px-6 py-24 text-center space-y-4 hidden">
-    <div class="inline-block h-7 w-7 animate-spin rounded-full border-2 border-neutral-900 border-r-transparent"></div>
-    <p class="text-xs font-medium uppercase tracking-widest text-neutral-500">Retrieving Notion Data...</p>
+  <!-- Modal Change Campaign -->
+  <div id="setupModal" class="fixed inset-0 bg-neutral-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white max-w-md w-full p-6 rounded-3xl shadow-2xl border border-neutral-200 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold text-neutral-900">Switch Notion Campaign</h3>
+        <button onclick="toggleSetupModal()" class="text-neutral-400 hover:text-neutral-700 text-xs font-bold">✕</button>
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Campaign Name</label>
+        <input id="inputBrandName" type="text" placeholder="e.g. NAAP" class="w-full px-3.5 py-2 text-xs border border-neutral-300 rounded-xl outline-none focus:border-neutral-900">
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Notion Database ID or URL</label>
+        <input id="inputNotionLink" type="text" placeholder="Paste Notion Link or 32-char ID..." class="w-full px-3.5 py-2 text-xs border border-neutral-300 rounded-xl outline-none focus:border-neutral-900">
+      </div>
+      <button onclick="applyNewCampaign()" class="w-full py-2.5 bg-neutral-900 text-white font-bold text-xs rounded-xl hover:bg-neutral-800 transition shadow">
+        Load Report ↗
+      </button>
+    </div>
   </div>
 
-  <!-- Main Content Dashboard -->
+  <!-- Loading State -->
+  <div id="loadingBox" class="max-w-7xl mx-auto px-6 py-28 text-center space-y-4">
+    <div class="inline-block h-8 w-8 animate-spin rounded-full border-2 border-neutral-900 border-r-transparent"></div>
+    <p class="text-xs font-semibold tracking-widest text-neutral-500 uppercase">Fetching live records from Notion...</p>
+  </div>
+
+  <!-- Main Dashboard Content -->
   <main id="dashboardContent" class="max-w-7xl mx-auto px-4 sm:px-6 pt-8 space-y-8 hidden">
 
-    <!-- KPI Metric Cards: Added Total Engagement Rate & Waiting Upload -->
+    <!-- KPI Metric Cards -->
     <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 sm:gap-4">
-      
-      <!-- Total Posts (Uploaded) -->
       <div class="bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-sm">
         <div class="flex items-center justify-between mb-1.5">
           <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-600">Total Posts</span>
@@ -94,7 +86,6 @@
         <span class="text-[11px] text-neutral-500 font-medium">Uploaded status</span>
       </div>
 
-      <!-- Waiting Upload -->
       <div class="bg-amber-50/40 p-5 rounded-2xl border border-amber-200/80 shadow-sm">
         <div class="flex items-center justify-between mb-1.5">
           <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700">Waiting Upload</span>
@@ -104,7 +95,6 @@
         <span class="text-[11px] text-amber-700/80 font-medium">Pending posts</span>
       </div>
 
-      <!-- Avg / Total Engagement Rate -->
       <div class="bg-indigo-50/40 p-5 rounded-2xl border border-indigo-200/80 shadow-sm">
         <div class="flex items-center justify-between mb-1.5">
           <span class="text-[10px] font-bold uppercase tracking-widest text-indigo-700">Total ER</span>
@@ -114,7 +104,6 @@
         <span class="text-[11px] text-indigo-700/80 font-medium">Engagement Rate</span>
       </div>
 
-      <!-- Total Views -->
       <div class="bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-sm">
         <div class="flex items-center justify-between mb-1.5">
           <span class="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Total Views</span>
@@ -124,7 +113,6 @@
         <span class="text-[11px] text-neutral-500 font-medium">Impressions</span>
       </div>
 
-      <!-- Total Likes -->
       <div class="bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-sm">
         <div class="flex items-center justify-between mb-1.5">
           <span class="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Total Likes</span>
@@ -134,7 +122,6 @@
         <span class="text-[11px] text-neutral-500 font-medium">Audience likes</span>
       </div>
 
-      <!-- Total Comments -->
       <div class="bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-sm">
         <div class="flex items-center justify-between mb-1.5">
           <span class="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Comments</span>
@@ -144,7 +131,6 @@
         <span class="text-[11px] text-neutral-500 font-medium">Discussions</span>
       </div>
 
-      <!-- Total Reposts -->
       <div class="col-span-2 sm:col-span-1 bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-sm">
         <div class="flex items-center justify-between mb-1.5">
           <span class="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Reposts</span>
@@ -155,7 +141,7 @@
       </div>
     </section>
 
-    <!-- Demographic Distribution: Chart Left, Pill Badges Right -->
+    <!-- Demographic Distribution -->
     <section class="bg-white p-6 rounded-3xl border border-neutral-200/80 shadow-sm">
       <div class="flex items-center justify-between border-b border-neutral-100 pb-4 mb-6">
         <div>
@@ -166,22 +152,19 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-        <!-- Doughnut / Pie Chart on Left -->
         <div class="md:col-span-4 flex flex-col items-center justify-center p-2">
           <div class="relative w-48 h-48 sm:w-56 sm:h-56">
             <canvas id="demographicChart"></canvas>
           </div>
           <span class="text-[11px] text-neutral-400 font-medium mt-3">Regional Share %</span>
         </div>
-
-        <!-- Badges on Right -->
         <div class="md:col-span-8 flex flex-col justify-center">
           <div id="nationalityBadges" class="flex flex-wrap gap-2.5"></div>
         </div>
       </div>
     </section>
 
-    <!-- Deliverables Table (Uploaded ONLY) -->
+    <!-- Deliverables Table -->
     <section class="bg-white rounded-3xl border border-neutral-200/80 shadow-sm overflow-hidden">
       <div class="p-5 sm:p-6 border-b border-neutral-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -223,11 +206,11 @@
       </div>
     </section>
 
-    <!-- Creative Content Showcase -->
+    <!-- Creative Showcase Grid -->
     <section class="space-y-4">
       <div>
         <h2 class="text-xs font-bold uppercase tracking-widest text-neutral-400">Creative Content Showcase</h2>
-        <p class="text-xs text-neutral-500">Direct Instagram Reels from Uploaded Posts</p>
+        <p class="text-xs text-neutral-500">Live Instagram Reels from Uploaded Posts</p>
       </div>
       <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </section>
@@ -235,10 +218,14 @@
   </main>
 
   <script>
+    // URL Web App Google Apps Script kamu
     const APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby8SwMfWyW1y6xDLh1yOX9c0PZ26IPLJr9PMgzxZpnBl9EgxybIqgWCkjK9vQihjXkFwA/exec";
+    
+    // DEFAULT DATABASE NAAP JIKA URL PARAMETER KOSONG
+    const DEFAULT_NAAP_DB = "391ce5b809f980f2b664e3232612bf78";
 
     const urlParams = new URLSearchParams(window.location.search);
-    const dbId = urlParams.get('db');
+    const dbId = urlParams.get('db') || DEFAULT_NAAP_DB;
     const brandName = urlParams.get('brand') || "NAAP";
 
     const nf = new Intl.NumberFormat();
@@ -248,7 +235,10 @@
     let sortAsc = false;
     let currentSortKey = 'views';
 
-    // Normalize duplicates: Morocco, Moroccan, Korean Moroccan -> Morocco
+    document.getElementById("brandTitle").innerText = `${brandName.toUpperCase()} KOL Performance`;
+    document.title = `${brandName.toUpperCase()} - KOL Performance Report`;
+
+    // Normalisasi Nama Negara
     function normalizeCountry(raw) {
       if (!raw) return "Global";
       const str = String(raw).trim().toLowerCase();
@@ -270,125 +260,87 @@
       return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
-    // Accurate Parser for Notion raw properties (prevents zeroes if keys vary)
     function sanitizeRow(raw) {
       const views = Number(raw.views || raw.Views || 0) || 0;
       const likes = Number(raw.likes || raw.Likes || 0) || 0;
       const comments = Number(raw.comments || raw.Comments || 0) || 0;
       const reposts = Number(raw.reposts || raw.Reposts || 0) || 0;
       
-      // Calculate ER %: (Likes + Comments + Reposts) / Views * 100
       let er = 0;
-      if (raw.post_er) {
+      if (raw.post_er !== undefined && raw.post_er !== null && raw.post_er !== "") {
         er = parseFloat(String(raw.post_er).replace('%', '')) || 0;
       } else if (views > 0) {
         er = ((likes + comments + reposts) / views) * 100;
       }
 
       return {
-        id: raw.id || raw.Formula || raw.influencer || raw.formula || "creator",
+        id: raw.id || raw.Formula || raw.influencer || "creator",
         name: raw.name || raw.Full_Name || raw["Full Name"] || "-",
-        country: normalizeCountry(raw.country || raw.Nationality || raw.nationality || "Global"),
-        status: (raw.status || raw.Status || "").trim(),
+        country: normalizeCountry(raw.country || raw.Nationality || "Global"),
+        status: String(raw.status || raw.Status || "").trim(),
         likes: likes,
         comments: comments,
         views: views,
         reposts: reposts,
         er: er,
-        contentUrl: raw.contentUrl || raw.Link_Content || raw["Link Content"] || raw.url || raw.Instagram_Link || raw["Instagram Link"] || "#"
+        contentUrl: raw.contentUrl || raw.Link_Content || raw["Link Content"] || raw.url || "#"
       };
     }
 
-    // NAAP dataset directly reflecting your Notion view screenshot
-    const naapSampleData = [
-      { id: "aakriti.panday93", name: "Aakriti panday", country: "Nepali", status: "Uploaded", likes: 21, comments: 4, views: 6850, reposts: 2, post_er: 19.08, contentUrl: "https://www.instagram.com/reel/C8XYZabc" },
-      { id: "fati_kim0", name: "Asseydi fatimaezzahra", country: "Moroccan", status: "Uploaded", likes: 81, comments: 51, views: 1026, reposts: 1, post_er: 2.13, contentUrl: "https://www.instagram.com/reel/C8XYZabd" },
-      { id: "baharibaastani", name: "BASTANIBAHAREH", country: "Iran", status: "Uploaded", likes: 139, comments: 7, views: 15860, reposts: 3, post_er: 0.89, contentUrl: "https://www.instagram.com/reel/C8XYZabe" },
-      { id: "_its.haneen__", name: "Begzoda Mahina", country: "Tajikistan", status: "Uploaded", likes: 3, comments: 4, views: 10012, reposts: 3, post_er: 0.02, contentUrl: "https://www.instagram.com/reel/C8XYZabf" },
-      { id: "i.am_lilly", name: "BELKAID AHLAM", country: "Korean Moroccan", status: "Uploaded", likes: 39, comments: 4, views: 2863, reposts: 4, post_er: 0.28, contentUrl: "https://www.instagram.com/reel/C8XYZabg" },
-      { id: "ozgeercan23", name: "Ercan Ozge", country: "Turkish", status: "Uploaded", likes: 3, comments: 5, views: 1164, reposts: 2, post_er: 0.07, contentUrl: "https://www.instagram.com/reel/C8XYZabh" },
-      { id: "essraa.tarek", name: "Esraa tarek", country: "Egyptian", status: "Uploaded", likes: 121, comments: 20, views: 7228, reposts: 5, post_er: 1.36, contentUrl: "https://www.instagram.com/reel/C8XYZabi" },
-      { id: "eyaaa0_0", name: "Aya Mourdi", country: "Morocco", status: "Waiting Upload", likes: 0, comments: 0, views: 0, reposts: 0, contentUrl: "" },
-      { id: "kuriyatiya", name: "manar moon", country: "Korean", status: "Waiting Upload", likes: 0, comments: 0, views: 0, reposts: 0, contentUrl: "" },
-      { id: "rd.mwi", name: "reham", country: "saudi", status: "Waiting Upload", likes: 0, comments: 0, views: 0, reposts: 0, contentUrl: "" },
-      { id: "m.gumiho", name: "Tabazmanal", country: "Moroccan", status: "Waiting Approval", likes: 0, comments: 0, views: 0, reposts: 0, contentUrl: "" },
-      { id: "baekmonarch", name: "Jahandar Mona", country: "Persian", status: "Waiting Approval", likes: 0, comments: 0, views: 0, reposts: 0, contentUrl: "" }
-    ];
-
-    // Initial flow: If no `?db=` in URL, show admin panel to input Notion link
-    if (!dbId) {
-      document.getElementById("adminPanel").classList.remove("hidden");
-      document.getElementById("topNav").classList.add("hidden");
-      document.getElementById("dashboardContent").classList.add("hidden");
-    } else {
-      document.getElementById("brandTitle").innerText = `${brandName} Performance Report`;
-      document.title = `${brandName} - KOL Performance`;
-      document.getElementById("topNav").classList.remove("hidden");
-      document.getElementById("adminPanel").classList.add("hidden");
-      fetchCampaignData(dbId);
-    }
-
-    function loadSampleNAAP() {
-      document.getElementById("adminPanel").classList.add("hidden");
-      document.getElementById("topNav").classList.remove("hidden");
-      document.getElementById("brandTitle").innerText = `NAAP KOL Performance`;
-      allCampaignData = naapSampleData.map(sanitizeRow);
-      processAndRender(allCampaignData);
-      document.getElementById("dashboardContent").classList.remove("hidden");
-    }
-
-    function changeCampaign() {
-      window.location.href = window.location.pathname;
-    }
-
-    async function fetchCampaignData(databaseId) {
+    async function loadCampaignData(databaseId) {
       document.getElementById("loadingBox").classList.remove("hidden");
+      document.getElementById("dashboardContent").classList.add("hidden");
+
       try {
         const targetUrl = `${APPS_SCRIPT_WEBAPP_URL}?db=${databaseId}`;
         const response = await fetch(targetUrl, { method: "GET", redirect: "follow" });
-        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+        if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
+        
         const result = await response.json();
-
         if (result.success && result.data && result.data.length > 0) {
           allCampaignData = result.data.map(sanitizeRow);
           processAndRender(allCampaignData);
           document.getElementById("loadingBox").classList.add("hidden");
           document.getElementById("dashboardContent").classList.remove("hidden");
         } else {
-          alert("Data kosong atau struktur kolom Notion berbeda. Menampilkan sampel NAAP agar layout tetap terlihat.");
-          loadSampleNAAP();
+          throw new Error(result.error || "Data kosong dari Notion.");
         }
       } catch (err) {
-        alert("Koneksi gagal: " + err.message + ". Membuka data preview NAAP.");
-        loadSampleNAAP();
+        console.error("Gagal menarik data live:", err);
+        document.getElementById("loadingBox").innerHTML = `
+          <div class="p-6 bg-red-50 border border-red-200 rounded-2xl max-w-lg mx-auto text-red-800 text-xs">
+            <p class="font-bold mb-1">Gagal Menghubungkan ke Notion</p>
+            <p class="text-neutral-600 mb-3">${err.message}</p>
+            <button onclick="location.reload()" class="px-4 py-1.5 bg-neutral-900 text-white rounded-lg font-bold">Coba Refresh</button>
+          </div>
+        `;
       }
     }
 
     function processAndRender(data) {
+      // Saring status: Uploaded vs Waiting Upload
       const isUploaded = (d) => d.status.toLowerCase() === "uploaded";
-      const isWaitingUpload = (d) => d.status.toLowerCase().includes("waiting upl");
+      const isWaiting = (d) => d.status.toLowerCase().includes("waiting upl");
 
       uploadedOnlyData = data.filter(isUploaded);
-      const waitingUploadList = data.filter(isWaitingUpload);
+      const waitingList = data.filter(isWaiting);
 
-      // Aggregate Metrics
-      const totalViews = uploadedOnlyData.reduce((acc, cur) => acc + cur.views, 0);
-      const totalLikes = uploadedOnlyData.reduce((acc, cur) => acc + cur.likes, 0);
-      const totalComments = uploadedOnlyData.reduce((acc, cur) => acc + cur.comments, 0);
-      const totalReposts = uploadedOnlyData.reduce((acc, cur) => acc + cur.reposts, 0);
-
-      // Total Overall Engagement Rate %
+      // Hitung KPI
+      const totalViews = uploadedOnlyData.reduce((a, b) => a + b.views, 0);
+      const totalLikes = uploadedOnlyData.reduce((a, b) => a + b.likes, 0);
+      const totalComments = uploadedOnlyData.reduce((a, b) => a + b.comments, 0);
+      const totalReposts = uploadedOnlyData.reduce((a, b) => a + b.reposts, 0);
       const totalER = totalViews > 0 ? ((totalLikes + totalComments + totalReposts) / totalViews) * 100 : 0;
 
       document.getElementById("kpiUploaded").innerText = uploadedOnlyData.length;
-      document.getElementById("kpiWaitingUpload").innerText = waitingUploadList.length;
+      document.getElementById("kpiWaitingUpload").innerText = waitingList.length;
       document.getElementById("kpiTotalER").innerText = `${totalER.toFixed(2)}%`;
       document.getElementById("kpiViews").innerText = nf.format(totalViews);
       document.getElementById("kpiLikes").innerText = nf.format(totalLikes);
       document.getElementById("kpiComments").innerText = nf.format(totalComments);
       document.getElementById("kpiReposts").innerText = nf.format(totalReposts);
 
-      // Demographic distribution with normalized names
+      // Demografi
       const natCounts = {};
       data.forEach(d => {
         natCounts[d.country] = (natCounts[d.country] || 0) + 1;
@@ -397,13 +349,12 @@
       const sortedCountries = Object.entries(natCounts).sort((a, b) => b[1] - a[1]);
       document.getElementById("natTotalText").innerText = `${sortedCountries.length} Countries Total`;
 
-      // Render Badges
       const natContainer = document.getElementById("nationalityBadges");
       natContainer.innerHTML = "";
-      sortedCountries.forEach(([country, count]) => {
+      sortedCountries.forEach(([c, count]) => {
         const badge = document.createElement("div");
         badge.className = "px-3.5 py-1.5 rounded-2xl bg-neutral-100 text-xs font-semibold text-neutral-800 flex items-center gap-2 border border-neutral-200/80 shadow-2xs";
-        badge.innerHTML = `<span>${country}</span><span class="bg-white px-2 py-0.5 rounded-full text-[10px] text-neutral-900 font-extrabold border border-neutral-200">${count}</span>`;
+        badge.innerHTML = `<span>${c}</span><span class="bg-white px-2 py-0.5 rounded-full text-[10px] text-neutral-900 font-black border border-neutral-200">${count}</span>`;
         natContainer.appendChild(badge);
       });
 
@@ -418,7 +369,6 @@
 
       const labels = countryPairs.map(p => p[0]);
       const counts = countryPairs.map(p => p[1]);
-
       const palette = ['#171717', '#404040', '#737373', '#a3a3a3', '#d4d4d4', '#0284c7', '#0d9488', '#f59e0b', '#ec4899', '#8b5cf6'];
 
       pieChartInstance = new Chart(ctx, {
@@ -482,14 +432,13 @@
       
       const reels = data.slice(0, 9);
       if (reels.length === 0) {
-        videoGrid.innerHTML = `<div class="col-span-3 text-center py-10 text-neutral-400 text-xs">No reels uploaded yet.</div>`;
+        videoGrid.innerHTML = `<div class="col-span-3 text-center py-10 text-neutral-400 text-xs">No reels available.</div>`;
         return;
       }
 
       reels.forEach(row => {
         const rawUrl = (row.contentUrl || "").trim();
         let embedUrl = "";
-        
         if (rawUrl.includes("instagram.com")) {
           const clean = rawUrl.endsWith('/') ? rawUrl : `${rawUrl}/`;
           embedUrl = `${clean}embed/`;
@@ -558,7 +507,10 @@
       renderTable(uploadedOnlyData);
     }
 
-    // Improved Regex to extract Notion Database ID accurately from any Notion Link format
+    function toggleSetupModal() {
+      document.getElementById("setupModal").classList.toggle("hidden");
+    }
+
     function extractNotionId(input) {
       if (!input) return "";
       const match = input.match(/[a-f0-9]{32}/i);
@@ -567,23 +519,20 @@
       return dashed ? dashed[0].replace(/-/g, "") : input.trim();
     }
 
-    function generateShareableLink() {
-      const name = document.getElementById("inputBrandName").value.trim() || "NAAP";
+    function applyNewCampaign() {
+      const name = document.getElementById("inputBrandName").value.trim() || "Campaign";
       const link = document.getElementById("inputNotionLink").value.trim();
       const extractedId = extractNotionId(link);
-
       if (!extractedId) {
-        alert("Mohon masukkan link Notion database yang valid.");
+        alert("Masukkan link atau 32-karakter Database ID Notion.");
         return;
       }
-
-      const newUrl = `${window.location.origin}${window.location.pathname}?db=${extractedId}&brand=${encodeURIComponent(name)}`;
-      window.location.href = newUrl;
+      window.location.href = `${window.location.origin}${window.location.pathname}?db=${extractedId}&brand=${encodeURIComponent(name)}`;
     }
 
     function copyCurrentLink() {
       navigator.clipboard.writeText(window.location.href);
-      alert("Report URL berhasil di-copy!");
+      alert("Report URL copied to clipboard.");
     }
 
     function downloadCSV() {
@@ -610,6 +559,9 @@
       );
       renderTable(filtered);
     });
+
+    // Jalankan pengambilan data otomatis saat web dimuat
+    loadCampaignData(dbId);
   </script>
 </body>
 </html>
