@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NAAP KOL Campaign Performance Report</title>
+  <title>KOL Campaign Performance Report</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -17,7 +17,7 @@
 </head>
 <body class="bg-neutral-50/70 text-neutral-900 antialiased min-h-screen pb-24">
 
-  <!-- Sticky Monochromatic Header -->
+  <!-- Sticky Header -->
   <nav class="sticky top-0 z-50 glass border-b border-neutral-200/80 px-6 py-4 transition-all">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div class="flex items-center gap-3">
@@ -26,13 +26,13 @@
           <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
         </span>
         <div>
-          <h1 id="brandTitle" class="text-base sm:text-lg font-extrabold text-neutral-900 tracking-tight">NAAP KOL Performance</h1>
-          <p class="text-[11px] text-neutral-500 font-medium">Verified Deliverables & Engagement Analytics</p>
+          <h1 id="brandTitle" class="text-base sm:text-lg font-extrabold text-neutral-900 tracking-tight">KOL Performance</h1>
+          <p id="sourceSubTitle" class="text-[11px] text-neutral-500 font-medium">Verified Deliverables & Engagement Analytics</p>
         </div>
       </div>
       <div class="flex items-center gap-2">
         <button onclick="toggleSetupModal()" class="px-3.5 py-2 bg-neutral-100 border border-neutral-200 text-neutral-700 text-xs font-semibold rounded-xl hover:bg-neutral-200 transition shadow-sm">
-          Change Campaign
+          Change Source
         </button>
         <button onclick="copyCurrentLink()" class="px-3.5 py-2 bg-white border border-neutral-300 text-neutral-800 text-xs font-semibold rounded-xl hover:bg-neutral-50 transition shadow-sm">
           Copy Link
@@ -45,23 +45,31 @@
     </div>
   </nav>
 
-  <!-- Modal Change Campaign -->
+  <!-- Modal Switch Source (Notion or Google Sheet) -->
   <div id="setupModal" class="fixed inset-0 bg-neutral-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white max-w-md w-full p-6 rounded-3xl shadow-2xl border border-neutral-200 space-y-4">
       <div class="flex items-center justify-between">
-        <h3 class="text-sm font-bold text-neutral-900">Switch Notion Campaign</h3>
+        <div>
+          <h3 class="text-sm font-bold text-neutral-900">Load Campaign Data</h3>
+          <p class="text-[11px] text-neutral-400">Supports Notion Database or Google Sheets Link</p>
+        </div>
         <button onclick="toggleSetupModal()" class="text-neutral-400 hover:text-neutral-700 text-xs font-bold">✕</button>
       </div>
       <div>
-        <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Campaign Name</label>
-        <input id="inputBrandName" type="text" placeholder="e.g. NAAP" class="w-full px-3.5 py-2 text-xs border border-neutral-300 rounded-xl outline-none focus:border-neutral-900">
+        <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Campaign / Brand Name</label>
+        <input id="inputBrandName" type="text" placeholder="e.g. NAAP, Brand XYZ" class="w-full px-3.5 py-2 text-xs border border-neutral-300 rounded-xl outline-none focus:border-neutral-900">
       </div>
       <div>
-        <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Notion Database ID or URL</label>
-        <input id="inputNotionLink" type="text" placeholder="Paste Notion Link or 32-char ID..." class="w-full px-3.5 py-2 text-xs border border-neutral-300 rounded-xl outline-none focus:border-neutral-900">
+        <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Source URL or ID</label>
+        <textarea id="inputSourceLink" rows="3" placeholder="Paste Notion Link / Notion Database ID OR Public Google Sheets Link..." class="w-full px-3.5 py-2 text-xs border border-neutral-300 rounded-xl outline-none focus:border-neutral-900 resize-none"></textarea>
       </div>
-      <button onclick="applyNewCampaign()" class="w-full py-2.5 bg-neutral-900 text-white font-bold text-xs rounded-xl hover:bg-neutral-800 transition shadow">
-        Load Report ↗
+      <div class="p-3 bg-neutral-50 border border-neutral-200 rounded-xl text-[11px] text-neutral-500 space-y-1">
+        <p class="font-semibold text-neutral-700">Supported Formats:</p>
+        <p>• <b>Notion</b>: Paste link database atau 32-char ID</p>
+        <p>• <b>Google Sheets</b>: Paste link share sheet (Pastikan akses: <i>Anyone with the link can view</i>)</p>
+      </div>
+      <button onclick="applyNewSource()" class="w-full py-2.5 bg-neutral-900 text-white font-bold text-xs rounded-xl hover:bg-neutral-800 transition shadow">
+        Generate Report ↗
       </button>
     </div>
   </div>
@@ -69,10 +77,10 @@
   <!-- Loading State -->
   <div id="loadingBox" class="max-w-7xl mx-auto px-6 py-28 text-center space-y-4">
     <div class="inline-block h-8 w-8 animate-spin rounded-full border-2 border-neutral-900 border-r-transparent"></div>
-    <p class="text-xs font-semibold tracking-widest text-neutral-500 uppercase">Fetching live records from Notion...</p>
+    <p id="loadingStatusText" class="text-xs font-semibold tracking-widest text-neutral-500 uppercase">Fetching live campaign data...</p>
   </div>
 
-  <!-- Main Dashboard Content -->
+  <!-- Dashboard Container -->
   <main id="dashboardContent" class="max-w-7xl mx-auto px-4 sm:px-6 pt-8 space-y-8 hidden">
 
     <!-- KPI Metric Cards -->
@@ -141,7 +149,7 @@
       </div>
     </section>
 
-    <!-- Demographic Distribution (Uploaded & Waiting Upload Only) -->
+    <!-- Demographic Distribution (Active Creators Only) -->
     <section class="bg-white p-6 rounded-3xl border border-neutral-200/80 shadow-sm">
       <div class="flex items-center justify-between border-b border-neutral-100 pb-4 mb-6">
         <div>
@@ -173,7 +181,7 @@
             <span class="px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 rounded-full">Uploaded Only</span>
             <span id="uploadedCountBadge" class="text-[11px] font-semibold bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded-full">0 posts</span>
           </div>
-          <p class="text-xs text-neutral-400 mt-0.5">Direct content reel links & individual engagement rates</p>
+          <p class="text-xs text-neutral-400 mt-0.5">Direct content links & individual engagement metrics</p>
         </div>
         <div class="relative w-full sm:w-72">
           <svg class="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -206,11 +214,11 @@
       </div>
     </section>
 
-    <!-- Creative Showcase Grid (Autoplay / Preview enabled) -->
+    <!-- Creative Showcase Grid -->
     <section class="space-y-4">
       <div>
         <h2 class="text-xs font-bold uppercase tracking-widest text-neutral-400">Creative Content Showcase</h2>
-        <p class="text-xs text-neutral-500">Live Instagram Reels from Uploaded Posts</p>
+        <p class="text-xs text-neutral-500">Live Post Reels from Uploaded Posts</p>
       </div>
       <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </section>
@@ -222,7 +230,8 @@
     const DEFAULT_NAAP_DB = "391ce5b809f980f2b664e3232612bf78";
 
     const urlParams = new URLSearchParams(window.location.search);
-    const dbId = urlParams.get('db') || DEFAULT_NAAP_DB;
+    const dbParam = urlParams.get('db');
+    const sheetParam = urlParams.get('sheet');
     const brandName = urlParams.get('brand') || "NAAP";
 
     const nf = new Intl.NumberFormat();
@@ -274,10 +283,10 @@
       }
 
       return {
-        id: raw.id || raw.Formula || raw.influencer || "creator",
+        id: String(raw.id || raw.Formula || raw.influencer || "creator").replace(/^@/, ''),
         name: raw.name || raw.Full_Name || raw["Full Name"] || "-",
         country: normalizeCountry(raw.country || raw.Nationality || "Global"),
-        status: String(raw.status || raw.Status || "").trim(),
+        status: String(raw.status || raw.Status || "Uploaded").trim(),
         likes: likes,
         comments: comments,
         views: views,
@@ -287,45 +296,148 @@
       };
     }
 
-    async function loadCampaignData(databaseId) {
+    // ------------------------------------------------------------------
+    // ROUTING SUMBER DATA: NOTION vs GOOGLE SHEETS
+    // ------------------------------------------------------------------
+    function initDataLoading() {
+      if (sheetParam) {
+        loadDataFromGoogleSheets(sheetParam);
+      } else {
+        const activeNotionDb = dbParam || DEFAULT_NAAP_DB;
+        loadDataFromNotion(activeNotionDb);
+      }
+    }
+
+    // 1. Data Loader dari NOTION (via Apps Script JSONP)
+    function loadDataFromNotion(databaseId) {
       document.getElementById("loadingBox").classList.remove("hidden");
       document.getElementById("dashboardContent").classList.add("hidden");
+      document.getElementById("sourceSubTitle").innerText = `Notion Database Source: ${databaseId.slice(0, 8)}...`;
 
-      try {
-        const targetUrl = `${APPS_SCRIPT_WEBAPP_URL}?db=${databaseId}`;
-        const response = await fetch(targetUrl, { method: "GET", redirect: "follow" });
-        if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
-        
-        const result = await response.json();
-        if (result.success && result.data && result.data.length > 0) {
+      const callbackName = "notion_cb_" + Date.now();
+
+      window[callbackName] = function(result) {
+        const scriptEl = document.getElementById(callbackName);
+        if (scriptEl) scriptEl.remove();
+        delete window[callbackName];
+
+        if (result && result.success && result.data && result.data.length > 0) {
           allCampaignData = result.data.map(sanitizeRow);
           processAndRender(allCampaignData);
           document.getElementById("loadingBox").classList.add("hidden");
           document.getElementById("dashboardContent").classList.remove("hidden");
         } else {
-          throw new Error(result.error || "Data kosong dari Notion.");
+          showErrorNotice(result ? (result.error || "Database Notion kosong.") : "Gagal memuat Notion.");
         }
+      };
+
+      const script = document.createElement("script");
+      script.id = callbackName;
+      script.src = `${APPS_SCRIPT_WEBAPP_URL}?db=${databaseId}&callback=${callbackName}`;
+      script.onerror = () => showErrorNotice("Gagal menghubungi server Apps Script. Cek koneksi.");
+      document.body.appendChild(script);
+    }
+
+    // 2. Data Loader dari GOOGLE SHEETS LANGSUNG (CSV Visualization API)
+    async function loadDataFromGoogleSheets(sheetId) {
+      document.getElementById("loadingBox").classList.remove("hidden");
+      document.getElementById("dashboardContent").classList.add("hidden");
+      document.getElementById("sourceSubTitle").innerText = `Google Sheets Source: ${sheetId.slice(0, 10)}...`;
+
+      try {
+        const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
+        const response = await fetch(csvUrl);
+        if (!response.ok) throw new Error("Gagal mengambil file sheet. Pastikan sheet diatur ke 'Anyone with the link can view'.");
+        
+        const csvText = await response.text();
+        const parsedRows = parseCSV(csvText);
+
+        if (parsedRows.length <= 1) throw new Error("Sheet target kosong atau format tidak sesuai.");
+
+        allCampaignData = mapSheetRowsToObjects(parsedRows).map(sanitizeRow);
+        processAndRender(allCampaignData);
+
+        document.getElementById("loadingBox").classList.add("hidden");
+        document.getElementById("dashboardContent").classList.remove("hidden");
       } catch (err) {
-        console.error("Gagal menarik data live:", err);
-        document.getElementById("loadingBox").innerHTML = `
-          <div class="p-6 bg-red-50 border border-red-200 rounded-2xl max-w-lg mx-auto text-red-800 text-xs">
-            <p class="font-bold mb-1">Gagal Menghubungkan ke Notion</p>
-            <p class="text-neutral-600 mb-3">${err.message}</p>
-            <button onclick="location.reload()" class="px-4 py-1.5 bg-neutral-900 text-white rounded-lg font-bold">Coba Refresh</button>
-          </div>
-        `;
+        showErrorNotice(err.message);
       }
     }
 
+    // Helper Parser CSV Sederhana & Aman
+    function parseCSV(text) {
+      const p = [];
+      let row = [''];
+      let inQuotes = false;
+      for (let i = 0; i < text.length; i++) {
+        let c = text[i], next = text[i+1];
+        if (c === '"') {
+          if (inQuotes && next === '"') { row[row.length - 1] += '"'; i++; }
+          else { inQuotes = !inQuotes; }
+        } else if (c === ',' && !inQuotes) {
+          row.push('');
+        } else if ((c === '\r' || c === '\n') && !inQuotes) {
+          if (c === '\r' && next === '\n') { i++; }
+          p.push(row);
+          row = [''];
+        } else {
+          row[row.length - 1] += c;
+        }
+      }
+      if (row.length > 1 || row[0] !== '') p.push(row);
+      return p;
+    }
+
+    // Pemetaan Header Kolom Fleksibel dari Google Sheets Random
+    function mapSheetRowsToObjects(rows) {
+      const headers = rows[0].map(h => String(h).trim().toLowerCase());
+      
+      const colMap = {
+        id: headers.findIndex(h => h.includes('influencer') || h.includes('username') || h === 'id' || h.includes('formula')),
+        name: headers.findIndex(h => h.includes('full name') || h.includes('nama') || h === 'name'),
+        country: headers.findIndex(h => h.includes('country') || h.includes('nationality') || h.includes('region')),
+        views: headers.findIndex(h => h.includes('view')),
+        likes: headers.findIndex(h => h.includes('like')),
+        comments: headers.findIndex(h => h.includes('comment')),
+        reposts: headers.findIndex(h => h.includes('repost') || h.includes('share')),
+        post_er: headers.findIndex(h => h.includes('er') || h.includes('engagement')),
+        url: headers.findIndex(h => h.includes('link') || h.includes('url') || h.includes('post_url')),
+        status: headers.findIndex(h => h.includes('status'))
+      };
+
+      const result = [];
+      for (let r = 1; r < rows.length; r++) {
+        const row = rows[r];
+        const idVal = colMap.id !== -1 ? row[colMap.id] : "";
+        if (!idVal) continue;
+
+        result.push({
+          id: idVal,
+          name: colMap.name !== -1 ? row[colMap.name] : "-",
+          country: colMap.country !== -1 ? row[colMap.country] : "Global",
+          views: colMap.views !== -1 ? row[colMap.views] : 0,
+          likes: colMap.likes !== -1 ? row[colMap.likes] : 0,
+          comments: colMap.comments !== -1 ? row[colMap.comments] : 0,
+          reposts: colMap.reposts !== -1 ? row[colMap.reposts] : 0,
+          post_er: colMap.post_er !== -1 ? row[colMap.post_er] : 0,
+          contentUrl: colMap.url !== -1 ? row[colMap.url] : "#",
+          status: colMap.status !== -1 && row[colMap.status] ? row[colMap.status] : "Uploaded"
+        });
+      }
+      return result;
+    }
+
+    // ------------------------------------------------------------------
+    // RENDER METRIK, CHART, DAN TABEL
+    // ------------------------------------------------------------------
     function processAndRender(data) {
       const isUploaded = (d) => d.status.toLowerCase() === "uploaded";
-      const isWaiting = (d) => d.status.toLowerCase().includes("waiting upl");
+      const isWaiting = (d) => d.status.toLowerCase().includes("waiting");
 
       uploadedOnlyData = data.filter(isUploaded);
       const waitingList = data.filter(isWaiting);
 
-      // 1. REVISI DEMOGRAPHIC DISTRIBUTION:
-      // Hanya menghitung baris yang statusnya Uploaded atau Waiting Upload
+      // Saring creator aktif untuk Demografi: Uploaded + Waiting Upload
       const activeCreators = data.filter(d => isUploaded(d) || isWaiting(d));
 
       const totalViews = uploadedOnlyData.reduce((a, b) => a + b.views, 0);
@@ -342,7 +454,7 @@
       document.getElementById("kpiComments").innerText = nf.format(totalComments);
       document.getElementById("kpiReposts").innerText = nf.format(totalReposts);
 
-      // Hitung Demografi HANYA dari Active KOLs (Uploaded + Waiting Upload)
+      // Hitung Demografi hanya dari Active Creators
       const natCounts = {};
       activeCreators.forEach(d => {
         natCounts[d.country] = (natCounts[d.country] || 0) + 1;
@@ -428,7 +540,6 @@
       });
     }
 
-    // 2. CREATIVE SHOWCASE: Ditambahkan allow autoplay dan param autoplay
     function renderVideoGrid(data) {
       const videoGrid = document.getElementById("videoGrid");
       videoGrid.innerHTML = "";
@@ -444,7 +555,6 @@
         let embedUrl = "";
         if (rawUrl.includes("instagram.com")) {
           const clean = rawUrl.endsWith('/') ? rawUrl : `${rawUrl}/`;
-          // Param autoplay & muted preview untuk reel iframe
           embedUrl = `${clean}embed/?autoplay=1&muted=1`;
         }
 
@@ -473,8 +583,8 @@
               </iframe>
             ` : `
               <div class="text-center p-6 text-neutral-400">
-                <p class="text-xs font-semibold mb-2">Instagram Reel</p>
-                <a href="${rawUrl}" target="_blank" class="px-4 py-2 bg-white text-neutral-900 font-bold text-xs rounded-xl shadow">Open on Instagram ↗</a>
+                <p class="text-xs font-semibold mb-2">Post Preview</p>
+                <a href="${rawUrl}" target="_blank" class="px-4 py-2 bg-white text-neutral-900 font-bold text-xs rounded-xl shadow">Open Link ↗</a>
               </div>
             `}
           </div>
@@ -516,23 +626,45 @@
       document.getElementById("setupModal").classList.toggle("hidden");
     }
 
-    function extractNotionId(input) {
-      if (!input) return "";
-      const match = input.match(/[a-f0-9]{32}/i);
-      if (match) return match[0];
-      const dashed = input.match(/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/i);
-      return dashed ? dashed[0].replace(/-/g, "") : input.trim();
-    }
-
-    function applyNewCampaign() {
+    // Ekstraksi ID Universal: Mendeteksi Notion vs Google Sheets
+    function applyNewSource() {
       const name = document.getElementById("inputBrandName").value.trim() || "Campaign";
-      const link = document.getElementById("inputNotionLink").value.trim();
-      const extractedId = extractNotionId(link);
-      if (!extractedId) {
-        alert("Masukkan link atau 32-karakter Database ID Notion.");
+      const rawInput = document.getElementById("inputSourceLink").value.trim();
+
+      if (!rawInput) {
+        alert("Harap masukkan URL Notion atau URL Google Sheet.");
         return;
       }
-      window.location.href = `${window.location.origin}${window.location.pathname}?db=${extractedId}&brand=${encodeURIComponent(name)}`;
+
+      // Deteksi Google Sheets
+      const sheetMatch = rawInput.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+      if (sheetMatch) {
+        const sheetId = sheetMatch[1];
+        window.location.href = `${window.location.origin}${window.location.pathname}?sheet=${sheetId}&brand=${encodeURIComponent(name)}`;
+        return;
+      }
+
+      // Deteksi Notion Database ID
+      const notionMatch = rawInput.match(/[a-f0-9]{32}/i);
+      const notionDashed = rawInput.match(/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/i);
+      const cleanNotionId = notionMatch ? notionMatch[0] : (notionDashed ? notionDashed[0].replace(/-/g, "") : "");
+
+      if (cleanNotionId) {
+        window.location.href = `${window.location.origin}${window.location.pathname}?db=${cleanNotionId}&brand=${encodeURIComponent(name)}`;
+        return;
+      }
+
+      alert("Tautan tidak dikenali. Masukkan link database Notion atau Google Sheets yang valid.");
+    }
+
+    function showErrorNotice(msg) {
+      document.getElementById("loadingBox").innerHTML = `
+        <div class="p-6 bg-red-50 border border-red-200 rounded-3xl max-w-lg mx-auto text-red-800 text-xs text-center space-y-3 shadow-sm">
+          <p class="font-black text-sm">Gagal Mengambil Data</p>
+          <p class="text-neutral-600">${msg}</p>
+          <button onclick="location.reload()" class="px-5 py-2 bg-neutral-900 text-white font-bold rounded-xl hover:bg-neutral-800 transition">Coba Refresh ↗</button>
+        </div>
+      `;
     }
 
     function copyCurrentLink() {
@@ -541,7 +673,7 @@
     }
 
     function downloadCSV() {
-      const headers = ["Influencer ID", "Full Name", "Nationality", "Views", "Likes", "Comments", "Reposts", "ER %", "Content Reel URL"];
+      const headers = ["Influencer ID", "Full Name", "Nationality", "Views", "Likes", "Comments", "Reposts", "ER %", "Content Link"];
       const rows = uploadedOnlyData.map(d => [
         `"${d.id}"`, `"${d.name}"`, `"${d.country}"`, d.views, d.likes, d.comments, d.reposts, `"${d.er.toFixed(2)}%"`, `"${d.contentUrl}"`
       ]);
@@ -565,7 +697,8 @@
       renderTable(filtered);
     });
 
-    loadCampaignData(dbId);
+    // Inisialisasi awal
+    initDataLoading();
   </script>
 </body>
 </html>
