@@ -5,136 +5,208 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KOL Campaign Performance Report</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js for Pie / Doughnut Chart -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
-    .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); }
+    .glass { background: rgba(255, 255, 255, 0.90); backdrop-filter: blur(14px); }
   </style>
 </head>
-<body class="bg-neutral-50 text-neutral-900 antialiased min-h-screen pb-24">
+<body class="bg-neutral-50/70 text-neutral-900 antialiased min-h-screen pb-24">
 
-  <!-- Admin Link Generator Panel -->
-  <div id="adminPanel" class="max-w-4xl mx-auto my-10 p-8 bg-white border border-neutral-300 rounded-3xl shadow-sm hidden">
-    <div class="flex items-center gap-2 mb-2">
-      <span class="h-2 w-2 rounded-full bg-neutral-900"></span>
-      <h2 class="text-sm font-bold uppercase tracking-wider text-neutral-900">Report Generator</h2>
-    </div>
-    <p class="text-xs text-neutral-500 mb-6">Enter campaign specifications and the target Notion database ID or link to produce a client-ready performance report.</p>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-      <div>
-        <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-2">Campaign / Brand Name</label>
-        <input id="inputBrandName" type="text" placeholder="e.g. NAAP or KOWORK" class="w-full px-4 py-2.5 text-xs bg-neutral-50 border border-neutral-300 rounded-xl focus:bg-white focus:ring-1 focus:ring-neutral-900 focus:border-neutral-900 outline-none transition">
-      </div>
-      <div>
-        <label class="block text-xs font-bold uppercase tracking-wider text-neutral-600 mb-2">Notion Database URL / ID</label>
-        <input id="inputNotionLink" type="text" placeholder="Paste Notion database link or ID..." class="w-full px-4 py-2.5 text-xs bg-neutral-50 border border-neutral-300 rounded-xl focus:bg-white focus:ring-1 focus:ring-neutral-900 focus:border-neutral-900 outline-none transition">
-      </div>
-    </div>
-    <button onclick="generateShareableLink()" class="px-6 py-2.5 bg-neutral-900 text-white font-bold text-xs rounded-xl hover:bg-neutral-800 transition shadow-sm">
-      Generate & Open Dashboard ↗
-    </button>
-  </div>
-
-  <!-- Sticky Monochromatic Header -->
-  <nav class="sticky top-0 z-50 glass border-b border-neutral-200 px-6 py-4">
+  <!-- Sticky Header -->
+  <nav class="sticky top-0 z-50 glass border-b border-neutral-200/80 px-6 py-4 transition-all">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div class="flex items-center gap-3">
-        <span class="h-2.5 w-2.5 rounded-full bg-neutral-900"></span>
+        <span class="relative flex h-3 w-3">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+        </span>
         <div>
-          <h1 id="brandTitle" class="text-lg font-extrabold text-neutral-900 tracking-tight">Campaign Performance Report</h1>
-          <p class="text-[11px] text-neutral-500 font-medium">Verified KOL Deliverables & Organic Engagements</p>
+          <div class="flex items-center gap-2">
+            <h1 id="brandTitle" class="text-base sm:text-lg font-extrabold text-neutral-900 tracking-tight">KOL Performance Report</h1>
+            <span id="previewTag" class="hidden px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">Interactive Preview</span>
+          </div>
+          <p class="text-[11px] text-neutral-500 font-medium">Verified Uploads, Deliverables & Live Engagements</p>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button onclick="copyCurrentLink()" class="px-4 py-2 bg-white border border-neutral-300 text-neutral-800 text-xs font-semibold rounded-xl hover:bg-neutral-100 transition shadow-sm">
+        <button onclick="toggleAdminPanel()" class="px-3.5 py-2 bg-neutral-100 border border-neutral-200 text-neutral-700 text-xs font-semibold rounded-xl hover:bg-neutral-200/70 transition shadow-sm flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          Setup
+        </button>
+        <button onclick="copyCurrentLink()" class="px-3.5 py-2 bg-white border border-neutral-300 text-neutral-800 text-xs font-semibold rounded-xl hover:bg-neutral-50 transition shadow-sm">
           Copy Link
         </button>
-        <button onclick="downloadCSV()" class="px-4 py-2 bg-neutral-900 text-white text-xs font-semibold rounded-xl hover:bg-neutral-800 transition shadow-sm">
+        <button onclick="downloadCSV()" class="px-3.5 py-2 bg-neutral-900 text-white text-xs font-semibold rounded-xl hover:bg-neutral-800 transition shadow-sm flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
           Export CSV
         </button>
       </div>
     </div>
   </nav>
 
+  <!-- Admin Link Generator Panel -->
+  <div id="adminPanel" class="max-w-4xl mx-auto my-6 p-6 sm:p-8 bg-white border border-neutral-200 rounded-3xl shadow-lg transition-all hidden">
+    <div class="flex items-center justify-between mb-2">
+      <div class="flex items-center gap-2">
+        <span class="h-2 w-2 rounded-full bg-neutral-900"></span>
+        <h2 class="text-xs font-bold uppercase tracking-wider text-neutral-900">Notion Connection Settings</h2>
+      </div>
+      <button onclick="toggleAdminPanel()" class="text-xs font-medium text-neutral-400 hover:text-neutral-700">Close ✕</button>
+    </div>
+    <p class="text-xs text-neutral-500 mb-6">Enter campaign specifications and your Notion database link to connect the live feed.</p>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div>
+        <label class="block text-[11px] font-bold uppercase tracking-wider text-neutral-600 mb-1.5">Campaign / Brand Name</label>
+        <input id="inputBrandName" type="text" placeholder="e.g. NAAP" class="w-full px-4 py-2.5 text-xs bg-neutral-50 border border-neutral-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-900 outline-none transition">
+      </div>
+      <div>
+        <label class="block text-[11px] font-bold uppercase tracking-wider text-neutral-600 mb-1.5">Notion Database URL / ID</label>
+        <input id="inputNotionLink" type="text" placeholder="Paste Notion database URL or ID..." class="w-full px-4 py-2.5 text-xs bg-neutral-50 border border-neutral-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-900 outline-none transition">
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <button onclick="generateShareableLink()" class="px-5 py-2.5 bg-neutral-900 text-white font-bold text-xs rounded-xl hover:bg-neutral-800 transition shadow-sm">
+        Save & Refresh Report ↗
+      </button>
+      <button onclick="loadDemoData()" class="px-4 py-2.5 bg-neutral-100 text-neutral-700 font-semibold text-xs rounded-xl hover:bg-neutral-200 transition">
+        View Demo Preview
+      </button>
+    </div>
+  </div>
+
   <!-- Loading State -->
   <div id="loadingBox" class="max-w-7xl mx-auto px-6 py-24 text-center space-y-4">
-    <div class="inline-block h-6 w-6 animate-spin rounded-full border-2 border-neutral-900 border-r-transparent"></div>
+    <div class="inline-block h-7 w-7 animate-spin rounded-full border-2 border-neutral-900 border-r-transparent"></div>
     <p class="text-xs font-medium uppercase tracking-widest text-neutral-500">Retrieving Notion Data...</p>
   </div>
 
-  <!-- Main Metric Presentation Content -->
+  <!-- Main Content -->
   <main id="dashboardContent" class="max-w-7xl mx-auto px-4 sm:px-6 pt-8 space-y-8 hidden">
 
-    <!-- KPI Metric Cards -->
-    <section class="grid grid-cols-2 lg:grid-cols-5 gap-3">
-      <div class="bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm">
-        <span class="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Total Posts</span>
-        <p id="kpiCreators" class="text-2xl sm:text-3xl font-black text-neutral-900 mt-1">0</p>
-        <span class="text-[11px] text-neutral-500 font-medium">Verified uploads</span>
+    <!-- KPI Metric Cards: Added Waiting Upload and Uploaded separation -->
+    <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+      <div class="bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-sm hover:border-neutral-300 transition group">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-600">Total Posts</span>
+          <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+        </div>
+        <p id="kpiUploaded" class="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight">0</p>
+        <span class="text-[11px] text-neutral-500 font-medium">Uploaded reels</span>
       </div>
-      <div class="bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm">
-        <span class="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Total Views</span>
-        <p id="kpiViews" class="text-2xl sm:text-3xl font-black text-neutral-900 mt-1">0</p>
-        <span class="text-[11px] text-neutral-500 font-medium">Aggregated impressions</span>
+
+      <div class="bg-white p-5 rounded-2xl border border-amber-200/80 bg-amber-50/20 shadow-sm hover:border-amber-300 transition group">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700">Waiting Upload</span>
+          <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+        </div>
+        <p id="kpiWaitingUpload" class="text-2xl sm:text-3xl font-black text-amber-900 tracking-tight">0</p>
+        <span class="text-[11px] text-amber-700/80 font-medium">Pending upload</span>
       </div>
-      <div class="bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm">
-        <span class="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Total Likes</span>
-        <p id="kpiLikes" class="text-2xl sm:text-3xl font-black text-neutral-900 mt-1">0</p>
+
+      <div class="bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-sm hover:border-neutral-300 transition group">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Total Views</span>
+          <span class="p-1 text-neutral-400 group-hover:text-neutral-900 transition">👁️</span>
+        </div>
+        <p id="kpiViews" class="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight">0</p>
+        <span class="text-[11px] text-neutral-500 font-medium">Impressions</span>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-sm hover:border-neutral-300 transition group">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Total Likes</span>
+          <span class="p-1 text-neutral-400 group-hover:text-neutral-900 transition">❤️</span>
+        </div>
+        <p id="kpiLikes" class="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight">0</p>
         <span class="text-[11px] text-neutral-500 font-medium">Audience likes</span>
       </div>
-      <div class="bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm">
-        <span class="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Total Comments</span>
-        <p id="kpiComments" class="text-2xl sm:text-3xl font-black text-neutral-900 mt-1">0</p>
-        <span class="text-[11px] text-neutral-500 font-medium">User discussions</span>
+
+      <div class="bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-sm hover:border-neutral-300 transition group">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Total Comments</span>
+          <span class="p-1 text-neutral-400 group-hover:text-neutral-900 transition">💬</span>
+        </div>
+        <p id="kpiComments" class="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight">0</p>
+        <span class="text-[11px] text-neutral-500 font-medium">Discussions</span>
       </div>
-      <div class="col-span-2 lg:col-span-1 bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm">
-        <span class="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Total Reposts</span>
-        <p id="kpiReposts" class="text-2xl sm:text-3xl font-black text-neutral-900 mt-1">0</p>
+
+      <div class="col-span-2 sm:col-span-1 bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-sm hover:border-neutral-300 transition group">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Total Reposts</span>
+          <span class="p-1 text-neutral-400 group-hover:text-neutral-900 transition">🔁</span>
+        </div>
+        <p id="kpiReposts" class="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight">0</p>
         <span class="text-[11px] text-neutral-500 font-medium">Organic shares</span>
       </div>
     </section>
 
-    <!-- Demographic Distribution -->
-    <section class="bg-white p-6 rounded-2xl border border-neutral-200 shadow-sm space-y-3">
-      <div class="flex items-center justify-between">
-        <h2 class="text-xs font-bold uppercase tracking-widest text-neutral-400">Demographic Distribution</h2>
-        <span id="natTotalText" class="text-xs text-neutral-500 font-medium"></span>
+    <!-- Demographic Distribution: Chart Left, Pill Badges Right -->
+    <section class="bg-white p-6 rounded-3xl border border-neutral-200/80 shadow-sm">
+      <div class="flex items-center justify-between border-b border-neutral-100 pb-4 mb-6">
+        <div>
+          <h2 class="text-xs font-bold uppercase tracking-widest text-neutral-400">Demographic Distribution</h2>
+          <p class="text-sm font-bold text-neutral-900 mt-0.5">Creator Nationality & Regional Share</p>
+        </div>
+        <span id="natTotalText" class="text-xs font-bold px-3 py-1 bg-neutral-100 rounded-full text-neutral-600"></span>
       </div>
-      <div id="nationalityBadges" class="flex flex-wrap gap-2 pt-1"></div>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+        <!-- Chart on the Left -->
+        <div class="md:col-span-4 flex flex-col items-center justify-center p-2">
+          <div class="relative w-48 h-48 sm:w-56 sm:h-56">
+            <canvas id="demographicChart"></canvas>
+          </div>
+          <span class="text-[11px] text-neutral-400 font-medium mt-3">Proportional Breakdown</span>
+        </div>
+
+        <!-- Clean Badges on the Right -->
+        <div class="md:col-span-8 flex flex-col justify-center">
+          <div id="nationalityBadges" class="flex flex-wrap gap-2.5"></div>
+        </div>
+      </div>
     </section>
 
-    <!-- Deliverables Table -->
-    <section class="bg-white rounded-2xl border border-neutral-200 shadow-sm overflow-hidden">
-      <div class="p-6 border-b border-neutral-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <!-- Deliverables Table (Uploaded ONLY) -->
+    <section class="bg-white rounded-3xl border border-neutral-200/80 shadow-sm overflow-hidden">
+      <div class="p-5 sm:p-6 border-b border-neutral-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 class="text-sm font-bold text-neutral-900">Campaign Performance Breakdown</h2>
-          <p class="text-xs text-neutral-500">Live feed from associated Notion campaign records</p>
+          <div class="flex items-center gap-2">
+            <h2 class="text-sm font-bold text-neutral-900">Campaign Performance Breakdown</h2>
+            <span class="px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 rounded-full">Uploaded Only</span>
+            <span id="uploadedCountBadge" class="text-[11px] font-semibold bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded-full">0 posts</span>
+          </div>
+          <p class="text-xs text-neutral-400 mt-0.5">Live content links to influencer reels</p>
         </div>
-        <input 
-          type="text" 
-          id="searchInput" 
-          placeholder="Filter by creator, nationality..." 
-          class="text-xs bg-neutral-50 border border-neutral-200 rounded-xl px-4 py-2.5 w-full sm:w-64 focus:bg-white focus:ring-1 focus:ring-neutral-900 focus:border-neutral-900 outline-none transition"
-        />
+        <div class="relative w-full sm:w-72">
+          <svg class="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Search creator, country..." 
+            class="pl-9 pr-4 py-2 text-xs bg-neutral-50 border border-neutral-200 rounded-xl w-full focus:bg-white focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-900 outline-none transition"
+          />
+        </div>
       </div>
 
-      <div class="overflow-x-auto max-h-[520px]">
+      <div class="overflow-x-auto max-h-[560px]">
         <table class="w-full text-left text-xs text-neutral-600">
-          <thead class="sticky top-0 bg-neutral-100/90 backdrop-blur-sm text-[10px] font-bold uppercase tracking-wider text-neutral-500 border-b border-neutral-200 z-10">
+          <thead class="sticky top-0 bg-neutral-100/95 backdrop-blur-md text-[10px] font-bold uppercase tracking-wider text-neutral-500 border-b border-neutral-200 z-10 select-none">
             <tr>
-              <th class="py-3 px-4">Influencer</th>
-              <th class="py-3 px-4">Full Name</th>
-              <th class="py-3 px-4">Nationality</th>
-              <th class="py-3 px-4">Format</th>
-              <th class="py-3 px-4">Date</th>
-              <th class="py-3 px-4 text-right">Likes</th>
-              <th class="py-3 px-4 text-right">Comments</th>
-              <th class="py-3 px-4 text-right">Views</th>
-              <th class="py-3 px-4 text-right">Reposts</th>
-              <th class="py-3 px-4 text-center">Link</th>
+              <th onclick="sortTable('id')" class="py-3.5 px-4 cursor-pointer hover:text-neutral-900">Influencer ↕</th>
+              <th onclick="sortTable('name')" class="py-3.5 px-4 cursor-pointer hover:text-neutral-900">Full Name</th>
+              <th onclick="sortTable('country')" class="py-3.5 px-4 cursor-pointer hover:text-neutral-900">Nationality</th>
+              <th class="py-3.5 px-4">Status</th>
+              <th onclick="sortTable('likes')" class="py-3.5 px-4 text-right cursor-pointer hover:text-neutral-900">Likes ↕</th>
+              <th onclick="sortTable('comments')" class="py-3.5 px-4 text-right cursor-pointer hover:text-neutral-900">Comments ↕</th>
+              <th onclick="sortTable('views')" class="py-3.5 px-4 text-right cursor-pointer hover:text-neutral-900">Views ↕</th>
+              <th onclick="sortTable('reposts')" class="py-3.5 px-4 text-right cursor-pointer hover:text-neutral-900">Reposts ↕</th>
+              <th class="py-3.5 px-4 text-center">Content Link</th>
             </tr>
           </thead>
           <tbody id="tableRows" class="divide-y divide-neutral-100 font-normal"></tbody>
@@ -142,12 +214,12 @@
       </div>
     </section>
 
-    <!-- Embedded Media Grid -->
+    <!-- Creative Content Showcase (Reel Embeds) -->
     <section class="space-y-4">
       <div class="flex items-center justify-between">
         <div>
-          <h2 class="text-sm font-bold uppercase tracking-widest text-neutral-400">Creative Content Showcase</h2>
-          <p class="text-xs text-neutral-500">Embedded media feeds</p>
+          <h2 class="text-xs font-bold uppercase tracking-widest text-neutral-400">Creative Content Showcase</h2>
+          <p class="text-xs text-neutral-500">Live Instagram Reels from Uploaded Posts</p>
         </div>
       </div>
       <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
@@ -156,133 +228,311 @@
   </main>
 
   <script>
-    // DEPLOYED GOOGLE APPS SCRIPT WEB APP ENDPOINT
     const APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby8SwMfWyW1y6xDLh1yOX9c0PZ26IPLJr9PMgzxZpnBl9EgxybIqgWCkjK9vQihjXkFwA/exec";
 
     const urlParams = new URLSearchParams(window.location.search);
     const dbId = urlParams.get('db');
-    const brandName = urlParams.get('brand') || "Campaign";
+    const brandName = urlParams.get('brand') || "NAAP";
 
     const nf = new Intl.NumberFormat();
-    let campaignData = [];
+    let allCampaignData = [];
+    let uploadedOnlyData = [];
+    let pieChartInstance = null;
+    let sortAsc = false;
+    let currentSortKey = 'views';
+
+    // Standarized Country Mapper: merges duplicates like "Morocco", "Moroccan", "Korean Moroccan" -> "Morocco"
+    function normalizeCountry(raw) {
+      if (!raw) return "Global";
+      const str = String(raw).trim().toLowerCase();
+
+      if (str.includes("moroc")) return "Morocco";
+      if (str.includes("iran") || str.includes("persian")) return "Iran";
+      if (str.includes("korea")) return "South Korea";
+      if (str.includes("egypt")) return "Egypt";
+      if (str.includes("saudi")) return "Saudi Arabia";
+      if (str.includes("tajik")) return "Tajikistan";
+      if (str.includes("turk")) return "Turkey";
+      if (str.includes("nepal")) return "Nepal";
+      if (str.includes("pakistan")) return "Pakistan";
+      if (str.includes("bahrain")) return "Bahrain";
+      if (str.includes("japan")) return "Japan";
+      if (str.includes("singapore")) return "Singapore";
+      if (str.includes("philippin")) return "Philippines";
+
+      // Default capitalization
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    // Mock dataset showing both "Uploaded" and "Waiting Upload" to test immediately
+    const sampleDemoData = [
+      { id: "aakriti.panday93", name: "Aakriti Panday", country: "Nepali", status: "Uploaded", likes: 3200, comments: 140, views: 54000, reposts: 90, contentUrl: "https://www.instagram.com/reel/C8XYZabc" },
+      { id: "fati_kim0", name: "Asseydi Fatimaezzahra", country: "Moroccan", status: "Uploaded", likes: 8400, comments: 390, views: 145000, reposts: 310, contentUrl: "https://www.instagram.com/reel/C8XYZabd" },
+      { id: "baharibaastani", name: "Bastani Bahareh", country: "Iran", status: "Uploaded", likes: 4500, comments: 210, views: 76000, reposts: 140, contentUrl: "https://www.instagram.com/reel/C8XYZabe" },
+      { id: "_its.haneen__", name: "Begzoda Mahina", country: "Tajikistan", status: "Uploaded", likes: 6100, comments: 280, views: 92000, reposts: 190, contentUrl: "https://www.instagram.com/reel/C8XYZabf" },
+      { id: "i.am_lilly", name: "Belkaid Ahlam", country: "Korean Moroccan", status: "Uploaded", likes: 11200, comments: 530, views: 210000, reposts: 520, contentUrl: "https://www.instagram.com/reel/C8XYZabg" },
+      { id: "ozgeercan23", name: "Ercan Ozge", country: "Turkish", status: "Uploaded", likes: 2900, comments: 95, views: 42000, reposts: 60, contentUrl: "https://www.instagram.com/reel/C8XYZabh" },
+      { id: "eyaaa0_0", name: "Aya Mourdi", country: "Morocco", status: "Waiting Upload", likes: 0, comments: 0, views: 0, reposts: 0, contentUrl: "" },
+      { id: "kuriyatiya", name: "Manar Moon", country: "Korean", status: "Waiting Upload", likes: 0, comments: 0, views: 0, reposts: 0, contentUrl: "" },
+      { id: "rd.mwi", name: "Reham", country: "saudi", status: "Waiting Upload", likes: 0, comments: 0, views: 0, reposts: 0, contentUrl: "" },
+      { id: "m.gumiho", name: "Tabazmanal", country: "Moroccan", status: "Waiting Approval", likes: 0, comments: 0, views: 0, reposts: 0, contentUrl: "" }
+    ];
 
     if (!dbId) {
-      document.getElementById("adminPanel").classList.remove("hidden");
-      document.getElementById("loadingBox").classList.add("hidden");
+      document.getElementById("previewTag").classList.remove("hidden");
+      loadDemoData();
     } else {
       document.getElementById("brandTitle").innerText = `${brandName} KOL Performance`;
       document.title = `${brandName} - Performance Report`;
       fetchCampaignData(dbId);
     }
 
+    function toggleAdminPanel() {
+      document.getElementById("adminPanel").classList.toggle("hidden");
+    }
+
+    function loadDemoData() {
+      allCampaignData = sampleDemoData;
+      processAndRender(allCampaignData);
+      document.getElementById("loadingBox").classList.add("hidden");
+      document.getElementById("dashboardContent").classList.remove("hidden");
+    }
+
     async function fetchCampaignData(databaseId) {
       try {
         const targetUrl = `${APPS_SCRIPT_WEBAPP_URL}?db=${databaseId}`;
-        const response = await fetch(targetUrl, {
-          method: "GET",
-          redirect: "follow"
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP Error: ${response.status}`);
-        }
-
+        const response = await fetch(targetUrl, { method: "GET", redirect: "follow" });
+        if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
         const result = await response.json();
 
         if (result.success && result.data) {
-          campaignData = result.data;
-          renderDashboard(campaignData);
+          allCampaignData = result.data;
+          processAndRender(allCampaignData);
           document.getElementById("loadingBox").classList.add("hidden");
           document.getElementById("dashboardContent").classList.remove("hidden");
         } else {
-          alert("Failed to load Notion data: " + (result.error || "Unknown server error"));
+          alert("Failed to load Notion data: " + (result.error || "Check ID"));
+          loadDemoData();
         }
       } catch (err) {
-        alert("Server connection failed: " + err.message);
+        alert("Server connection failed: " + err.message + ". Showing demo preview.");
+        loadDemoData();
       }
     }
 
-    function renderDashboard(data) {
-      const totalViews = data.reduce((acc, cur) => acc + (Number(cur.views) || 0), 0);
-      const totalLikes = data.reduce((acc, cur) => acc + (Number(cur.likes) || 0), 0);
-      const totalComments = data.reduce((acc, cur) => acc + (Number(cur.comments) || 0), 0);
-      const totalReposts = data.reduce((acc, cur) => acc + (Number(cur.reposts) || 0), 0);
+    function processAndRender(data) {
+      // 1. Filter statuses
+      const isUploaded = (d) => (d.status || "").trim().toLowerCase() === "uploaded";
+      const isWaitingUpload = (d) => (d.status || "").trim().toLowerCase().includes("waiting upl");
 
-      document.getElementById("kpiCreators").innerText = data.length;
+      uploadedOnlyData = data.filter(isUploaded);
+      const waitingUploadList = data.filter(isWaitingUpload);
+
+      // 2. Metrics (Total Posts = Uploaded only, KPI Uploaded vs Waiting Upload)
+      const totalViews = uploadedOnlyData.reduce((acc, cur) => acc + (Number(cur.views) || 0), 0);
+      const totalLikes = uploadedOnlyData.reduce((acc, cur) => acc + (Number(cur.likes) || 0), 0);
+      const totalComments = uploadedOnlyData.reduce((acc, cur) => acc + (Number(cur.comments) || 0), 0);
+      const totalReposts = uploadedOnlyData.reduce((acc, cur) => acc + (Number(cur.reposts) || 0), 0);
+
+      document.getElementById("kpiUploaded").innerText = uploadedOnlyData.length;
+      document.getElementById("kpiWaitingUpload").innerText = waitingUploadList.length;
       document.getElementById("kpiViews").innerText = nf.format(totalViews);
       document.getElementById("kpiLikes").innerText = nf.format(totalLikes);
       document.getElementById("kpiComments").innerText = nf.format(totalComments);
       document.getElementById("kpiReposts").innerText = nf.format(totalReposts);
 
+      // 3. Normalized Demographics (Aggregates over all active creators)
       const natCounts = {};
       data.forEach(d => {
-        const country = d.country || "Global";
-        natCounts[country] = (natCounts[country] || 0) + 1;
+        const norm = normalizeCountry(d.country);
+        natCounts[norm] = (natCounts[norm] || 0) + 1;
       });
 
-      document.getElementById("natTotalText").innerText = `${Object.keys(natCounts).length} Distinct Regions`;
+      const sortedCountries = Object.entries(natCounts).sort((a, b) => b[1] - a[1]);
+      document.getElementById("natTotalText").innerText = `${sortedCountries.length} Countries Total`;
+
+      // Render Badges (Right side)
       const natContainer = document.getElementById("nationalityBadges");
       natContainer.innerHTML = "";
-      Object.entries(natCounts).sort((a, b) => b[1] - a[1]).forEach(([country, count]) => {
+      sortedCountries.forEach(([country, count]) => {
         const badge = document.createElement("div");
-        badge.className = "px-3 py-1.5 rounded-xl bg-neutral-100 text-xs font-semibold text-neutral-800 flex items-center gap-2 border border-neutral-200/60";
-        badge.innerHTML = `<span>${country}</span><span class="bg-white px-2 py-0.5 rounded-md text-[10px] text-neutral-900 font-bold border border-neutral-200">${count}</span>`;
+        badge.className = "px-3.5 py-1.5 rounded-2xl bg-neutral-100 text-xs font-semibold text-neutral-800 flex items-center gap-2 border border-neutral-200/80 shadow-2xs hover:bg-neutral-200/50 transition";
+        badge.innerHTML = `<span>${country}</span><span class="bg-white px-2 py-0.5 rounded-full text-[10px] text-neutral-900 font-extrabold border border-neutral-200">${count}</span>`;
         natContainer.appendChild(badge);
       });
 
-      renderTable(data);
+      // Render Pie Chart (Left side)
+      renderPieChart(sortedCountries);
 
+      // 4. Render Table with Uploaded items ONLY
+      renderTable(uploadedOnlyData);
+
+      // 5. Render Video Grid
+      renderVideoGrid(uploadedOnlyData);
+    }
+
+    function renderPieChart(countryPairs) {
+      const ctx = document.getElementById('demographicChart').getContext('2d');
+      if (pieChartInstance) {
+        pieChartInstance.destroy();
+      }
+
+      const labels = countryPairs.map(p => p[0]);
+      const counts = countryPairs.map(p => p[1]);
+
+      // Sleek monochromatic + pastel palette
+      const palette = [
+        '#171717', '#404040', '#737373', '#a3a3a3', '#d4d4d4', 
+        '#0284c7', '#0d9488', '#f59e0b', '#ec4899', '#8b5cf6'
+      ];
+
+      pieChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: counts,
+            backgroundColor: palette.slice(0, labels.length),
+            borderWidth: 2,
+            borderColor: '#ffffff',
+            hoverOffset: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return ` ${context.label}: ${context.raw} creators`;
+                }
+              }
+            }
+          },
+          cutout: '68%'
+        }
+      });
+    }
+
+    function renderTable(rows) {
+      document.getElementById("uploadedCountBadge").innerText = `${rows.length} ${rows.length === 1 ? 'post' : 'posts'}`;
+      const tableBody = document.getElementById("tableRows");
+      tableBody.innerHTML = "";
+
+      if (rows.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-neutral-400 text-xs">No uploaded records found.</td></tr>`;
+        return;
+      }
+
+      rows.forEach(row => {
+        const contentLink = row.contentUrl || row.url || "#";
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-neutral-50/80 transition-colors";
+        tr.innerHTML = `
+          <td class="py-3.5 px-4 font-bold text-neutral-900 flex items-center gap-1.5">
+            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+            @${row.id || "creator"}
+          </td>
+          <td class="py-3.5 px-4 font-medium text-neutral-700">${row.name || "-"}</td>
+          <td class="py-3.5 px-4"><span class="px-2.5 py-1 bg-neutral-100 rounded-lg text-neutral-700 font-semibold border border-neutral-200 text-[11px]">${normalizeCountry(row.country)}</span></td>
+          <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Uploaded</span></td>
+          <td class="py-3.5 px-4 text-right font-medium text-neutral-700">${nf.format(row.likes || 0)}</td>
+          <td class="py-3.5 px-4 text-right font-medium text-neutral-700">${nf.format(row.comments || 0)}</td>
+          <td class="py-3.5 px-4 text-right font-bold text-neutral-900">${nf.format(row.views || 0)}</td>
+          <td class="py-3.5 px-4 text-right font-medium text-neutral-700">${nf.format(row.reposts || 0)}</td>
+          <td class="py-3.5 px-4 text-center">
+            <a href="${contentLink}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-3 py-1 bg-neutral-900 text-white rounded-lg text-[11px] font-bold hover:bg-neutral-800 transition">
+              Content Reel
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+            </a>
+          </td>
+        `;
+        tableBody.appendChild(tr);
+      });
+    }
+
+    function renderVideoGrid(data) {
       const videoGrid = document.getElementById("videoGrid");
       videoGrid.innerHTML = "";
-      data.slice(0, 9).forEach(row => {
-        const cleanUrl = row.url.endsWith('/') ? row.url : `${row.url}/`;
-        const embedUrl = `${cleanUrl}embed`;
+      
+      const reels = data.slice(0, 9);
+      if (reels.length === 0) {
+        videoGrid.innerHTML = `<div class="col-span-3 text-center py-10 text-neutral-400 text-xs">No reels uploaded yet.</div>`;
+        return;
+      }
+
+      reels.forEach(row => {
+        const rawUrl = (row.contentUrl || row.url || "").trim();
+        let embedUrl = "";
+        
+        if (rawUrl.includes("instagram.com")) {
+          const clean = rawUrl.endsWith('/') ? rawUrl : `${rawUrl}/`;
+          embedUrl = `${clean}embed/`;
+        }
 
         const card = document.createElement("div");
-        card.className = "bg-white rounded-3xl border border-neutral-200 shadow-sm overflow-hidden flex flex-col";
+        card.className = "bg-white rounded-3xl border border-neutral-200/80 shadow-sm overflow-hidden flex flex-col hover:border-neutral-300 transition group";
         card.innerHTML = `
           <div class="p-4 border-b border-neutral-100 flex items-center justify-between">
-            <div>
-              <h3 class="font-bold text-xs text-neutral-900 truncate max-w-[160px]">@${row.id}</h3>
-              <p class="text-[10px] text-neutral-400 font-medium">${row.country} • ${row.date}</p>
+            <div class="truncate">
+              <h3 class="font-bold text-xs text-neutral-900 truncate max-w-[150px]">@${row.id}</h3>
+              <p class="text-[10px] text-neutral-400 font-medium">${normalizeCountry(row.country)} • ${row.name || ''}</p>
             </div>
-            <span class="text-[11px] font-bold text-neutral-900 bg-neutral-100 border border-neutral-200 px-2.5 py-1 rounded-lg">${nf.format(row.views)} views</span>
+            <span class="text-[11px] font-bold text-neutral-900 bg-neutral-100 border border-neutral-200 px-2.5 py-1 rounded-lg">${nf.format(row.views || 0)} views</span>
           </div>
-          <div class="w-full bg-neutral-950 aspect-[9/16] relative">
-            <iframe src="${embedUrl}" class="w-full h-full border-0 absolute inset-0" scrolling="no" allowtransparency="true" allowfullscreen></iframe>
+          
+          <div class="w-full bg-neutral-950 aspect-[9/16] relative flex items-center justify-center">
+            ${embedUrl ? `
+              <iframe 
+                src="${embedUrl}" 
+                loading="lazy" 
+                class="w-full h-full border-0 absolute inset-0" 
+                frameborder="0" 
+                scrolling="no" 
+                allowtransparency="true" 
+                allowfullscreen>
+              </iframe>
+            ` : `
+              <div class="text-center p-6 text-neutral-400">
+                <p class="text-xs font-semibold mb-2">Instagram Reel</p>
+                <a href="${rawUrl}" target="_blank" class="px-4 py-2 bg-white text-neutral-900 font-bold text-xs rounded-xl shadow">Open on Instagram ↗</a>
+              </div>
+            `}
           </div>
-          <div class="p-3 bg-neutral-50 border-t border-neutral-100 grid grid-cols-3 text-center divide-x divide-neutral-200 text-xs">
-            <div><span class="text-[9px] text-neutral-400 block font-bold uppercase tracking-wider">Likes</span><span class="font-bold text-neutral-800">${nf.format(row.likes)}</span></div>
-            <div><span class="text-[9px] text-neutral-400 block font-bold uppercase tracking-wider">Comments</span><span class="font-bold text-neutral-800">${nf.format(row.comments)}</span></div>
-            <div><span class="text-[9px] text-neutral-400 block font-bold uppercase tracking-wider">Reposts</span><span class="font-bold text-neutral-800">${nf.format(row.reposts)}</span></div>
+
+          <div class="p-3 bg-neutral-50/70 border-t border-neutral-100 grid grid-cols-3 text-center divide-x divide-neutral-200 text-xs">
+            <div><span class="text-[9px] text-neutral-400 block font-bold uppercase tracking-wider">Likes</span><span class="font-bold text-neutral-800">${nf.format(row.likes || 0)}</span></div>
+            <div><span class="text-[9px] text-neutral-400 block font-bold uppercase tracking-wider">Comments</span><span class="font-bold text-neutral-800">${nf.format(row.comments || 0)}</span></div>
+            <div><span class="text-[9px] text-neutral-400 block font-bold uppercase tracking-wider">Reposts</span><span class="font-bold text-neutral-800">${nf.format(row.reposts || 0)}</span></div>
           </div>
         `;
         videoGrid.appendChild(card);
       });
     }
 
-    function renderTable(rows) {
-      const tableBody = document.getElementById("tableRows");
-      tableBody.innerHTML = "";
-      rows.forEach(row => {
-        const tr = document.createElement("tr");
-        tr.className = "hover:bg-neutral-50 transition-colors";
-        tr.innerHTML = `
-          <td class="py-3 px-4 font-bold text-neutral-900">@${row.id}</td>
-          <td class="py-3 px-4">${row.name}</td>
-          <td class="py-3 px-4"><span class="px-2.5 py-1 bg-neutral-100 rounded-md text-neutral-700 font-medium border border-neutral-200 text-[11px]">${row.country}</span></td>
-          <td class="py-3 px-4 uppercase text-[10px] font-semibold text-neutral-400">${row.type}</td>
-          <td class="py-3 px-4 whitespace-nowrap">${row.date}</td>
-          <td class="py-3 px-4 text-right font-medium text-neutral-800">${nf.format(row.likes)}</td>
-          <td class="py-3 px-4 text-right font-medium text-neutral-800">${nf.format(row.comments)}</td>
-          <td class="py-3 px-4 text-right font-bold text-neutral-900">${nf.format(row.views)}</td>
-          <td class="py-3 px-4 text-right font-medium text-neutral-800">${nf.format(row.reposts)}</td>
-          <td class="py-3 px-4 text-center">
-            <a href="${row.url}" target="_blank" class="text-neutral-900 font-bold hover:underline">View ↗</a>
-          </td>
-        `;
-        tableBody.appendChild(tr);
+    function sortTable(key) {
+      if (currentSortKey === key) {
+        sortAsc = !sortAsc;
+      } else {
+        currentSortKey = key;
+        sortAsc = false;
+      }
+
+      uploadedOnlyData.sort((a, b) => {
+        let valA = a[key] ?? '';
+        let valB = b[key] ?? '';
+        const numA = Number(valA);
+        const numB = Number(valB);
+
+        if (!isNaN(numA) && !isNaN(numB)) {
+          return sortAsc ? numA - numB : numB - numA;
+        }
+        return sortAsc ? String(valA).localeCompare(String(valB)) : String(valB).localeCompare(String(valA));
       });
+
+      renderTable(uploadedOnlyData);
     }
 
     function extractNotionId(input) {
@@ -311,15 +561,15 @@
     }
 
     function downloadCSV() {
-      const headers = ["Influencer ID", "Full Name", "Nationality", "Type", "Posted Date", "Likes", "Comments", "Views", "Reposts", "Post URL"];
-      const rows = campaignData.map(d => [
-        `"${d.id}"`, `"${d.name}"`, `"${d.country}"`, `"${d.type}"`, `"${d.date}"`, d.likes, d.comments, d.views, d.reposts, `"${d.url}"`
+      const headers = ["Influencer ID", "Full Name", "Nationality", "Status", "Likes", "Comments", "Views", "Reposts", "Content Reel URL"];
+      const rows = uploadedOnlyData.map(d => [
+        `"${d.id}"`, `"${d.name}"`, `"${normalizeCountry(d.country)}"`, `"${d.status}"`, d.likes || 0, d.comments || 0, d.views || 0, d.reposts || 0, `"${d.contentUrl || d.url || ''}"`
       ]);
       const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `${brandName}_Report.csv`);
+      link.setAttribute("download", `${brandName}_Uploaded_Report.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -327,10 +577,10 @@
 
     document.getElementById("searchInput").addEventListener("input", (e) => {
       const q = e.target.value.toLowerCase();
-      const filtered = campaignData.filter(d => 
+      const filtered = uploadedOnlyData.filter(d => 
         (d.id && d.id.toLowerCase().includes(q)) || 
         (d.name && d.name.toLowerCase().includes(q)) || 
-        (d.country && d.country.toLowerCase().includes(q))
+        (d.country && normalizeCountry(d.country).toLowerCase().includes(q))
       );
       renderTable(filtered);
     });
