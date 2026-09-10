@@ -141,12 +141,12 @@
       </div>
     </section>
 
-    <!-- Demographic Distribution -->
+    <!-- Demographic Distribution (Uploaded & Waiting Upload Only) -->
     <section class="bg-white p-6 rounded-3xl border border-neutral-200/80 shadow-sm">
       <div class="flex items-center justify-between border-b border-neutral-100 pb-4 mb-6">
         <div>
           <h2 class="text-xs font-bold uppercase tracking-widest text-neutral-400">Demographic Distribution</h2>
-          <p class="text-sm font-bold text-neutral-900 mt-0.5">Creator Nationality & Normalized Share</p>
+          <p class="text-sm font-bold text-neutral-900 mt-0.5">Creator Nationality & Normalized Share (Active KOLs)</p>
         </div>
         <span id="natTotalText" class="text-xs font-bold px-3 py-1 bg-neutral-100 rounded-full text-neutral-600"></span>
       </div>
@@ -206,7 +206,7 @@
       </div>
     </section>
 
-    <!-- Creative Showcase Grid -->
+    <!-- Creative Showcase Grid (Autoplay / Preview enabled) -->
     <section class="space-y-4">
       <div>
         <h2 class="text-xs font-bold uppercase tracking-widest text-neutral-400">Creative Content Showcase</h2>
@@ -218,10 +218,7 @@
   </main>
 
   <script>
-    // URL Web App Google Apps Script kamu
     const APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby8SwMfWyW1y6xDLh1yOX9c0PZ26IPLJr9PMgzxZpnBl9EgxybIqgWCkjK9vQihjXkFwA/exec";
-    
-    // DEFAULT DATABASE NAAP JIKA URL PARAMETER KOSONG
     const DEFAULT_NAAP_DB = "391ce5b809f980f2b664e3232612bf78";
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -256,6 +253,9 @@
       if (str.includes("japan")) return "Japan";
       if (str.includes("singapore")) return "Singapore";
       if (str.includes("philippin")) return "Philippines";
+      if (str.includes("indonesia")) return "Indonesia";
+      if (str.includes("uzbek")) return "Uzbekistan";
+      if (str.includes("jordan")) return "Jordan";
 
       return str.charAt(0).toUpperCase() + str.slice(1);
     }
@@ -267,8 +267,8 @@
       const reposts = Number(raw.reposts || raw.Reposts || 0) || 0;
       
       let er = 0;
-      if (raw.post_er !== undefined && raw.post_er !== null && raw.post_er !== "") {
-        er = parseFloat(String(raw.post_er).replace('%', '')) || 0;
+      if (raw.post_er !== undefined && raw.post_er !== null && Number(raw.post_er) > 0) {
+        er = parseFloat(String(raw.post_er).replace('%', ''));
       } else if (views > 0) {
         er = ((likes + comments + reposts) / views) * 100;
       }
@@ -318,14 +318,16 @@
     }
 
     function processAndRender(data) {
-      // Saring status: Uploaded vs Waiting Upload
       const isUploaded = (d) => d.status.toLowerCase() === "uploaded";
       const isWaiting = (d) => d.status.toLowerCase().includes("waiting upl");
 
       uploadedOnlyData = data.filter(isUploaded);
       const waitingList = data.filter(isWaiting);
 
-      // Hitung KPI
+      // 1. REVISI DEMOGRAPHIC DISTRIBUTION:
+      // Hanya menghitung baris yang statusnya Uploaded atau Waiting Upload
+      const activeCreators = data.filter(d => isUploaded(d) || isWaiting(d));
+
       const totalViews = uploadedOnlyData.reduce((a, b) => a + b.views, 0);
       const totalLikes = uploadedOnlyData.reduce((a, b) => a + b.likes, 0);
       const totalComments = uploadedOnlyData.reduce((a, b) => a + b.comments, 0);
@@ -340,14 +342,14 @@
       document.getElementById("kpiComments").innerText = nf.format(totalComments);
       document.getElementById("kpiReposts").innerText = nf.format(totalReposts);
 
-      // Demografi
+      // Hitung Demografi HANYA dari Active KOLs (Uploaded + Waiting Upload)
       const natCounts = {};
-      data.forEach(d => {
+      activeCreators.forEach(d => {
         natCounts[d.country] = (natCounts[d.country] || 0) + 1;
       });
 
       const sortedCountries = Object.entries(natCounts).sort((a, b) => b[1] - a[1]);
-      document.getElementById("natTotalText").innerText = `${sortedCountries.length} Countries Total`;
+      document.getElementById("natTotalText").innerText = `${sortedCountries.length} Countries (${activeCreators.length} KOLs)`;
 
       const natContainer = document.getElementById("nationalityBadges");
       natContainer.innerHTML = "";
@@ -369,7 +371,7 @@
 
       const labels = countryPairs.map(p => p[0]);
       const counts = countryPairs.map(p => p[1]);
-      const palette = ['#171717', '#404040', '#737373', '#a3a3a3', '#d4d4d4', '#0284c7', '#0d9488', '#f59e0b', '#ec4899', '#8b5cf6'];
+      const palette = ['#171717', '#404040', '#737373', '#a3a3a3', '#d4d4d4', '#0284c7', '#0d9488', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#84cc16'];
 
       pieChartInstance = new Chart(ctx, {
         type: 'doughnut',
@@ -426,6 +428,7 @@
       });
     }
 
+    // 2. CREATIVE SHOWCASE: Ditambahkan allow autoplay dan param autoplay
     function renderVideoGrid(data) {
       const videoGrid = document.getElementById("videoGrid");
       videoGrid.innerHTML = "";
@@ -441,7 +444,8 @@
         let embedUrl = "";
         if (rawUrl.includes("instagram.com")) {
           const clean = rawUrl.endsWith('/') ? rawUrl : `${rawUrl}/`;
-          embedUrl = `${clean}embed/`;
+          // Param autoplay & muted preview untuk reel iframe
+          embedUrl = `${clean}embed/?autoplay=1&muted=1`;
         }
 
         const card = document.createElement("div");
@@ -463,6 +467,7 @@
                 class="w-full h-full border-0 absolute inset-0" 
                 frameborder="0" 
                 scrolling="no" 
+                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
                 allowtransparency="true" 
                 allowfullscreen>
               </iframe>
@@ -560,7 +565,6 @@
       renderTable(filtered);
     });
 
-    // Jalankan pengambilan data otomatis saat web dimuat
     loadCampaignData(dbId);
   </script>
 </body>
