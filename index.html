@@ -8,7 +8,7 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -19,7 +19,7 @@
 
   <!-- Sticky Header -->
   <nav class="sticky top-0 z-50 glass border-b border-neutral-200/80 px-6 py-4 transition-all">
-    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div class="flex items-center gap-3">
         <span class="relative flex h-3 w-3">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -27,12 +27,21 @@
         </span>
         <div>
           <h1 id="brandTitle" class="text-base sm:text-lg font-extrabold text-neutral-900 tracking-tight">KOL Performance</h1>
-          <p id="sourceSubTitle" class="text-[11px] text-neutral-500 font-medium">Aggregated Multi-Campaign Dashboard</p>
+          <p id="sourceSubTitle" class="text-[11px] text-neutral-500 font-medium">Multi-Campaign Performance Analytics</p>
         </div>
       </div>
-      <div class="flex items-center gap-2">
+      
+      <div class="flex flex-wrap items-center gap-2.5">
+        <!-- Interactive Global Campaign Filter -->
+        <div class="flex items-center gap-1.5 bg-white border border-neutral-300 rounded-xl px-2.5 py-1 shadow-sm">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">View:</span>
+          <select id="headerCampaignFilter" onchange="switchActiveCampaign(this.value)" class="text-xs font-bold text-neutral-800 bg-transparent outline-none cursor-pointer">
+            <option value="ALL">All Campaigns Combined</option>
+          </select>
+        </div>
+
         <button onclick="toggleSetupModal()" class="px-3.5 py-2 bg-neutral-100 border border-neutral-200 text-neutral-700 text-xs font-semibold rounded-xl hover:bg-neutral-200 transition shadow-sm">
-          Change Sources (Multi)
+          Change Sources
         </button>
         <button onclick="copyCurrentLink()" class="px-3.5 py-2 bg-white border border-neutral-300 text-neutral-800 text-xs font-semibold rounded-xl hover:bg-neutral-50 transition shadow-sm">
           Copy Link
@@ -50,26 +59,22 @@
     <div class="bg-white max-w-lg w-full p-6 rounded-3xl shadow-2xl border border-neutral-200 space-y-4">
       <div class="flex items-center justify-between">
         <div>
-          <h3 class="text-sm font-bold text-neutral-900">Multi-Campaign Aggregator</h3>
-          <p class="text-[11px] text-neutral-400">Combine up to 5+ Notion / Google Sheet links into 1 report</p>
+          <h3 class="text-sm font-bold text-neutral-900">Campaign Sources Setup</h3>
+          <p class="text-[11px] text-neutral-400">Add multiple campaigns and customize their labels</p>
         </div>
         <button onclick="toggleSetupModal()" class="text-neutral-400 hover:text-neutral-700 text-xs font-bold">✕</button>
       </div>
       <div>
-        <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Combined Brand / Report Title</label>
-        <input id="inputBrandName" type="text" placeholder="e.g. VIVELY Global All Campaigns, Q3 Master Report" class="w-full px-3.5 py-2 text-xs border border-neutral-300 rounded-xl outline-none focus:border-neutral-900">
+        <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Master Dashboard Title</label>
+        <input id="inputBrandName" type="text" placeholder="e.g. VIVELY GLOBAL CAMPAIGN" class="w-full px-3.5 py-2 text-xs border border-neutral-300 rounded-xl outline-none focus:border-neutral-900">
       </div>
       <div>
-        <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Source URLs (1 URL Per Baris)</label>
-        <textarea id="inputSourceLink" rows="5" placeholder="Paste link Notion atau link Google Sheets (satu baris untuk setiap link)...&#10;Contoh:&#10;https://docs.google.com/spreadsheets/d/1AU9GO4...&#10;https://app.notion.com/p/3cdce5b...&#10;https://app.notion.com/p/5e7ce5b..." class="w-full px-3.5 py-2 text-xs font-mono border border-neutral-300 rounded-xl outline-none focus:border-neutral-900 resize-none"></textarea>
-      </div>
-      <div class="p-3 bg-neutral-50 border border-neutral-200 rounded-xl text-[11px] text-neutral-500 space-y-1">
-        <p class="font-semibold text-neutral-700">Multi-Link Support:</p>
-        <p>• Masukkan beberapa link sekaligus (pisahkan dengan <b>Enter/Baris Baru</b>).</p>
-        <p>• Boleh campur antara link Google Sheet publik dan link Notion Database.</p>
+        <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Campaign Links (1 URL Per Line)</label>
+        <p class="text-[11px] text-neutral-400 mb-1.5">Tips: Kamu bisa ketik <b>Nama Campaign = Link</b> agar labelnya jelas.</p>
+        <textarea id="inputSourceLink" rows="6" placeholder="Contoh:&#10;NAAP = https://app.notion.com/p/f19ce5b809f9822bb29e01934bcb3501...&#10;KOWORK = https://app.notion.com/p/0c9ce5b809f983368b2781a010d5f814...&#10;LABIOTTE = https://app.notion.com/p/eb4ce5b809f983d5a63481ddae4dbdba...&#10;https://docs.google.com/spreadsheets/d/1AU9GO4..." class="w-full px-3.5 py-2 text-xs font-mono border border-neutral-300 rounded-xl outline-none focus:border-neutral-900 resize-none"></textarea>
       </div>
       <button onclick="applyMultiSource()" class="w-full py-2.5 bg-neutral-900 text-white font-bold text-xs rounded-xl hover:bg-neutral-800 transition shadow">
-        Generate Combined Report ↗
+        Generate Report ↗
       </button>
     </div>
   </div>
@@ -83,7 +88,7 @@
   <!-- Dashboard Container -->
   <main id="dashboardContent" class="max-w-7xl mx-auto px-4 sm:px-6 pt-8 space-y-8 hidden">
 
-    <!-- KPI Metric Cards -->
+    <!-- KPI Metric Cards (Dinamis Berubah Sesuai Filter) -->
     <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 sm:gap-4">
       <div class="bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-sm">
         <div class="flex items-center justify-between mb-1.5">
@@ -149,12 +154,39 @@
       </div>
     </section>
 
-    <!-- Demographic Distribution (Active Creators Only) -->
+    <!-- Campaign Comparison Table (Side-by-Side Breakdown) -->
+    <section class="bg-white rounded-3xl border border-neutral-200/80 shadow-sm overflow-hidden p-6 space-y-4">
+      <div class="flex items-center justify-between border-b border-neutral-100 pb-3">
+        <div>
+          <h2 class="text-xs font-bold uppercase tracking-widest text-neutral-400">Campaign Comparison</h2>
+          <p class="text-sm font-bold text-neutral-900 mt-0.5">Summary metrics per individual campaign</p>
+        </div>
+        <span class="text-xs font-medium text-neutral-400">Click campaign name to filter</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-neutral-50 text-[10px] font-bold uppercase tracking-wider text-neutral-500 border-b border-neutral-200">
+            <tr>
+              <th class="py-3 px-4">Campaign</th>
+              <th class="py-3 px-4 text-center">Uploaded</th>
+              <th class="py-3 px-4 text-center">Pending</th>
+              <th class="py-3 px-4 text-right">Views</th>
+              <th class="py-3 px-4 text-right">Likes</th>
+              <th class="py-3 px-4 text-right">Comments</th>
+              <th class="py-3 px-4 text-right font-bold text-indigo-600">Avg ER %</th>
+            </tr>
+          </thead>
+          <tbody id="comparisonTableBody" class="divide-y divide-neutral-100 font-medium"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Demographic Distribution (Dinamis Berubah Sesuai Filter) -->
     <section class="bg-white p-6 rounded-3xl border border-neutral-200/80 shadow-sm">
       <div class="flex items-center justify-between border-b border-neutral-100 pb-4 mb-6">
         <div>
           <h2 class="text-xs font-bold uppercase tracking-widest text-neutral-400">Demographic Distribution</h2>
-          <p class="text-sm font-bold text-neutral-900 mt-0.5">Aggregated Nationality & Regional Share</p>
+          <p class="text-sm font-bold text-neutral-900 mt-0.5">Creator Nationality & Regional Share</p>
         </div>
         <span id="natTotalText" class="text-xs font-bold px-3 py-1 bg-neutral-100 rounded-full text-neutral-600"></span>
       </div>
@@ -181,24 +213,17 @@
             <span class="px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 rounded-full">Uploaded Only</span>
             <span id="uploadedCountBadge" class="text-[11px] font-semibold bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded-full">0 posts</span>
           </div>
-          <p class="text-xs text-neutral-400 mt-0.5">Filter by campaign or search creators across all connected sources</p>
+          <p class="text-xs text-neutral-400 mt-0.5">Direct content links & metrics for active view</p>
         </div>
         
-        <div class="flex items-center gap-2.5 w-full sm:w-auto">
-          <!-- Filter Campaign Dropdown -->
-          <select id="campaignFilterSelect" onchange="applyCampaignFilter()" class="px-3 py-2 text-xs bg-neutral-50 border border-neutral-200 rounded-xl outline-none focus:border-neutral-900">
-            <option value="ALL">All Campaigns Combined</option>
-          </select>
-
-          <div class="relative w-full sm:w-64">
-            <svg class="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <input 
-              type="text" 
-              id="searchInput" 
-              placeholder="Search creator, country..." 
-              class="pl-9 pr-4 py-2 text-xs bg-neutral-50 border border-neutral-200 rounded-xl w-full focus:bg-white focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-900 outline-none transition"
-            />
-          </div>
+        <div class="relative w-full sm:w-64">
+          <svg class="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Search creator, country..." 
+            class="pl-9 pr-4 py-2 text-xs bg-neutral-50 border border-neutral-200 rounded-xl w-full focus:bg-white focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-900 outline-none transition"
+          />
         </div>
       </div>
 
@@ -227,7 +252,7 @@
     <section class="space-y-4">
       <div>
         <h2 class="text-xs font-bold uppercase tracking-widest text-neutral-400">Creative Content Showcase</h2>
-        <p class="text-xs text-neutral-500">Live Post Reels from Aggregated Uploaded Posts</p>
+        <p class="text-xs text-neutral-500">Live Post Reels from Filtered Selection</p>
       </div>
       <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </section>
@@ -239,7 +264,7 @@
     const DEFAULT_NAAP_DB = "391ce5b809f980f2b664e3232612bf78";
 
     const urlParams = new URLSearchParams(window.location.search);
-    const multiSourcesParam = urlParams.get('sources'); // Format: type:id|type:id
+    const multiSourcesParam = urlParams.get('sources');
     const singleDbParam = urlParams.get('db');
     const singleSheetParam = urlParams.get('sheet');
     const brandName = urlParams.get('brand') || "Master Campaign";
@@ -250,6 +275,7 @@
     let pieChartInstance = null;
     let sortAsc = false;
     let currentSortKey = 'views';
+    let availableCampaignTags = [];
 
     document.getElementById("brandTitle").innerText = `${brandName.toUpperCase()} Performance`;
     document.title = `${brandName.toUpperCase()} - Unified KOL Performance Report`;
@@ -305,7 +331,7 @@
     }
 
     // ------------------------------------------------------------------
-    // MULTI-SOURCE PARSING & AGGREGATION
+    // MULTI-SOURCE PARSING & INITIALIZATION
     // ------------------------------------------------------------------
     async function initDataLoading() {
       const sourcesToFetch = [];
@@ -315,7 +341,7 @@
         pairs.forEach((p, idx) => {
           const [type, id, label] = p.split(':');
           if (type && id) {
-            sourcesToFetch.push({ type, id, label: label ? decodeURIComponent(label) : `Source ${idx + 1}` });
+            sourcesToFetch.push({ type, id, label: label ? decodeURIComponent(label) : `Campaign ${idx + 1}` });
           }
         });
       } else if (singleSheetParam) {
@@ -325,24 +351,26 @@
         sourcesToFetch.push({ type: 'notion', id: dbId, label: brandName });
       }
 
-      document.getElementById("sourceSubTitle").innerText = `Connected Sources: ${sourcesToFetch.length} Campaign(s)`;
+      availableCampaignTags = sourcesToFetch.map(s => s.label);
+      document.getElementById("sourceSubTitle").innerText = `Tracking ${sourcesToFetch.length} Campaign(s)`;
 
-      // Buat pilihan filter dropdown campaign
-      const filterSelect = document.getElementById("campaignFilterSelect");
-      filterSelect.innerHTML = `<option value="ALL">All Campaigns (${sourcesToFetch.length})</option>`;
-      sourcesToFetch.forEach(s => {
-        filterSelect.innerHTML += `<option value="${s.label}">${s.label}</option>`;
+      // Setup Dropdown Global Filter di Nav Atas
+      const headerFilter = document.getElementById("headerCampaignFilter");
+      headerFilter.innerHTML = `<option value="ALL">All Campaigns Combined (${sourcesToFetch.length})</option>`;
+      availableCampaignTags.forEach(tag => {
+        headerFilter.innerHTML += `<option value="${tag}">${tag}</option>`;
       });
 
       try {
         const promises = sourcesToFetch.map(src => fetchSingleSource(src));
         const results = await Promise.all(promises);
-        
         allCampaignData = results.flat();
 
         if (allCampaignData.length === 0) {
           throw new Error("Tidak ada data ditemukan di semua link campaign yang diberikan.");
         }
+
+        renderComparisonSummary(allCampaignData, availableCampaignTags);
 
         currentFilteredData = allCampaignData;
         processAndRender(currentFilteredData);
@@ -358,7 +386,7 @@
       if (source.type === 'sheet') {
         const csvUrl = `https://docs.google.com/spreadsheets/d/${source.id}/gviz/tq?tqx=out:csv`;
         const res = await fetch(csvUrl);
-        if (!res.ok) throw new Error(`Gagal membaca Google Sheet [${source.label}]. Pastikan izin share: 'Anyone with the link can view'.`);
+        if (!res.ok) throw new Error(`Gagal membaca Google Sheet [${source.label}]. Pastikan izin: 'Anyone with the link can view'.`);
         const csvText = await res.text();
         const parsed = parseCSV(csvText);
         return mapSheetRowsToObjects(parsed).map(r => sanitizeRow(r, source.label));
@@ -449,8 +477,57 @@
     }
 
     // ------------------------------------------------------------------
-    // RENDER METRIK & VISUALISASI
+    // RENDER SIDE-BY-SIDE SUMMARY PER CAMPAIGN
     // ------------------------------------------------------------------
+    function renderComparisonSummary(data, tags) {
+      const tbody = document.getElementById("comparisonTableBody");
+      tbody.innerHTML = "";
+
+      tags.forEach(tag => {
+        const campData = data.filter(d => d.campaignTag === tag);
+        const uploaded = campData.filter(d => d.status.toLowerCase() === "uploaded");
+        const waiting = campData.filter(d => d.status.toLowerCase().includes("waiting"));
+
+        const views = uploaded.reduce((a, b) => a + b.views, 0);
+        const likes = uploaded.reduce((a, b) => a + b.likes, 0);
+        const comments = uploaded.reduce((a, b) => a + b.comments, 0);
+        const reposts = uploaded.reduce((a, b) => a + b.reposts, 0);
+        const er = views > 0 ? ((likes + comments + reposts) / views) * 100 : 0;
+
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-neutral-50/80 cursor-pointer transition";
+        tr.onclick = () => switchActiveCampaign(tag);
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-bold text-neutral-900 flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-neutral-900"></span>
+            ${tag}
+          </td>
+          <td class="py-3 px-4 text-center font-bold text-emerald-600 bg-emerald-50/30">${uploaded.length}</td>
+          <td class="py-3 px-4 text-center text-amber-700 bg-amber-50/30">${waiting.length}</td>
+          <td class="py-3 px-4 text-right font-black text-neutral-900">${nf.format(views)}</td>
+          <td class="py-3 px-4 text-right text-neutral-700">${nf.format(likes)}</td>
+          <td class="py-3 px-4 text-right text-neutral-700">${nf.format(comments)}</td>
+          <td class="py-3 px-4 text-right font-black text-indigo-600 bg-indigo-50/30">${er.toFixed(2)}%</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ------------------------------------------------------------------
+    // SWITCH FILTER UTAMA (MEMPENGARUHI SELURUH DASHBOARD)
+    // ------------------------------------------------------------------
+    function switchActiveCampaign(tag) {
+      document.getElementById("headerCampaignFilter").value = tag;
+
+      if (tag === "ALL") {
+        currentFilteredData = allCampaignData;
+      } else {
+        currentFilteredData = allCampaignData.filter(d => d.campaignTag === tag);
+      }
+
+      processAndRender(currentFilteredData);
+    }
+
     function processAndRender(data) {
       const isUploaded = (d) => d.status.toLowerCase() === "uploaded";
       const isWaiting = (d) => d.status.toLowerCase().includes("waiting");
@@ -465,6 +542,7 @@
       const totalReposts = uploadedOnlyData.reduce((a, b) => a + b.reposts, 0);
       const totalER = totalViews > 0 ? ((totalLikes + totalComments + totalReposts) / totalViews) * 100 : 0;
 
+      // Update Seluruh KPI Cards
       document.getElementById("kpiUploaded").innerText = uploadedOnlyData.length;
       document.getElementById("kpiWaitingUpload").innerText = waitingList.length;
       document.getElementById("kpiTotalER").innerText = `${totalER.toFixed(2)}%`;
@@ -473,6 +551,7 @@
       document.getElementById("kpiComments").innerText = nf.format(totalComments);
       document.getElementById("kpiReposts").innerText = nf.format(totalReposts);
 
+      // Update Donut Demografi
       const natCounts = {};
       activeCreators.forEach(d => {
         natCounts[d.country] = (natCounts[d.country] || 0) + 1;
@@ -538,7 +617,7 @@
         tr.className = "hover:bg-neutral-50/80 transition-colors";
         tr.innerHTML = `
           <td class="py-3.5 px-4 font-semibold text-neutral-500">
-            <span class="px-2 py-0.5 bg-neutral-100 rounded text-[10px] border border-neutral-200 font-bold">${row.campaignTag}</span>
+            <span class="px-2.5 py-1 bg-neutral-100 rounded-lg text-[10px] border border-neutral-200 font-black text-neutral-800">${row.campaignTag}</span>
           </td>
           <td class="py-3.5 px-4 font-bold text-neutral-900 flex items-center gap-1.5">
             <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
@@ -567,7 +646,7 @@
       
       const reels = data.slice(0, 9);
       if (reels.length === 0) {
-        videoGrid.innerHTML = `<div class="col-span-3 text-center py-10 text-neutral-400 text-xs">No reels available.</div>`;
+        videoGrid.innerHTML = `<div class="col-span-3 text-center py-10 text-neutral-400 text-xs">No reels available for this selection.</div>`;
         return;
       }
 
@@ -584,7 +663,7 @@
         card.innerHTML = `
           <div class="p-4 border-b border-neutral-100 flex items-center justify-between">
             <div class="truncate">
-              <span class="text-[9px] font-bold text-neutral-400 uppercase tracking-wider block">${row.campaignTag}</span>
+              <span class="text-[9px] font-bold text-indigo-600 uppercase tracking-wider block">${row.campaignTag}</span>
               <h3 class="font-bold text-xs text-neutral-900 truncate max-w-[150px]">@${row.id}</h3>
               <p class="text-[10px] text-neutral-400 font-medium">${row.country} • ER: ${row.er.toFixed(2)}%</p>
             </div>
@@ -621,16 +700,6 @@
       });
     }
 
-    function applyCampaignFilter() {
-      const selected = document.getElementById("campaignFilterSelect").value;
-      if (selected === "ALL") {
-        currentFilteredData = allCampaignData;
-      } else {
-        currentFilteredData = allCampaignData.filter(d => d.campaignTag === selected);
-      }
-      processAndRender(currentFilteredData);
-    }
-
     function sortTable(key) {
       if (currentSortKey === key) {
         sortAsc = !sortAsc;
@@ -659,13 +728,13 @@
       document.getElementById("setupModal").classList.toggle("hidden");
     }
 
-    // Parsing Input Multi-URL
+    // Ekstraksi Input Multi-URL dengan Custom Campaign Name
     function applyMultiSource() {
-      const title = document.getElementById("inputBrandName").value.trim() || "Unified Campaigns";
+      const title = document.getElementById("inputBrandName").value.trim() || "VIVELY Multi-Campaign";
       const rawText = document.getElementById("inputSourceLink").value.trim();
 
       if (!rawText) {
-        alert("Masukkan minimal satu link Notion atau link Google Sheets.");
+        alert("Masukkan minimal satu link Notion atau Google Sheets.");
         return;
       }
 
@@ -673,23 +742,33 @@
       const parsedSources = [];
 
       lines.forEach((line, idx) => {
-        const sheetMatch = line.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+        let label = `Campaign ${idx + 1}`;
+        let cleanUrl = line;
+
+        // Mendukung format "Nama Campaign = Link"
+        if (line.includes('=')) {
+          const parts = line.split('=');
+          label = parts[0].trim();
+          cleanUrl = parts.slice(1).join('=').trim();
+        }
+
+        const sheetMatch = cleanUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
         if (sheetMatch) {
-          parsedSources.push(`sheet:${sheetMatch[1]}:Campaign ${idx + 1}`);
+          parsedSources.push(`sheet:${sheetMatch[1]}:${encodeURIComponent(label)}`);
           return;
         }
 
-        const notionMatch = line.match(/[a-f0-9]{32}/i);
-        const notionDashed = line.match(/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/i);
+        const notionMatch = cleanUrl.match(/[a-f0-9]{32}/i);
+        const notionDashed = cleanUrl.match(/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/i);
         const cleanNotionId = notionMatch ? notionMatch[0] : (notionDashed ? notionDashed[0].replace(/-/g, "") : "");
 
         if (cleanNotionId) {
-          parsedSources.push(`notion:${cleanNotionId}:Campaign ${idx + 1}`);
+          parsedSources.push(`notion:${cleanNotionId}:${encodeURIComponent(label)}`);
         }
       });
 
       if (parsedSources.length === 0) {
-        alert("Tidak ada tautan Notion atau Google Sheets yang valid.");
+        alert("Tidak ada link valid yang ditemukan.");
         return;
       }
 
@@ -709,7 +788,7 @@
 
     function copyCurrentLink() {
       navigator.clipboard.writeText(window.location.href);
-      alert("Unified Report URL berhasil disalin ke clipboard!");
+      alert("Link report multi-campaign berhasil disalin!");
     }
 
     function downloadCSV() {
@@ -722,7 +801,7 @@
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `${brandName}_Combined_Report.csv`);
+      link.setAttribute("download", `${brandName}_Report.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
