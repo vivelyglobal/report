@@ -96,7 +96,7 @@
       <div class="space-y-4">
         <div>
           <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5">Master Campaign Name / Slug</label>
-          <input id="inputBrandName" type="text" placeholder="e.g. apgujeong atau 압구정닭한마리" class="w-full px-3.5 py-2 text-xs border border-neutral-200 rounded-xl outline-none focus:border-neutral-950 transition">
+          <input id="inputBrandName" type="text" placeholder="e.g. apgujeong atau myeongdongkgalbi" class="w-full px-3.5 py-2 text-xs border border-neutral-200 rounded-xl outline-none focus:border-neutral-950 transition">
         </div>
         <div>
           <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5">Sources URL (1 per line)</label>
@@ -134,42 +134,49 @@
     <!-- KPI Metric Cards -->
     <section class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
       
+      <!-- Published Posts (Status: Uploaded Only) -->
       <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between">
         <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Published Posts</span>
         <p id="kpiUploaded" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
         <span class="text-[10px] text-neutral-400 font-medium">Status: Uploaded</span>
       </div>
 
+      <!-- In Pipeline (Status: Waiting Upload Only) -->
       <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between">
         <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">In Pipeline</span>
         <p id="kpiWaitingUpload" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
         <span class="text-[10px] text-neutral-400 font-medium">Waiting Upload</span>
       </div>
 
+      <!-- Total ER -->
       <div class="bg-neutral-950 text-white p-4 sm:p-5 rounded-2xl border border-neutral-900 shadow-sm flex flex-col justify-between">
         <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Avg ER</span>
         <p id="kpiTotalER" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight my-2">0.00%</p>
         <span class="text-[10px] text-neutral-400 font-medium">Engagement Rate</span>
       </div>
 
+      <!-- Total Views -->
       <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between">
         <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Total Views</span>
         <p id="kpiViews" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
         <span class="text-[10px] text-neutral-400 font-medium">Organic Impressions</span>
       </div>
 
+      <!-- Likes -->
       <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between">
         <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Likes</span>
         <p id="kpiLikes" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
         <span class="text-[10px] text-neutral-400 font-medium">Reactions</span>
       </div>
 
+      <!-- Comments -->
       <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between">
         <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Comments</span>
         <p id="kpiComments" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
         <span class="text-[10px] text-neutral-400 font-medium">Discussions</span>
       </div>
 
+      <!-- Shares -->
       <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between col-span-2 sm:col-span-1">
         <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Shares / Saves</span>
         <p id="kpiReposts" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
@@ -178,7 +185,7 @@
 
     </section>
 
-    <!-- Top Viral Campaigns Showcase -->
+    <!-- Top Viral Campaigns (Top 3 Creators) -->
     <section class="bg-white rounded-2xl border border-neutral-200/70 shadow-2xs overflow-hidden">
       <div class="px-6 py-5 border-b border-neutral-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
@@ -257,7 +264,7 @@
       </div>
     </section>
 
-    <!-- Creative Showcase: Top 3 Reels -->
+    <!-- Creative Showcase: Top 3 Reels Only -->
     <section class="space-y-4">
       <div class="flex items-center justify-between border-b border-neutral-200/80 pb-3">
         <div>
@@ -288,11 +295,9 @@
     const DEFAULT_NAAP_DB = "391ce5b809f980f2b664e3232612bf78";
 
     // =========================================================================
-    // KAMUS / REGISTRY NAMA CAMPAIGN (SHORT LINK MAPPING)
+    // REGISTRY SHORTLINK MAPPING
     // =========================================================================
-    // Kamu cukup daftarkan nama/slug di sini. Klien cukup panggil: ?campaign=nama
     const CAMPAIGN_REGISTRY = {
-      // 1. Apgujeong Dakhanmari (Database dari link kamu)
       "apgujeong": {
         brand: "압구정닭한마리",
         sources: [
@@ -305,16 +310,12 @@
           { type: "notion", id: "8e7ce5b809f9839aa8b381d612b2bfe9", label: "압구정닭한마리" }
         ]
       },
-
-      // 2. NAAP
       "naap": {
         brand: "NAAP Global",
         sources: [
           { type: "notion", id: "391ce5b809f980f2b664e3232612bf78", label: "NAAP" }
         ]
       },
-
-      // 3. Contoh Multi-Source digabung (misal Juno Hair)
       "juno": {
         brand: "Juno Hair Seoul",
         sources: [
@@ -322,7 +323,6 @@
         ]
       }
     };
-    // =========================================================================
 
     const urlParams = new URLSearchParams(window.location.search);
     const campaignParam = urlParams.get('campaign') || urlParams.get('brand_id');
@@ -361,6 +361,7 @@
       return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
+    // STRICT NORMALISASI STATUS: HANYA MENGENAL 'Uploaded' ATAU 'Waiting Upload'
     function sanitizeRow(raw, sourceTag) {
       const views = Number(raw.views || raw.Views || 0) || 0;
       const likes = Number(raw.likes || raw.Likes || 0) || 0;
@@ -374,6 +375,7 @@
         er = ((likes + comments + reposts) / views) * 100;
       }
 
+      // Ambil teks status murni dari Notion (lowercase & tanpa whitespace)
       const rawStatus = String(raw.status || raw.Status || "").trim().toLowerCase();
       
       let finalStatus = "Other";
@@ -381,8 +383,6 @@
         finalStatus = "Uploaded";
       } else if (rawStatus === "waiting upload") {
         finalStatus = "Waiting Upload";
-      } else if (views > 0 || (raw.contentUrl && String(raw.contentUrl).includes("instagram.com"))) {
-        finalStatus = "Uploaded";
       }
 
       return {
@@ -403,20 +403,15 @@
     async function initDataLoading() {
       let sourcesToFetch = [];
 
-      // PRIORITAS 1: Cek apakah user menggunakan short parameter ?campaign=slug
       if (campaignParam && CAMPAIGN_REGISTRY[campaignParam]) {
         const entry = CAMPAIGN_REGISTRY[campaignParam];
         brandName = entry.brand;
         sourcesToFetch = [...entry.sources];
-      } 
-      // PRIORITAS 2: Cek apakah user menggunakan parameter ?campaign=NamaBrand (decode UTF-8)
-      else if (campaignParam && CAMPAIGN_REGISTRY[decodeURIComponent(campaignParam)]) {
+      } else if (campaignParam && CAMPAIGN_REGISTRY[decodeURIComponent(campaignParam)]) {
         const entry = CAMPAIGN_REGISTRY[decodeURIComponent(campaignParam)];
         brandName = entry.brand;
         sourcesToFetch = [...entry.sources];
-      }
-      // PRIORITAS 3: Backward compatible jika masih menggunakan URL panjang ?sources=...
-      else if (multiSourcesParam) {
+      } else if (multiSourcesParam) {
         const pairs = multiSourcesParam.split('|');
         pairs.forEach((p, idx) => {
           const [type, id, label] = p.split(':');
@@ -550,7 +545,7 @@
           reposts: colMap.reposts !== -1 ? row[colMap.reposts] : 0,
           post_er: colMap.post_er !== -1 ? row[colMap.post_er] : 0,
           contentUrl: colMap.url !== -1 ? row[colMap.url] : "#",
-          status: colMap.status !== -1 && row[colMap.status] ? row[colMap.status] : "Waiting Upload"
+          status: colMap.status !== -1 && row[colMap.status] ? row[colMap.status] : "Other"
         });
       }
       return result;
@@ -616,11 +611,9 @@
     }
 
     function processAndRender(data) {
-      const isUploaded = (d) => d.status === "Uploaded";
-      const isWaiting = (d) => d.status === "Waiting Upload";
-
-      const uploadedOnlyData = data.filter(isUploaded);
-      const waitingList = data.filter(isWaiting);
+      // HANYA STATUS PERSIS: "Uploaded" & "Waiting Upload"
+      const uploadedOnlyData = data.filter(d => d.status === "Uploaded");
+      const waitingList = data.filter(d => d.status === "Waiting Upload");
       const activeCreators = [...uploadedOnlyData, ...waitingList];
 
       const totalViews = uploadedOnlyData.reduce((a, b) => a + b.views, 0);
@@ -629,6 +622,7 @@
       const totalReposts = uploadedOnlyData.reduce((a, b) => a + b.reposts, 0);
       const totalER = totalViews > 0 ? ((totalLikes + totalComments + totalReposts) / totalViews) * 100 : 0;
 
+      // Update KPI
       document.getElementById("kpiUploaded").innerText = uploadedOnlyData.length;
       document.getElementById("kpiWaitingUpload").innerText = waitingList.length;
       document.getElementById("kpiTotalER").innerText = `${totalER.toFixed(2)}%`;
@@ -821,7 +815,6 @@
       const input = document.getElementById("inputBrandName").value.trim();
       const rawText = document.getElementById("inputSourceLink").value.trim();
 
-      // Jika mengetik nama yang terdaftar di registry
       if (CAMPAIGN_REGISTRY[input]) {
         window.location.href = `${window.location.origin}${window.location.pathname}?campaign=${encodeURIComponent(input)}`;
         return;
