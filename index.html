@@ -141,7 +141,7 @@
         <span class="text-[10px] text-neutral-400 font-medium">Status: Uploaded</span>
       </div>
 
-      <!-- In Pipeline (Status: Waiting Upload) -->
+      <!-- In Pipeline (Status: Waiting Upload Only) -->
       <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between">
         <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">In Pipeline</span>
         <p id="kpiWaitingUpload" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
@@ -185,7 +185,7 @@
 
     </section>
 
-    <!-- REVISI 3: TOP VIRAL CAMPAIGNS (TOP 3 CREATORS) -->
+    <!-- Top Viral Campaigns (Top 3 Creators Showcase) -->
     <section class="bg-white rounded-2xl border border-neutral-200/70 shadow-2xs overflow-hidden">
       <div class="px-6 py-5 border-b border-neutral-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
@@ -195,9 +195,8 @@
         <span class="text-[11px] text-neutral-400 font-medium">Top 3 creators by total organic views</span>
       </div>
 
-      <!-- Top 3 Grid Showcase -->
       <div id="topViralGrid" class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-neutral-100">
-        <!-- Injected via JS -->
+        <!-- Dynamic Top 3 Injected Here -->
       </div>
     </section>
 
@@ -267,12 +266,12 @@
       </div>
     </section>
 
-    <!-- REVISI 4: CREATIVE SHOWCASE WITH AUTOPLAY PREVIEW -->
+    <!-- Creative Showcase: Top 3 Reels Only -->
     <section class="space-y-4">
       <div class="flex items-center justify-between border-b border-neutral-200/80 pb-3">
         <div>
           <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-400">Creative Content Showcase</h3>
-          <p class="text-sm font-semibold text-neutral-900 mt-0.5">Live UGC Reels & Social Activations</p>
+          <p class="text-sm font-semibold text-neutral-900 mt-0.5">Top 3 Performing Video Reels</p>
         </div>
       </div>
       <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
@@ -336,7 +335,6 @@
       return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
-    // REVISI 1 & 2: Pemisahan status Uploaded vs Waiting Upload
     function sanitizeRow(raw, sourceTag) {
       const views = Number(raw.views || raw.Views || 0) || 0;
       const likes = Number(raw.likes || raw.Likes || 0) || 0;
@@ -350,15 +348,16 @@
         er = ((likes + comments + reposts) / views) * 100;
       }
 
-      // Deteksi status yang bersih dari Notion
-      const rawStatus = String(raw.status || raw.Status || "").trim();
-      let normalizedStatus = "Waiting Upload";
-      if (rawStatus.toLowerCase() === "uploaded") {
-        normalizedStatus = "Uploaded";
-      } else if (rawStatus.toLowerCase().includes("waiting") || rawStatus.toLowerCase().includes("pipeline")) {
-        normalizedStatus = "Waiting Upload";
-      } else if (views > 0 || (raw.contentUrl && raw.contentUrl.includes("instagram.com"))) {
-        normalizedStatus = "Uploaded";
+      // Filter status persis tanpa substring ambiguity
+      const rawStatus = String(raw.status || raw.Status || "").trim().toLowerCase();
+      
+      let finalStatus = "Other";
+      if (rawStatus === "uploaded") {
+        finalStatus = "Uploaded";
+      } else if (rawStatus === "waiting upload") {
+        finalStatus = "Waiting Upload";
+      } else if (views > 0 || (raw.contentUrl && String(raw.contentUrl).includes("instagram.com"))) {
+        finalStatus = "Uploaded";
       }
 
       return {
@@ -366,7 +365,7 @@
         id: String(raw.id || raw.Formula || raw.influencer || "creator").replace(/^@/, ''),
         name: raw.name || raw.Full_Name || raw["Full Name"] || "-",
         country: normalizeCountry(raw.country || raw.Nationality || "Global"),
-        status: normalizedStatus,
+        status: finalStatus,
         likes: likes,
         comments: comments,
         views: views,
@@ -510,13 +509,12 @@
           reposts: colMap.reposts !== -1 ? row[colMap.reposts] : 0,
           post_er: colMap.post_er !== -1 ? row[colMap.post_er] : 0,
           contentUrl: colMap.url !== -1 ? row[colMap.url] : "#",
-          status: colMap.status !== -1 && row[colMap.status] ? row[colMap.status] : "Uploaded"
+          status: colMap.status !== -1 && row[colMap.status] ? row[colMap.status] : "Waiting Upload"
         });
       }
       return result;
     }
 
-    // REVISI 3: Render Top 3 Viral Creators
     function renderTopViralCampaigns(data) {
       const container = document.getElementById("topViralGrid");
       container.innerHTML = "";
@@ -582,7 +580,7 @@
 
       const uploadedOnlyData = data.filter(isUploaded);
       const waitingList = data.filter(isWaiting);
-      const activeCreators = data.filter(d => isUploaded(d) || isWaiting(d));
+      const activeCreators = [...uploadedOnlyData, ...waitingList];
 
       const totalViews = uploadedOnlyData.reduce((a, b) => a + b.views, 0);
       const totalLikes = uploadedOnlyData.reduce((a, b) => a + b.likes, 0);
@@ -590,7 +588,7 @@
       const totalReposts = uploadedOnlyData.reduce((a, b) => a + b.reposts, 0);
       const totalER = totalViews > 0 ? ((totalLikes + totalComments + totalReposts) / totalViews) * 100 : 0;
 
-      // REVISI 1 & 2: Update Metrik KPI
+      // Update KPI
       document.getElementById("kpiUploaded").innerText = uploadedOnlyData.length;
       document.getElementById("kpiWaitingUpload").innerText = waitingList.length;
       document.getElementById("kpiTotalER").innerText = `${totalER.toFixed(2)}%`;
@@ -599,7 +597,7 @@
       document.getElementById("kpiComments").innerText = nf.format(totalComments);
       document.getElementById("kpiReposts").innerText = nf.format(totalReposts);
 
-      // Render Top 3 Viral
+      // Top 3 Viral Card
       renderTopViralCampaigns(data);
 
       // Demographics
@@ -690,14 +688,16 @@
       });
     }
 
-    // REVISI 4: Auto-Preview Video Showcase (Instagram Embed with autoplay query)
+    // Hanya tampilkan Top 3 Video Reels
     function renderVideoGrid(data) {
       const videoGrid = document.getElementById("videoGrid");
       videoGrid.innerHTML = "";
       
-      const reels = data.slice(0, 9);
+      const sortedReels = [...data].sort((a, b) => b.views - a.views);
+      const reels = sortedReels.slice(0, 3);
+
       if (reels.length === 0) {
-        videoGrid.innerHTML = `<div class="col-span-3 text-center py-12 text-neutral-400 text-xs">No reels available for this selection.</div>`;
+        videoGrid.innerHTML = `<div class="col-span-3 text-center py-12 text-neutral-400 text-xs font-medium">No reels available for this selection.</div>`;
         return;
       }
 
@@ -705,7 +705,6 @@
         const rawUrl = (row.contentUrl || "").trim();
         let embedUrl = "";
         
-        // Memastikan embed Instagram memutar preview reel
         if (rawUrl.includes("instagram.com")) {
           const clean = rawUrl.split('?')[0].replace(/\/$/, "");
           embedUrl = `${clean}/embed/?autoplay=1&muted=1`;
