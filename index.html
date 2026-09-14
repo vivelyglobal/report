@@ -88,20 +88,20 @@
       <div class="flex items-center justify-between border-b border-neutral-100 pb-3">
         <div>
           <h3 class="text-sm font-bold text-neutral-900 tracking-tight">Campaign Data Sources</h3>
-          <p class="text-[11px] text-neutral-400 mt-0.5">Connect multiple Notion databases or Google Sheets</p>
+          <p class="text-[11px] text-neutral-400 mt-0.5">Connect custom Notion databases or Google Sheets</p>
         </div>
         <button onclick="toggleSetupModal()" class="text-neutral-400 hover:text-neutral-800 text-xs font-bold p-1">✕</button>
       </div>
 
       <div class="space-y-4">
         <div>
-          <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5">Master Campaign Name</label>
-          <input id="inputBrandName" type="text" placeholder="e.g. Master Campaign" class="w-full px-3.5 py-2 text-xs border border-neutral-200 rounded-xl outline-none focus:border-neutral-950 transition">
+          <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5">Master Campaign Name / Slug</label>
+          <input id="inputBrandName" type="text" placeholder="e.g. apgujeong atau 압구정닭한마리" class="w-full px-3.5 py-2 text-xs border border-neutral-200 rounded-xl outline-none focus:border-neutral-950 transition">
         </div>
         <div>
           <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5">Sources URL (1 per line)</label>
           <p class="text-[10px] text-neutral-400 mb-2">Format: <code>Nama Campaign = Link Notion / Google Sheets</code></p>
-          <textarea id="inputSourceLink" rows="5" placeholder="NAAP = https://app.notion.com/...&#10;KOWORK = https://app.notion.com/...&#10;https://docs.google.com/spreadsheets/d/..." class="w-full px-3.5 py-2 text-xs font-mono border border-neutral-200 rounded-xl outline-none focus:border-neutral-950 transition resize-none"></textarea>
+          <textarea id="inputSourceLink" rows="5" placeholder="NAAP = https://app.notion.com/...&#10;https://docs.google.com/spreadsheets/d/..." class="w-full px-3.5 py-2 text-xs font-mono border border-neutral-200 rounded-xl outline-none focus:border-neutral-950 transition resize-none"></textarea>
         </div>
       </div>
 
@@ -134,49 +134,42 @@
     <!-- KPI Metric Cards -->
     <section class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
       
-      <!-- Published Posts (Status: Uploaded) -->
       <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between">
         <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Published Posts</span>
         <p id="kpiUploaded" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
         <span class="text-[10px] text-neutral-400 font-medium">Status: Uploaded</span>
       </div>
 
-      <!-- In Pipeline (Status: Waiting Upload Only) -->
       <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between">
         <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">In Pipeline</span>
         <p id="kpiWaitingUpload" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
         <span class="text-[10px] text-neutral-400 font-medium">Waiting Upload</span>
       </div>
 
-      <!-- Total ER -->
       <div class="bg-neutral-950 text-white p-4 sm:p-5 rounded-2xl border border-neutral-900 shadow-sm flex flex-col justify-between">
         <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Avg ER</span>
         <p id="kpiTotalER" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight my-2">0.00%</p>
         <span class="text-[10px] text-neutral-400 font-medium">Engagement Rate</span>
       </div>
 
-      <!-- Total Views -->
       <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between">
         <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Total Views</span>
         <p id="kpiViews" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
         <span class="text-[10px] text-neutral-400 font-medium">Organic Impressions</span>
       </div>
 
-      <!-- Likes -->
       <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between">
         <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Likes</span>
         <p id="kpiLikes" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
         <span class="text-[10px] text-neutral-400 font-medium">Reactions</span>
       </div>
 
-      <!-- Comments -->
       <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between">
         <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Comments</span>
         <p id="kpiComments" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
         <span class="text-[10px] text-neutral-400 font-medium">Discussions</span>
       </div>
 
-      <!-- Shares -->
       <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between col-span-2 sm:col-span-1">
         <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Shares / Saves</span>
         <p id="kpiReposts" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
@@ -185,7 +178,7 @@
 
     </section>
 
-    <!-- Top Viral Campaigns (Top 3 Creators Showcase) -->
+    <!-- Top Viral Campaigns Showcase -->
     <section class="bg-white rounded-2xl border border-neutral-200/70 shadow-2xs overflow-hidden">
       <div class="px-6 py-5 border-b border-neutral-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
@@ -195,9 +188,7 @@
         <span class="text-[11px] text-neutral-400 font-medium">Top 3 creators by total organic views</span>
       </div>
 
-      <div id="topViralGrid" class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-neutral-100">
-        <!-- Dynamic Top 3 Injected Here -->
-      </div>
+      <div id="topViralGrid" class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-neutral-100"></div>
     </section>
 
     <!-- Demographic Distribution -->
@@ -266,7 +257,7 @@
       </div>
     </section>
 
-    <!-- Creative Showcase: Top 3 Reels Only -->
+    <!-- Creative Showcase: Top 3 Reels -->
     <section class="space-y-4">
       <div class="flex items-center justify-between border-b border-neutral-200/80 pb-3">
         <div>
@@ -296,11 +287,49 @@
     const APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby8SwMfWyW1y6xDLh1yOX9c0PZ26IPLJr9PMgzxZpnBl9EgxybIqgWCkjK9vQihjXkFwA/exec";
     const DEFAULT_NAAP_DB = "391ce5b809f980f2b664e3232612bf78";
 
+    // =========================================================================
+    // KAMUS / REGISTRY NAMA CAMPAIGN (SHORT LINK MAPPING)
+    // =========================================================================
+    // Kamu cukup daftarkan nama/slug di sini. Klien cukup panggil: ?campaign=nama
+    const CAMPAIGN_REGISTRY = {
+      // 1. Apgujeong Dakhanmari (Database dari link kamu)
+      "apgujeong": {
+        brand: "압구정닭한마리",
+        sources: [
+          { type: "notion", id: "8e7ce5b809f9839aa8b381d612b2bfe9", label: "압구정닭한마리" }
+        ]
+      },
+      "압구정닭한마리": {
+        brand: "압구정닭한마리",
+        sources: [
+          { type: "notion", id: "8e7ce5b809f9839aa8b381d612b2bfe9", label: "압구정닭한마리" }
+        ]
+      },
+
+      // 2. NAAP
+      "naap": {
+        brand: "NAAP Global",
+        sources: [
+          { type: "notion", id: "391ce5b809f980f2b664e3232612bf78", label: "NAAP" }
+        ]
+      },
+
+      // 3. Contoh Multi-Source digabung (misal Juno Hair)
+      "juno": {
+        brand: "Juno Hair Seoul",
+        sources: [
+          { type: "notion", id: "0c9ce5b809f983368b2781a010d5f814", label: "Juno Hair" }
+        ]
+      }
+    };
+    // =========================================================================
+
     const urlParams = new URLSearchParams(window.location.search);
+    const campaignParam = urlParams.get('campaign') || urlParams.get('brand_id');
     const multiSourcesParam = urlParams.get('sources');
     const singleDbParam = urlParams.get('db');
     const singleSheetParam = urlParams.get('sheet');
-    const brandName = urlParams.get('brand') || "Master Campaign";
+    let brandName = urlParams.get('brand') || "Master Campaign";
 
     const nf = new Intl.NumberFormat();
     let allCampaignData = [];
@@ -309,9 +338,6 @@
     let sortAsc = false;
     let currentSortKey = 'views';
     let availableCampaignTags = [];
-
-    document.getElementById("brandTitle").innerText = `${brandName}`;
-    document.title = `${brandName} — VIVELY Report`;
 
     function normalizeCountry(raw) {
       if (!raw) return "Global";
@@ -348,7 +374,6 @@
         er = ((likes + comments + reposts) / views) * 100;
       }
 
-      // Filter status persis tanpa substring ambiguity
       const rawStatus = String(raw.status || raw.Status || "").trim().toLowerCase();
       
       let finalStatus = "Other";
@@ -376,9 +401,22 @@
     }
 
     async function initDataLoading() {
-      const sourcesToFetch = [];
+      let sourcesToFetch = [];
 
-      if (multiSourcesParam) {
+      // PRIORITAS 1: Cek apakah user menggunakan short parameter ?campaign=slug
+      if (campaignParam && CAMPAIGN_REGISTRY[campaignParam]) {
+        const entry = CAMPAIGN_REGISTRY[campaignParam];
+        brandName = entry.brand;
+        sourcesToFetch = [...entry.sources];
+      } 
+      // PRIORITAS 2: Cek apakah user menggunakan parameter ?campaign=NamaBrand (decode UTF-8)
+      else if (campaignParam && CAMPAIGN_REGISTRY[decodeURIComponent(campaignParam)]) {
+        const entry = CAMPAIGN_REGISTRY[decodeURIComponent(campaignParam)];
+        brandName = entry.brand;
+        sourcesToFetch = [...entry.sources];
+      }
+      // PRIORITAS 3: Backward compatible jika masih menggunakan URL panjang ?sources=...
+      else if (multiSourcesParam) {
         const pairs = multiSourcesParam.split('|');
         pairs.forEach((p, idx) => {
           const [type, id, label] = p.split(':');
@@ -392,6 +430,9 @@
         const dbId = singleDbParam || DEFAULT_NAAP_DB;
         sourcesToFetch.push({ type: 'notion', id: dbId, label: brandName });
       }
+
+      document.getElementById("brandTitle").innerText = `${brandName}`;
+      document.title = `${brandName} — VIVELY Report`;
 
       availableCampaignTags = sourcesToFetch.map(s => s.label);
       document.getElementById("sourceSubTitle").innerText = `Tracking ${sourcesToFetch.length} Campaign Stream(s)`;
@@ -588,7 +629,6 @@
       const totalReposts = uploadedOnlyData.reduce((a, b) => a + b.reposts, 0);
       const totalER = totalViews > 0 ? ((totalLikes + totalComments + totalReposts) / totalViews) * 100 : 0;
 
-      // Update KPI
       document.getElementById("kpiUploaded").innerText = uploadedOnlyData.length;
       document.getElementById("kpiWaitingUpload").innerText = waitingList.length;
       document.getElementById("kpiTotalER").innerText = `${totalER.toFixed(2)}%`;
@@ -597,10 +637,8 @@
       document.getElementById("kpiComments").innerText = nf.format(totalComments);
       document.getElementById("kpiReposts").innerText = nf.format(totalReposts);
 
-      // Top 3 Viral Card
       renderTopViralCampaigns(data);
 
-      // Demographics
       const natCounts = {};
       activeCreators.forEach(d => {
         natCounts[d.country] = (natCounts[d.country] || 0) + 1;
@@ -688,7 +726,6 @@
       });
     }
 
-    // Hanya tampilkan Top 3 Video Reels
     function renderVideoGrid(data) {
       const videoGrid = document.getElementById("videoGrid");
       videoGrid.innerHTML = "";
@@ -781,11 +818,17 @@
     }
 
     function applyMultiSource() {
-      const title = document.getElementById("inputBrandName").value.trim() || "Master Campaign";
+      const input = document.getElementById("inputBrandName").value.trim();
       const rawText = document.getElementById("inputSourceLink").value.trim();
 
+      // Jika mengetik nama yang terdaftar di registry
+      if (CAMPAIGN_REGISTRY[input]) {
+        window.location.href = `${window.location.origin}${window.location.pathname}?campaign=${encodeURIComponent(input)}`;
+        return;
+      }
+
       if (!rawText) {
-        alert("Please provide at least one valid source link.");
+        alert("Please enter a registered campaign slug or paste a source URL.");
         return;
       }
 
@@ -817,13 +860,8 @@
         }
       });
 
-      if (parsedSources.length === 0) {
-        alert("No valid Notion ID or Google Sheet URL found.");
-        return;
-      }
-
       const sourcesQuery = encodeURIComponent(parsedSources.join('|'));
-      window.location.href = `${window.location.origin}${window.location.pathname}?sources=${sourcesQuery}&brand=${encodeURIComponent(title)}`;
+      window.location.href = `${window.location.origin}${window.location.pathname}?sources=${sourcesQuery}&brand=${encodeURIComponent(input || 'Master Campaign')}`;
     }
 
     function showErrorNotice(msg) {
