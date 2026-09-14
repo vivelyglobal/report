@@ -3,217 +3,236 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Unified KOL Campaign Performance Report</title>
+  <title>VIVELY — Campaign Performance Report</title>
+  
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
   <style>
-    body { font-family: 'Plus Jakarta Sans', sans-serif; }
-    .glass { background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(14px); }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #FAFAFA;
+      color: #0A0A0A;
+      -webkit-font-smoothing: antialiased;
+    }
+    .vively-glass {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #E5E5E5; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #D4D4D4; }
   </style>
 </head>
-<body class="bg-neutral-50/70 text-neutral-900 antialiased min-h-screen pb-24">
+<body class="min-h-screen flex flex-col antialiased selection:bg-neutral-900 selection:text-white">
 
-  <!-- Sticky Header -->
-  <nav class="sticky top-0 z-50 glass border-b border-neutral-200/80 px-6 py-4 transition-all">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <span class="relative flex h-3 w-3">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-        </span>
-        <div>
-          <h1 id="brandTitle" class="text-base sm:text-lg font-extrabold text-neutral-900 tracking-tight">KOL Performance</h1>
-          <p id="sourceSubTitle" class="text-[11px] text-neutral-500 font-medium">Multi-Campaign Performance Analytics</p>
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-50 vively-glass border-b border-neutral-200/70 transition-all">
+    <div class="max-w-7xl mx-auto px-5 sm:px-8 py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      
+      <div class="flex items-center gap-4">
+        <div class="flex flex-col">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-extrabold tracking-tight uppercase text-neutral-950">VIVELY</span>
+            <span class="text-neutral-300">/</span>
+            <h1 id="brandTitle" class="text-xs sm:text-sm font-semibold text-neutral-700 tracking-tight">KOL Performance</h1>
+          </div>
+          <p id="sourceSubTitle" class="text-[10px] text-neutral-400 font-medium tracking-wide">Live Global Market Activation Report</p>
         </div>
       </div>
-      
-      <div class="flex flex-wrap items-center gap-2.5">
-        <!-- Interactive Global Campaign Filter -->
-        <div class="flex items-center gap-1.5 bg-white border border-neutral-300 rounded-xl px-2.5 py-1 shadow-sm">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">View:</span>
-          <select id="headerCampaignFilter" onchange="switchActiveCampaign(this.value)" class="text-xs font-bold text-neutral-800 bg-transparent outline-none cursor-pointer">
-            <option value="ALL">All Campaigns Combined</option>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="relative inline-flex items-center bg-white border border-neutral-200 rounded-full px-3 py-1.5 shadow-2xs hover:border-neutral-300 transition">
+          <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 mr-2">Campaign:</span>
+          <select id="headerCampaignFilter" onchange="switchActiveCampaign(this.value)" class="text-xs font-semibold text-neutral-800 bg-transparent outline-none cursor-pointer pr-1">
+            <option value="ALL">All Campaigns</option>
           </select>
         </div>
 
-        <button onclick="toggleSetupModal()" class="px-3.5 py-2 bg-neutral-100 border border-neutral-200 text-neutral-700 text-xs font-semibold rounded-xl hover:bg-neutral-200 transition shadow-sm">
-          Change Sources
+        <button onclick="toggleSetupModal()" class="px-3.5 py-1.5 bg-white border border-neutral-200 text-neutral-700 text-xs font-medium rounded-full hover:bg-neutral-50 transition shadow-2xs">
+          Sources
         </button>
-        <button onclick="copyCurrentLink()" class="px-3.5 py-2 bg-white border border-neutral-300 text-neutral-800 text-xs font-semibold rounded-xl hover:bg-neutral-50 transition shadow-sm">
-          Copy Link
+        <button onclick="copyCurrentLink()" class="px-3.5 py-1.5 bg-white border border-neutral-200 text-neutral-700 text-xs font-medium rounded-full hover:bg-neutral-50 transition shadow-2xs">
+          Share
         </button>
-        <button onclick="downloadCSV()" class="px-3.5 py-2 bg-neutral-900 text-white text-xs font-semibold rounded-xl hover:bg-neutral-800 transition shadow-sm flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        <button onclick="downloadCSV()" class="px-4 py-1.5 bg-neutral-950 text-white text-xs font-semibold rounded-full hover:bg-neutral-800 transition shadow-sm flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
           Export CSV
         </button>
       </div>
-    </div>
-  </nav>
 
-  <!-- Modal Switch Multi-Source (Notion or Google Sheet) -->
-  <div id="setupModal" class="fixed inset-0 bg-neutral-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white max-w-lg w-full p-6 rounded-3xl shadow-2xl border border-neutral-200 space-y-4">
-      <div class="flex items-center justify-between">
+    </div>
+  </header>
+
+  <!-- Sources Setup Modal -->
+  <div id="setupModal" class="fixed inset-0 bg-neutral-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white max-w-lg w-full p-7 rounded-2xl shadow-xl border border-neutral-100 space-y-5">
+      <div class="flex items-center justify-between border-b border-neutral-100 pb-3">
         <div>
-          <h3 class="text-sm font-bold text-neutral-900">Campaign Sources Setup</h3>
-          <p class="text-[11px] text-neutral-400">Add multiple campaigns and customize their labels</p>
+          <h3 class="text-sm font-bold text-neutral-900 tracking-tight">Campaign Data Sources</h3>
+          <p class="text-[11px] text-neutral-400 mt-0.5">Connect multiple Notion databases or Google Sheets</p>
         </div>
-        <button onclick="toggleSetupModal()" class="text-neutral-400 hover:text-neutral-700 text-xs font-bold">✕</button>
+        <button onclick="toggleSetupModal()" class="text-neutral-400 hover:text-neutral-800 text-xs font-bold p-1">✕</button>
       </div>
-      <div>
-        <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Master Dashboard Title</label>
-        <input id="inputBrandName" type="text" placeholder="e.g. VIVELY GLOBAL CAMPAIGN" class="w-full px-3.5 py-2 text-xs border border-neutral-300 rounded-xl outline-none focus:border-neutral-900">
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5">Master Campaign Name</label>
+          <input id="inputBrandName" type="text" placeholder="e.g. Master Campaign" class="w-full px-3.5 py-2 text-xs border border-neutral-200 rounded-xl outline-none focus:border-neutral-950 transition">
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5">Sources URL (1 per line)</label>
+          <p class="text-[10px] text-neutral-400 mb-2">Format: <code>Nama Campaign = Link Notion / Google Sheets</code></p>
+          <textarea id="inputSourceLink" rows="5" placeholder="NAAP = https://app.notion.com/...&#10;KOWORK = https://app.notion.com/...&#10;https://docs.google.com/spreadsheets/d/..." class="w-full px-3.5 py-2 text-xs font-mono border border-neutral-200 rounded-xl outline-none focus:border-neutral-950 transition resize-none"></textarea>
+        </div>
       </div>
-      <div>
-        <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Campaign Links (1 URL Per Line)</label>
-        <p class="text-[11px] text-neutral-400 mb-1.5">Tips: Kamu bisa ketik <b>Nama Campaign = Link</b> agar labelnya jelas.</p>
-        <textarea id="inputSourceLink" rows="6" placeholder="Contoh:&#10;NAAP = https://app.notion.com/p/f19ce5b809f9822bb29e01934bcb3501...&#10;KOWORK = https://app.notion.com/p/0c9ce5b809f983368b2781a010d5f814...&#10;LABIOTTE = https://app.notion.com/p/eb4ce5b809f983d5a63481ddae4dbdba...&#10;https://docs.google.com/spreadsheets/d/1AU9GO4..." class="w-full px-3.5 py-2 text-xs font-mono border border-neutral-300 rounded-xl outline-none focus:border-neutral-900 resize-none"></textarea>
+
+      <div class="flex items-center gap-2 pt-2">
+        <button onclick="toggleSetupModal()" class="w-1/3 py-2.5 bg-neutral-100 text-neutral-600 font-semibold text-xs rounded-xl hover:bg-neutral-200 transition">Cancel</button>
+        <button onclick="applyMultiSource()" class="w-2/3 py-2.5 bg-neutral-950 text-white font-semibold text-xs rounded-xl hover:bg-neutral-800 transition shadow-sm">Save & Load Report</button>
       </div>
-      <button onclick="applyMultiSource()" class="w-full py-2.5 bg-neutral-900 text-white font-bold text-xs rounded-xl hover:bg-neutral-800 transition shadow">
-        Generate Report ↗
-      </button>
     </div>
   </div>
 
   <!-- Loading State -->
-  <div id="loadingBox" class="max-w-7xl mx-auto px-6 py-28 text-center space-y-4">
-    <div class="inline-block h-8 w-8 animate-spin rounded-full border-2 border-neutral-900 border-r-transparent"></div>
-    <p id="loadingStatusText" class="text-xs font-semibold tracking-widest text-neutral-500 uppercase">Aggregating live campaign sources...</p>
+  <div id="loadingBox" class="max-w-7xl mx-auto px-6 py-32 text-center space-y-4">
+    <div class="inline-block h-6 w-6 animate-spin rounded-full border-2 border-neutral-900 border-r-transparent"></div>
+    <p id="loadingStatusText" class="text-[11px] font-medium tracking-widest text-neutral-400 uppercase">Synchronizing campaign data...</p>
   </div>
 
-  <!-- Dashboard Container -->
-  <main id="dashboardContent" class="max-w-7xl mx-auto px-4 sm:px-6 pt-8 space-y-8 hidden">
+  <!-- Main Dashboard Content -->
+  <main id="dashboardContent" class="max-w-7xl mx-auto px-5 sm:px-8 py-8 space-y-10 hidden flex-1 w-full">
 
-    <!-- KPI Metric Cards (Dinamis Berubah Sesuai Filter) -->
-    <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 sm:gap-4">
-      <div class="bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-sm">
-        <div class="flex items-center justify-between mb-1.5">
-          <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-600">Total Posts</span>
-          <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-        </div>
-        <p id="kpiUploaded" class="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight">0</p>
-        <span class="text-[11px] text-neutral-500 font-medium">Uploaded status</span>
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-neutral-200/80 pb-6">
+      <div>
+        <p class="text-[10px] font-bold tracking-widest uppercase text-neutral-400">Overview</p>
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-950 mt-1">Campaign Analytics</h2>
+      </div>
+      <div class="text-xs text-neutral-400 font-medium">
+        Aggregated organic reach & creator conversions
+      </div>
+    </div>
+
+    <!-- KPI Metric Cards -->
+    <section class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
+      
+      <!-- Published Posts (Status: Uploaded) -->
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between">
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Published Posts</span>
+        <p id="kpiUploaded" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
+        <span class="text-[10px] text-neutral-400 font-medium">Status: Uploaded</span>
       </div>
 
-      <div class="bg-amber-50/40 p-5 rounded-2xl border border-amber-200/80 shadow-sm">
-        <div class="flex items-center justify-between mb-1.5">
-          <span class="text-[10px] font-bold uppercase tracking-widest text-amber-700">Waiting Upload</span>
-          <span class="h-2 w-2 rounded-full bg-amber-500"></span>
-        </div>
-        <p id="kpiWaitingUpload" class="text-2xl sm:text-3xl font-black text-amber-900 tracking-tight">0</p>
-        <span class="text-[11px] text-amber-700/80 font-medium">Pending posts</span>
+      <!-- In Pipeline (Status: Waiting Upload) -->
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between">
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">In Pipeline</span>
+        <p id="kpiWaitingUpload" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
+        <span class="text-[10px] text-neutral-400 font-medium">Waiting Upload</span>
       </div>
 
-      <div class="bg-indigo-50/40 p-5 rounded-2xl border border-indigo-200/80 shadow-sm">
-        <div class="flex items-center justify-between mb-1.5">
-          <span class="text-[10px] font-bold uppercase tracking-widest text-indigo-700">Total ER</span>
-          <span class="h-2 w-2 rounded-full bg-indigo-500"></span>
-        </div>
-        <p id="kpiTotalER" class="text-2xl sm:text-3xl font-black text-indigo-900 tracking-tight">0.00%</p>
-        <span class="text-[11px] text-indigo-700/80 font-medium">Engagement Rate</span>
+      <!-- Total ER -->
+      <div class="bg-neutral-950 text-white p-4 sm:p-5 rounded-2xl border border-neutral-900 shadow-sm flex flex-col justify-between">
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Avg ER</span>
+        <p id="kpiTotalER" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight my-2">0.00%</p>
+        <span class="text-[10px] text-neutral-400 font-medium">Engagement Rate</span>
       </div>
 
-      <div class="bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-sm">
-        <div class="flex items-center justify-between mb-1.5">
-          <span class="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Total Views</span>
-          <span class="text-neutral-400">👁️</span>
-        </div>
-        <p id="kpiViews" class="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight">0</p>
-        <span class="text-[11px] text-neutral-500 font-medium">Impressions</span>
+      <!-- Total Views -->
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between">
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Total Views</span>
+        <p id="kpiViews" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
+        <span class="text-[10px] text-neutral-400 font-medium">Organic Impressions</span>
       </div>
 
-      <div class="bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-sm">
-        <div class="flex items-center justify-between mb-1.5">
-          <span class="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Total Likes</span>
-          <span class="text-neutral-400">❤️</span>
-        </div>
-        <p id="kpiLikes" class="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight">0</p>
-        <span class="text-[11px] text-neutral-500 font-medium">Audience likes</span>
+      <!-- Likes -->
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between">
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Likes</span>
+        <p id="kpiLikes" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
+        <span class="text-[10px] text-neutral-400 font-medium">Reactions</span>
       </div>
 
-      <div class="bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-sm">
-        <div class="flex items-center justify-between mb-1.5">
-          <span class="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Comments</span>
-          <span class="text-neutral-400">💬</span>
-        </div>
-        <p id="kpiComments" class="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight">0</p>
-        <span class="text-[11px] text-neutral-500 font-medium">Discussions</span>
+      <!-- Comments -->
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between">
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Comments</span>
+        <p id="kpiComments" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
+        <span class="text-[10px] text-neutral-400 font-medium">Discussions</span>
       </div>
 
-      <div class="col-span-2 sm:col-span-1 bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-sm">
-        <div class="flex items-center justify-between mb-1.5">
-          <span class="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Reposts</span>
-          <span class="text-neutral-400">🔁</span>
+      <!-- Shares -->
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between col-span-2 sm:col-span-1">
+        <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Shares / Saves</span>
+        <p id="kpiReposts" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
+        <span class="text-[10px] text-neutral-400 font-medium">Virality Factor</span>
+      </div>
+
+    </section>
+
+    <!-- REVISI 3: TOP VIRAL CAMPAIGNS (TOP 3 CREATORS) -->
+    <section class="bg-white rounded-2xl border border-neutral-200/70 shadow-2xs overflow-hidden">
+      <div class="px-6 py-5 border-b border-neutral-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Performance Leaders</span>
+          <h3 class="text-sm font-bold text-neutral-900 mt-0.5">Top Viral Creators</h3>
         </div>
-        <p id="kpiReposts" class="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight">0</p>
-        <span class="text-[11px] text-neutral-500 font-medium">Shares</span>
+        <span class="text-[11px] text-neutral-400 font-medium">Top 3 creators by total organic views</span>
+      </div>
+
+      <!-- Top 3 Grid Showcase -->
+      <div id="topViralGrid" class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-neutral-100">
+        <!-- Injected via JS -->
       </div>
     </section>
 
-    <!-- Campaign Comparison Table (Side-by-Side Breakdown) -->
-    <section class="bg-white rounded-3xl border border-neutral-200/80 shadow-sm overflow-hidden p-6 space-y-4">
-      <div class="flex items-center justify-between border-b border-neutral-100 pb-3">
+    <!-- Demographic Distribution -->
+    <section class="bg-white p-6 sm:p-7 rounded-2xl border border-neutral-200/70 shadow-2xs space-y-6">
+      <div class="flex items-center justify-between border-b border-neutral-100 pb-4">
         <div>
-          <h2 class="text-xs font-bold uppercase tracking-widest text-neutral-400">Campaign Comparison</h2>
-          <p class="text-sm font-bold text-neutral-900 mt-0.5">Summary metrics per individual campaign</p>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-400">Demographic Distribution</h3>
+          <p class="text-sm font-semibold text-neutral-900 mt-0.5">Creator Nationality & Regional Footprint</p>
         </div>
-        <span class="text-xs font-medium text-neutral-400">Click campaign name to filter</span>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
-          <thead class="bg-neutral-50 text-[10px] font-bold uppercase tracking-wider text-neutral-500 border-b border-neutral-200">
-            <tr>
-              <th class="py-3 px-4">Campaign</th>
-              <th class="py-3 px-4 text-center">Uploaded</th>
-              <th class="py-3 px-4 text-center">Pending</th>
-              <th class="py-3 px-4 text-right">Views</th>
-              <th class="py-3 px-4 text-right">Likes</th>
-              <th class="py-3 px-4 text-right">Comments</th>
-              <th class="py-3 px-4 text-right font-bold text-indigo-600">Avg ER %</th>
-            </tr>
-          </thead>
-          <tbody id="comparisonTableBody" class="divide-y divide-neutral-100 font-medium"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- Demographic Distribution (Dinamis Berubah Sesuai Filter) -->
-    <section class="bg-white p-6 rounded-3xl border border-neutral-200/80 shadow-sm">
-      <div class="flex items-center justify-between border-b border-neutral-100 pb-4 mb-6">
-        <div>
-          <h2 class="text-xs font-bold uppercase tracking-widest text-neutral-400">Demographic Distribution</h2>
-          <p class="text-sm font-bold text-neutral-900 mt-0.5">Creator Nationality & Regional Share</p>
-        </div>
-        <span id="natTotalText" class="text-xs font-bold px-3 py-1 bg-neutral-100 rounded-full text-neutral-600"></span>
+        <span id="natTotalText" class="text-xs font-semibold px-3 py-1 bg-neutral-100 rounded-full text-neutral-700"></span>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-        <div class="md:col-span-4 flex flex-col items-center justify-center p-2">
-          <div class="relative w-48 h-48 sm:w-56 sm:h-56">
+        <div class="md:col-span-4 flex flex-col items-center justify-center">
+          <div class="relative w-44 h-44 sm:w-52 sm:h-52">
             <canvas id="demographicChart"></canvas>
           </div>
-          <span class="text-[11px] text-neutral-400 font-medium mt-3">Regional Share %</span>
+          <span class="text-[11px] text-neutral-400 font-medium mt-3">Regional Share (%)</span>
         </div>
         <div class="md:col-span-8 flex flex-col justify-center">
-          <div id="nationalityBadges" class="flex flex-wrap gap-2.5"></div>
+          <div id="nationalityBadges" class="flex flex-wrap gap-2"></div>
         </div>
       </div>
     </section>
 
-    <!-- Deliverables Table -->
-    <section class="bg-white rounded-3xl border border-neutral-200/80 shadow-sm overflow-hidden">
+    <!-- Deliverables Performance Table -->
+    <section class="bg-white rounded-2xl border border-neutral-200/70 shadow-2xs overflow-hidden">
       <div class="p-5 sm:p-6 border-b border-neutral-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div class="flex items-center gap-2 flex-wrap">
-            <h2 class="text-sm font-bold text-neutral-900">Campaign Performance Breakdown</h2>
-            <span class="px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-800 rounded-full">Uploaded Only</span>
-            <span id="uploadedCountBadge" class="text-[11px] font-semibold bg-neutral-100 text-neutral-600 px-2 py-0.5 rounded-full">0 posts</span>
+        <div class="space-y-1">
+          <div class="flex items-center gap-2.5">
+            <h3 class="text-sm font-bold text-neutral-900">Creator Performance Breakdown</h3>
+            <span id="uploadedCountBadge" class="text-[11px] font-medium bg-neutral-100 text-neutral-600 px-2.5 py-0.5 rounded-full">0 posts</span>
           </div>
-          <p class="text-xs text-neutral-400 mt-0.5">Direct content links & metrics for active view</p>
+          <p class="text-xs text-neutral-400">Direct links & metrics for published deliverables</p>
         </div>
         
         <div class="relative w-full sm:w-64">
@@ -222,25 +241,25 @@
             type="text" 
             id="searchInput" 
             placeholder="Search creator, country..." 
-            class="pl-9 pr-4 py-2 text-xs bg-neutral-50 border border-neutral-200 rounded-xl w-full focus:bg-white focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-900 outline-none transition"
+            class="pl-9 pr-3.5 py-2 text-xs bg-neutral-50 border border-neutral-200 rounded-full w-full focus:bg-white focus:border-neutral-900 outline-none transition"
           />
         </div>
       </div>
 
       <div class="overflow-x-auto max-h-[580px]">
         <table class="w-full text-left text-xs text-neutral-600">
-          <thead class="sticky top-0 bg-neutral-100/95 backdrop-blur-md text-[10px] font-bold uppercase tracking-wider text-neutral-500 border-b border-neutral-200 z-10 select-none">
+          <thead class="sticky top-0 bg-neutral-50/95 backdrop-blur-md text-[10px] font-bold uppercase tracking-wider text-neutral-400 border-b border-neutral-100 z-10 select-none">
             <tr>
-              <th onclick="sortTable('campaignTag')" class="py-3.5 px-4 cursor-pointer hover:text-neutral-900">Campaign ↕</th>
-              <th onclick="sortTable('id')" class="py-3.5 px-4 cursor-pointer hover:text-neutral-900">Influencer ↕</th>
-              <th onclick="sortTable('name')" class="py-3.5 px-4 cursor-pointer hover:text-neutral-900">Full Name</th>
-              <th onclick="sortTable('country')" class="py-3.5 px-4 cursor-pointer hover:text-neutral-900">Nationality</th>
-              <th onclick="sortTable('views')" class="py-3.5 px-4 text-right cursor-pointer hover:text-neutral-900">Views ↕</th>
-              <th onclick="sortTable('likes')" class="py-3.5 px-4 text-right cursor-pointer hover:text-neutral-900">Likes ↕</th>
-              <th onclick="sortTable('comments')" class="py-3.5 px-4 text-right cursor-pointer hover:text-neutral-900">Comments ↕</th>
-              <th onclick="sortTable('reposts')" class="py-3.5 px-4 text-right cursor-pointer hover:text-neutral-900">Reposts ↕</th>
-              <th onclick="sortTable('er')" class="py-3.5 px-4 text-right cursor-pointer hover:text-indigo-600 font-bold">ER % ↕</th>
-              <th class="py-3.5 px-4 text-center">Content Link</th>
+              <th onclick="sortTable('campaignTag')" class="py-3 px-5 cursor-pointer hover:text-neutral-900">Campaign ↕</th>
+              <th onclick="sortTable('id')" class="py-3 px-4 cursor-pointer hover:text-neutral-900">Influencer ↕</th>
+              <th onclick="sortTable('name')" class="py-3 px-4 cursor-pointer hover:text-neutral-900">Name</th>
+              <th onclick="sortTable('country')" class="py-3 px-4 cursor-pointer hover:text-neutral-900">Region</th>
+              <th onclick="sortTable('views')" class="py-3 px-4 text-right cursor-pointer hover:text-neutral-900">Views ↕</th>
+              <th onclick="sortTable('likes')" class="py-3 px-4 text-right cursor-pointer hover:text-neutral-900">Likes ↕</th>
+              <th onclick="sortTable('comments')" class="py-3 px-4 text-right cursor-pointer hover:text-neutral-900">Comments ↕</th>
+              <th onclick="sortTable('reposts')" class="py-3 px-4 text-right cursor-pointer hover:text-neutral-900">Shares ↕</th>
+              <th onclick="sortTable('er')" class="py-3 px-4 text-right cursor-pointer hover:text-neutral-950 font-bold">ER ↕</th>
+              <th class="py-3 px-5 text-center">Content</th>
             </tr>
           </thead>
           <tbody id="tableRows" class="divide-y divide-neutral-100 font-normal"></tbody>
@@ -248,16 +267,31 @@
       </div>
     </section>
 
-    <!-- Creative Showcase Grid -->
+    <!-- REVISI 4: CREATIVE SHOWCASE WITH AUTOPLAY PREVIEW -->
     <section class="space-y-4">
-      <div>
-        <h2 class="text-xs font-bold uppercase tracking-widest text-neutral-400">Creative Content Showcase</h2>
-        <p class="text-xs text-neutral-500">Live Post Reels from Filtered Selection</p>
+      <div class="flex items-center justify-between border-b border-neutral-200/80 pb-3">
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-400">Creative Content Showcase</h3>
+          <p class="text-sm font-semibold text-neutral-900 mt-0.5">Live UGC Reels & Social Activations</p>
+        </div>
       </div>
       <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </section>
 
   </main>
+
+  <footer class="mt-auto border-t border-neutral-200/80 bg-white py-6">
+    <div class="max-w-7xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-neutral-400">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-neutral-900">VIVELY GLOBAL</span>
+        <span>•</span>
+        <span>Creator-Driven Global Market Activation</span>
+      </div>
+      <div>
+        <span>Confidential Campaign Analytics</span>
+      </div>
+    </div>
+  </footer>
 
   <script>
     const APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby8SwMfWyW1y6xDLh1yOX9c0PZ26IPLJr9PMgzxZpnBl9EgxybIqgWCkjK9vQihjXkFwA/exec";
@@ -277,8 +311,8 @@
     let currentSortKey = 'views';
     let availableCampaignTags = [];
 
-    document.getElementById("brandTitle").innerText = `${brandName.toUpperCase()} Performance`;
-    document.title = `${brandName.toUpperCase()} - Unified KOL Performance Report`;
+    document.getElementById("brandTitle").innerText = `${brandName}`;
+    document.title = `${brandName} — VIVELY Report`;
 
     function normalizeCountry(raw) {
       if (!raw) return "Global";
@@ -302,6 +336,7 @@
       return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
+    // REVISI 1 & 2: Pemisahan status Uploaded vs Waiting Upload
     function sanitizeRow(raw, sourceTag) {
       const views = Number(raw.views || raw.Views || 0) || 0;
       const likes = Number(raw.likes || raw.Likes || 0) || 0;
@@ -315,12 +350,23 @@
         er = ((likes + comments + reposts) / views) * 100;
       }
 
+      // Deteksi status yang bersih dari Notion
+      const rawStatus = String(raw.status || raw.Status || "").trim();
+      let normalizedStatus = "Waiting Upload";
+      if (rawStatus.toLowerCase() === "uploaded") {
+        normalizedStatus = "Uploaded";
+      } else if (rawStatus.toLowerCase().includes("waiting") || rawStatus.toLowerCase().includes("pipeline")) {
+        normalizedStatus = "Waiting Upload";
+      } else if (views > 0 || (raw.contentUrl && raw.contentUrl.includes("instagram.com"))) {
+        normalizedStatus = "Uploaded";
+      }
+
       return {
         campaignTag: sourceTag || "Campaign",
         id: String(raw.id || raw.Formula || raw.influencer || "creator").replace(/^@/, ''),
         name: raw.name || raw.Full_Name || raw["Full Name"] || "-",
         country: normalizeCountry(raw.country || raw.Nationality || "Global"),
-        status: String(raw.status || raw.Status || "Uploaded").trim(),
+        status: normalizedStatus,
         likes: likes,
         comments: comments,
         views: views,
@@ -330,9 +376,6 @@
       };
     }
 
-    // ------------------------------------------------------------------
-    // MULTI-SOURCE PARSING & INITIALIZATION
-    // ------------------------------------------------------------------
     async function initDataLoading() {
       const sourcesToFetch = [];
 
@@ -352,9 +395,8 @@
       }
 
       availableCampaignTags = sourcesToFetch.map(s => s.label);
-      document.getElementById("sourceSubTitle").innerText = `Tracking ${sourcesToFetch.length} Campaign(s)`;
+      document.getElementById("sourceSubTitle").innerText = `Tracking ${sourcesToFetch.length} Campaign Stream(s)`;
 
-      // Setup Dropdown Global Filter di Nav Atas
       const headerFilter = document.getElementById("headerCampaignFilter");
       headerFilter.innerHTML = `<option value="ALL">All Campaigns Combined (${sourcesToFetch.length})</option>`;
       availableCampaignTags.forEach(tag => {
@@ -367,10 +409,8 @@
         allCampaignData = results.flat();
 
         if (allCampaignData.length === 0) {
-          throw new Error("Tidak ada data ditemukan di semua link campaign yang diberikan.");
+          throw new Error("No data found from configured sources.");
         }
-
-        renderComparisonSummary(allCampaignData, availableCampaignTags);
 
         currentFilteredData = allCampaignData;
         processAndRender(currentFilteredData);
@@ -386,7 +426,7 @@
       if (source.type === 'sheet') {
         const csvUrl = `https://docs.google.com/spreadsheets/d/${source.id}/gviz/tq?tqx=out:csv`;
         const res = await fetch(csvUrl);
-        if (!res.ok) throw new Error(`Gagal membaca Google Sheet [${source.label}]. Pastikan izin: 'Anyone with the link can view'.`);
+        if (!res.ok) throw new Error(`Cannot load Google Sheet [${source.label}].`);
         const csvText = await res.text();
         const parsed = parseCSV(csvText);
         return mapSheetRowsToObjects(parsed).map(r => sanitizeRow(r, source.label));
@@ -476,46 +516,54 @@
       return result;
     }
 
-    // ------------------------------------------------------------------
-    // RENDER SIDE-BY-SIDE SUMMARY PER CAMPAIGN
-    // ------------------------------------------------------------------
-    function renderComparisonSummary(data, tags) {
-      const tbody = document.getElementById("comparisonTableBody");
-      tbody.innerHTML = "";
+    // REVISI 3: Render Top 3 Viral Creators
+    function renderTopViralCampaigns(data) {
+      const container = document.getElementById("topViralGrid");
+      container.innerHTML = "";
 
-      tags.forEach(tag => {
-        const campData = data.filter(d => d.campaignTag === tag);
-        const uploaded = campData.filter(d => d.status.toLowerCase() === "uploaded");
-        const waiting = campData.filter(d => d.status.toLowerCase().includes("waiting"));
+      const uploaded = data.filter(d => d.status === "Uploaded");
+      const top3 = [...uploaded].sort((a, b) => b.views - a.views).slice(0, 3);
 
-        const views = uploaded.reduce((a, b) => a + b.views, 0);
-        const likes = uploaded.reduce((a, b) => a + b.likes, 0);
-        const comments = uploaded.reduce((a, b) => a + b.comments, 0);
-        const reposts = uploaded.reduce((a, b) => a + b.reposts, 0);
-        const er = views > 0 ? ((likes + comments + reposts) / views) * 100 : 0;
+      if (top3.length === 0) {
+        container.innerHTML = `<div class="p-8 text-center text-neutral-400 text-xs col-span-3">No viral creator data available.</div>`;
+        return;
+      }
 
-        const tr = document.createElement("tr");
-        tr.className = "hover:bg-neutral-50/80 cursor-pointer transition";
-        tr.onclick = () => switchActiveCampaign(tag);
-        tr.innerHTML = `
-          <td class="py-3 px-4 font-bold text-neutral-900 flex items-center gap-2">
-            <span class="h-2 w-2 rounded-full bg-neutral-900"></span>
-            ${tag}
-          </td>
-          <td class="py-3 px-4 text-center font-bold text-emerald-600 bg-emerald-50/30">${uploaded.length}</td>
-          <td class="py-3 px-4 text-center text-amber-700 bg-amber-50/30">${waiting.length}</td>
-          <td class="py-3 px-4 text-right font-black text-neutral-900">${nf.format(views)}</td>
-          <td class="py-3 px-4 text-right text-neutral-700">${nf.format(likes)}</td>
-          <td class="py-3 px-4 text-right text-neutral-700">${nf.format(comments)}</td>
-          <td class="py-3 px-4 text-right font-black text-indigo-600 bg-indigo-50/30">${er.toFixed(2)}%</td>
+      const ranks = ["1ST", "2ND", "3RD"];
+      const badges = [
+        "bg-neutral-950 text-white",
+        "bg-neutral-200 text-neutral-800",
+        "bg-neutral-100 text-neutral-600"
+      ];
+
+      top3.forEach((item, index) => {
+        const col = document.createElement("div");
+        col.className = "p-6 flex flex-col justify-between hover:bg-neutral-50/50 transition";
+        col.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full ${badges[index]}">${ranks[index]} MOST VIRAL</span>
+              <span class="text-[10px] text-neutral-400 font-semibold uppercase tracking-wider">${item.campaignTag}</span>
+            </div>
+            <h4 class="text-base font-bold text-neutral-950 truncate">@${item.id}</h4>
+            <p class="text-xs text-neutral-500 font-medium">${item.name} • ${item.country}</p>
+          </div>
+
+          <div class="mt-6 pt-4 border-t border-neutral-100 flex items-center justify-between">
+            <div>
+              <span class="text-[10px] font-medium text-neutral-400 uppercase tracking-wider block">Impressions</span>
+              <span class="text-lg font-extrabold text-neutral-950">${nf.format(item.views)}</span>
+            </div>
+            <div class="text-right">
+              <span class="text-[10px] font-medium text-neutral-400 uppercase tracking-wider block">Engagement</span>
+              <span class="text-xs font-bold text-neutral-900">${item.er.toFixed(2)}% ER</span>
+            </div>
+          </div>
         `;
-        tbody.appendChild(tr);
+        container.appendChild(col);
       });
     }
 
-    // ------------------------------------------------------------------
-    // SWITCH FILTER UTAMA (MEMPENGARUHI SELURUH DASHBOARD)
-    // ------------------------------------------------------------------
     function switchActiveCampaign(tag) {
       document.getElementById("headerCampaignFilter").value = tag;
 
@@ -529,8 +577,8 @@
     }
 
     function processAndRender(data) {
-      const isUploaded = (d) => d.status.toLowerCase() === "uploaded";
-      const isWaiting = (d) => d.status.toLowerCase().includes("waiting");
+      const isUploaded = (d) => d.status === "Uploaded";
+      const isWaiting = (d) => d.status === "Waiting Upload";
 
       const uploadedOnlyData = data.filter(isUploaded);
       const waitingList = data.filter(isWaiting);
@@ -542,7 +590,7 @@
       const totalReposts = uploadedOnlyData.reduce((a, b) => a + b.reposts, 0);
       const totalER = totalViews > 0 ? ((totalLikes + totalComments + totalReposts) / totalViews) * 100 : 0;
 
-      // Update Seluruh KPI Cards
+      // REVISI 1 & 2: Update Metrik KPI
       document.getElementById("kpiUploaded").innerText = uploadedOnlyData.length;
       document.getElementById("kpiWaitingUpload").innerText = waitingList.length;
       document.getElementById("kpiTotalER").innerText = `${totalER.toFixed(2)}%`;
@@ -551,21 +599,24 @@
       document.getElementById("kpiComments").innerText = nf.format(totalComments);
       document.getElementById("kpiReposts").innerText = nf.format(totalReposts);
 
-      // Update Donut Demografi
+      // Render Top 3 Viral
+      renderTopViralCampaigns(data);
+
+      // Demographics
       const natCounts = {};
       activeCreators.forEach(d => {
         natCounts[d.country] = (natCounts[d.country] || 0) + 1;
       });
 
       const sortedCountries = Object.entries(natCounts).sort((a, b) => b[1] - a[1]);
-      document.getElementById("natTotalText").innerText = `${sortedCountries.length} Countries (${activeCreators.length} KOLs)`;
+      document.getElementById("natTotalText").innerText = `${sortedCountries.length} Countries (${activeCreators.length} Creators)`;
 
       const natContainer = document.getElementById("nationalityBadges");
       natContainer.innerHTML = "";
       sortedCountries.forEach(([c, count]) => {
         const badge = document.createElement("div");
-        badge.className = "px-3.5 py-1.5 rounded-2xl bg-neutral-100 text-xs font-semibold text-neutral-800 flex items-center gap-2 border border-neutral-200/80 shadow-2xs";
-        badge.innerHTML = `<span>${c}</span><span class="bg-white px-2 py-0.5 rounded-full text-[10px] text-neutral-900 font-black border border-neutral-200">${count}</span>`;
+        badge.className = "px-3 py-1.5 rounded-full bg-neutral-100 text-xs font-medium text-neutral-800 flex items-center gap-2 border border-neutral-200/50";
+        badge.innerHTML = `<span>${c}</span><span class="bg-white px-1.5 py-0.5 rounded-full text-[10px] text-neutral-900 font-bold border border-neutral-200/70">${count}</span>`;
         natContainer.appendChild(badge);
       });
 
@@ -580,7 +631,7 @@
 
       const labels = countryPairs.map(p => p[0]);
       const counts = countryPairs.map(p => p[1]);
-      const palette = ['#171717', '#404040', '#737373', '#a3a3a3', '#d4d4d4', '#0284c7', '#0d9488', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#84cc16'];
+      const palette = ['#0A0A0A', '#262626', '#404040', '#525252', '#737373', '#A3A3A3', '#D4D4D4', '#E5E5E5'];
 
       pieChartInstance = new Chart(ctx, {
         type: 'doughnut',
@@ -590,14 +641,14 @@
             data: counts,
             backgroundColor: palette.slice(0, labels.length),
             borderWidth: 2,
-            borderColor: '#ffffff'
+            borderColor: '#FFFFFF'
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
-          cutout: '68%'
+          cutout: '72%'
         }
       });
     }
@@ -608,31 +659,30 @@
       tableBody.innerHTML = "";
 
       if (rows.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-neutral-400 text-xs">No uploaded records found.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="10" class="text-center py-12 text-neutral-400 text-xs font-medium">No published records found.</td></tr>`;
         return;
       }
 
       rows.forEach(row => {
         const tr = document.createElement("tr");
-        tr.className = "hover:bg-neutral-50/80 transition-colors";
+        tr.className = "hover:bg-neutral-50/60 transition-colors";
         tr.innerHTML = `
-          <td class="py-3.5 px-4 font-semibold text-neutral-500">
-            <span class="px-2.5 py-1 bg-neutral-100 rounded-lg text-[10px] border border-neutral-200 font-black text-neutral-800">${row.campaignTag}</span>
+          <td class="py-3 px-5">
+            <span class="px-2.5 py-0.5 bg-neutral-100 rounded-md text-[10px] font-semibold text-neutral-700">${row.campaignTag}</span>
           </td>
-          <td class="py-3.5 px-4 font-bold text-neutral-900 flex items-center gap-1.5">
-            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+          <td class="py-3 px-4 font-semibold text-neutral-900">
             @${row.id}
           </td>
-          <td class="py-3.5 px-4 font-medium text-neutral-700">${row.name}</td>
-          <td class="py-3.5 px-4"><span class="px-2.5 py-1 bg-neutral-100 rounded-lg text-neutral-700 font-semibold border border-neutral-200 text-[11px]">${row.country}</span></td>
-          <td class="py-3.5 px-4 text-right font-bold text-neutral-900">${nf.format(row.views)}</td>
-          <td class="py-3.5 px-4 text-right font-medium text-neutral-700">${nf.format(row.likes)}</td>
-          <td class="py-3.5 px-4 text-right font-medium text-neutral-700">${nf.format(row.comments)}</td>
-          <td class="py-3.5 px-4 text-right font-medium text-neutral-700">${nf.format(row.reposts)}</td>
-          <td class="py-3.5 px-4 text-right font-black text-indigo-600 bg-indigo-50/30">${row.er.toFixed(2)}%</td>
-          <td class="py-3.5 px-4 text-center">
-            <a href="${row.contentUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-3 py-1 bg-neutral-900 text-white rounded-lg text-[11px] font-bold hover:bg-neutral-800 transition">
-              Content Reel ↗
+          <td class="py-3 px-4 text-neutral-600">${row.name}</td>
+          <td class="py-3 px-4"><span class="text-neutral-500 font-medium">${row.country}</span></td>
+          <td class="py-3 px-4 text-right font-semibold text-neutral-900">${nf.format(row.views)}</td>
+          <td class="py-3 px-4 text-right text-neutral-600">${nf.format(row.likes)}</td>
+          <td class="py-3 px-4 text-right text-neutral-600">${nf.format(row.comments)}</td>
+          <td class="py-3 px-4 text-right text-neutral-600">${nf.format(row.reposts)}</td>
+          <td class="py-3 px-4 text-right font-bold text-neutral-950">${row.er.toFixed(2)}%</td>
+          <td class="py-3 px-5 text-center">
+            <a href="${row.contentUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-3 py-1 bg-neutral-100 text-neutral-800 rounded-full text-[11px] font-semibold hover:bg-neutral-950 hover:text-white transition">
+              View Reel ↗
             </a>
           </td>
         `;
@@ -640,42 +690,45 @@
       });
     }
 
+    // REVISI 4: Auto-Preview Video Showcase (Instagram Embed with autoplay query)
     function renderVideoGrid(data) {
       const videoGrid = document.getElementById("videoGrid");
       videoGrid.innerHTML = "";
       
       const reels = data.slice(0, 9);
       if (reels.length === 0) {
-        videoGrid.innerHTML = `<div class="col-span-3 text-center py-10 text-neutral-400 text-xs">No reels available for this selection.</div>`;
+        videoGrid.innerHTML = `<div class="col-span-3 text-center py-12 text-neutral-400 text-xs">No reels available for this selection.</div>`;
         return;
       }
 
       reels.forEach(row => {
         const rawUrl = (row.contentUrl || "").trim();
         let embedUrl = "";
+        
+        // Memastikan embed Instagram memutar preview reel
         if (rawUrl.includes("instagram.com")) {
-          const clean = rawUrl.endsWith('/') ? rawUrl : `${rawUrl}/`;
-          embedUrl = `${clean}embed/?autoplay=1&muted=1`;
+          const clean = rawUrl.split('?')[0].replace(/\/$/, "");
+          embedUrl = `${clean}/embed/?autoplay=1&muted=1`;
         }
 
         const card = document.createElement("div");
-        card.className = "bg-white rounded-3xl border border-neutral-200/80 shadow-sm overflow-hidden flex flex-col hover:border-neutral-300 transition";
+        card.className = "bg-white rounded-2xl border border-neutral-200/70 shadow-2xs overflow-hidden flex flex-col hover:border-neutral-300 transition group";
         card.innerHTML = `
           <div class="p-4 border-b border-neutral-100 flex items-center justify-between">
             <div class="truncate">
-              <span class="text-[9px] font-bold text-indigo-600 uppercase tracking-wider block">${row.campaignTag}</span>
-              <h3 class="font-bold text-xs text-neutral-900 truncate max-w-[150px]">@${row.id}</h3>
-              <p class="text-[10px] text-neutral-400 font-medium">${row.country} • ER: ${row.er.toFixed(2)}%</p>
+              <span class="text-[9px] font-bold text-neutral-400 uppercase tracking-wider block">${row.campaignTag}</span>
+              <h4 class="font-bold text-xs text-neutral-900 truncate max-w-[150px]">@${row.id}</h4>
+              <p class="text-[10px] text-neutral-400 font-medium">${row.country} • ER ${row.er.toFixed(2)}%</p>
             </div>
-            <span class="text-[11px] font-bold text-neutral-900 bg-neutral-100 border border-neutral-200 px-2.5 py-1 rounded-lg">${nf.format(row.views)} views</span>
+            <span class="text-[10px] font-semibold text-neutral-800 bg-neutral-100 px-2.5 py-1 rounded-full">${nf.format(row.views)} views</span>
           </div>
           
-          <div class="w-full bg-neutral-950 aspect-[9/16] relative flex items-center justify-center">
+          <div class="w-full bg-neutral-950 aspect-[9/16] relative flex items-center justify-center overflow-hidden">
             ${embedUrl ? `
               <iframe 
                 src="${embedUrl}" 
                 loading="lazy" 
-                class="w-full h-full border-0 absolute inset-0" 
+                class="w-full h-full border-0 absolute inset-0 scale-[1.02] group-hover:scale-105 transition-transform duration-500" 
                 frameborder="0" 
                 scrolling="no" 
                 allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
@@ -684,16 +737,16 @@
               </iframe>
             ` : `
               <div class="text-center p-6 text-neutral-400">
-                <p class="text-xs font-semibold mb-2">Post Preview</p>
-                <a href="${rawUrl}" target="_blank" class="px-4 py-2 bg-white text-neutral-900 font-bold text-xs rounded-xl shadow">Open Link ↗</a>
+                <p class="text-xs font-medium mb-2">Live Content</p>
+                <a href="${rawUrl}" target="_blank" class="px-4 py-2 bg-white text-neutral-900 font-semibold text-xs rounded-full shadow-sm">Open Reel ↗</a>
               </div>
             `}
           </div>
 
-          <div class="p-3 bg-neutral-50/70 border-t border-neutral-100 grid grid-cols-3 text-center divide-x divide-neutral-200 text-xs">
-            <div><span class="text-[9px] text-neutral-400 block font-bold uppercase tracking-wider">Likes</span><span class="font-bold text-neutral-800">${nf.format(row.likes)}</span></div>
-            <div><span class="text-[9px] text-neutral-400 block font-bold uppercase tracking-wider">Comments</span><span class="font-bold text-neutral-800">${nf.format(row.comments)}</span></div>
-            <div><span class="text-[9px] text-neutral-400 block font-bold uppercase tracking-wider">Reposts</span><span class="font-bold text-neutral-800">${nf.format(row.reposts)}</span></div>
+          <div class="p-3 bg-neutral-50/50 border-t border-neutral-100 grid grid-cols-3 text-center divide-x divide-neutral-100 text-xs">
+            <div><span class="text-[9px] text-neutral-400 block font-medium uppercase tracking-wider">Likes</span><span class="font-semibold text-neutral-800">${nf.format(row.likes)}</span></div>
+            <div><span class="text-[9px] text-neutral-400 block font-medium uppercase tracking-wider">Comments</span><span class="font-semibold text-neutral-800">${nf.format(row.comments)}</span></div>
+            <div><span class="text-[9px] text-neutral-400 block font-medium uppercase tracking-wider">Shares</span><span class="font-semibold text-neutral-800">${nf.format(row.reposts)}</span></div>
           </div>
         `;
         videoGrid.appendChild(card);
@@ -708,7 +761,7 @@
         sortAsc = false;
       }
 
-      const uploaded = currentFilteredData.filter(d => d.status.toLowerCase() === "uploaded");
+      const uploaded = currentFilteredData.filter(d => d.status === "Uploaded");
       uploaded.sort((a, b) => {
         let valA = a[key] ?? '';
         let valB = b[key] ?? '';
@@ -728,13 +781,12 @@
       document.getElementById("setupModal").classList.toggle("hidden");
     }
 
-    // Ekstraksi Input Multi-URL dengan Custom Campaign Name
     function applyMultiSource() {
-      const title = document.getElementById("inputBrandName").value.trim() || "VIVELY Multi-Campaign";
+      const title = document.getElementById("inputBrandName").value.trim() || "Master Campaign";
       const rawText = document.getElementById("inputSourceLink").value.trim();
 
       if (!rawText) {
-        alert("Masukkan minimal satu link Notion atau Google Sheets.");
+        alert("Please provide at least one valid source link.");
         return;
       }
 
@@ -745,7 +797,6 @@
         let label = `Campaign ${idx + 1}`;
         let cleanUrl = line;
 
-        // Mendukung format "Nama Campaign = Link"
         if (line.includes('=')) {
           const parts = line.split('=');
           label = parts[0].trim();
@@ -768,7 +819,7 @@
       });
 
       if (parsedSources.length === 0) {
-        alert("Tidak ada link valid yang ditemukan.");
+        alert("No valid Notion ID or Google Sheet URL found.");
         return;
       }
 
@@ -778,21 +829,21 @@
 
     function showErrorNotice(msg) {
       document.getElementById("loadingBox").innerHTML = `
-        <div class="p-6 bg-red-50 border border-red-200 rounded-3xl max-w-lg mx-auto text-red-800 text-xs text-center space-y-3 shadow-sm">
-          <p class="font-black text-sm">Gagal Mengambil Data Multi-Campaign</p>
-          <p class="text-neutral-600">${msg}</p>
-          <button onclick="location.reload()" class="px-5 py-2 bg-neutral-900 text-white font-bold rounded-xl hover:bg-neutral-800 transition">Coba Refresh ↗</button>
+        <div class="p-6 bg-white border border-neutral-200 rounded-2xl max-w-md mx-auto text-xs text-center space-y-3 shadow-sm">
+          <p class="font-bold text-neutral-900">Failed to load data</p>
+          <p class="text-neutral-500">${msg}</p>
+          <button onclick="location.reload()" class="px-4 py-2 bg-neutral-900 text-white font-medium rounded-full hover:bg-neutral-800 transition">Try Again</button>
         </div>
       `;
     }
 
     function copyCurrentLink() {
       navigator.clipboard.writeText(window.location.href);
-      alert("Link report multi-campaign berhasil disalin!");
+      alert("Report link copied to clipboard.");
     }
 
     function downloadCSV() {
-      const uploaded = currentFilteredData.filter(d => d.status.toLowerCase() === "uploaded");
+      const uploaded = currentFilteredData.filter(d => d.status === "Uploaded");
       const headers = ["Campaign", "Influencer ID", "Full Name", "Nationality", "Views", "Likes", "Comments", "Reposts", "ER %", "Content Link"];
       const rows = uploaded.map(d => [
         `"${d.campaignTag}"`, `"${d.id}"`, `"${d.name}"`, `"${d.country}"`, d.views, d.likes, d.comments, d.reposts, `"${d.er.toFixed(2)}%"`, `"${d.contentUrl}"`
@@ -809,7 +860,7 @@
 
     document.getElementById("searchInput").addEventListener("input", (e) => {
       const q = e.target.value.toLowerCase();
-      const uploaded = currentFilteredData.filter(d => d.status.toLowerCase() === "uploaded");
+      const uploaded = currentFilteredData.filter(d => d.status === "Uploaded");
       const filtered = uploaded.filter(d => 
         (d.campaignTag && d.campaignTag.toLowerCase().includes(q)) ||
         (d.id && d.id.toLowerCase().includes(q)) || 
