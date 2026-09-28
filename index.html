@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIVELY — Global Influencer Campaign Report</title>
+  <title>VIVELY — 인플루언서 캠페인 성과 보고서</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <script>
     tailwind.config = {
@@ -60,9 +59,9 @@
 
       <div class="flex flex-wrap items-center gap-2.5">
         <div class="inline-flex items-center bg-white border border-neutral-200 rounded-full px-3 py-1.5 shadow-xs">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400 mr-2">브랜드 선택:</span>
-          <select id="headerCampaignFilter" onchange="switchActiveBrand(this.value)" class="text-xs font-semibold text-neutral-900 bg-transparent outline-none cursor-pointer pr-1">
-            <option value="ALL">전체 브랜드 통합 (Total)</option>
+          <span class="text-[10px] font-bold text-neutral-400 mr-2">브랜드 선택:</span>
+          <select id="headerCampaignFilter" onchange="switchActiveBrand(this.value)" class="text-xs font-bold text-neutral-900 bg-transparent outline-none cursor-pointer pr-1">
+            <option value="ALL">전체 브랜드 통합</option>
           </select>
         </div>
 
@@ -80,7 +79,7 @@
   <!-- Loading State -->
   <div id="loadingBox" class="max-w-7xl mx-auto px-6 py-32 text-center space-y-4">
     <div class="inline-block h-7 w-7 animate-spin rounded-full border-2 border-neutral-900 border-r-transparent"></div>
-    <p id="loadingStatusText" class="text-xs font-semibold tracking-wider text-neutral-400 uppercase">8개 브랜드 구글 시트 데이터를 동기화하는 중입니다...</p>
+    <p id="loadingStatusText" class="text-xs font-semibold tracking-wider text-neutral-400">데이터를 불러오는 중입니다...</p>
   </div>
 
   <!-- Main Dashboard -->
@@ -90,7 +89,6 @@
     <div class="space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-neutral-200/90 pb-5">
         <div>
-          <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-neutral-900 text-white mb-1.5">Executive Summary</span>
           <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950" id="currentViewHeading">전체 브랜드 통합 성과 요약</h2>
         </div>
         <div class="text-xs text-neutral-500 font-medium">
@@ -102,70 +100,67 @@
       <div id="brandTabBar" class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none"></div>
     </div>
 
-    <!-- Top Total KPI Metrics (For All Brands Combined) -->
-    <section class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
-      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between">
-        <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">발행 완료 (Uploaded)</span>
-        <p id="kpiUploaded" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
-        <span class="text-[10px] text-emerald-600 font-bold bg-emerald-50 self-start px-2 py-0.5 rounded-md">Live Deliverables</span>
+    <!-- Top Total KPI Metrics (딱 맞는 5개 핵심 지표 카드) -->
+    <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
+      <!-- 발행 완료 -->
+      <div class="bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between min-h-[115px]">
+        <span class="text-xs font-bold text-neutral-500">발행 완료</span>
+        <div class="my-auto py-1">
+          <p id="kpiUploaded" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight leading-none truncate">0</p>
+        </div>
       </div>
 
-      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between">
-        <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">진행 중 (Pipeline)</span>
-        <p id="kpiWaitingUpload" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
-        <span class="text-[10px] text-amber-600 font-bold bg-amber-50 self-start px-2 py-0.5 rounded-md">Waiting Upload</span>
+      <!-- 평균 반응률 -->
+      <div class="bg-neutral-950 text-white p-5 rounded-2xl border border-neutral-900 shadow-sm flex flex-col justify-between min-h-[115px]">
+        <span class="text-xs font-bold text-neutral-400">평균 반응률</span>
+        <div class="my-auto py-1">
+          <p id="kpiTotalER" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-none truncate">0.00%</p>
+        </div>
       </div>
 
-      <div class="bg-neutral-950 text-white p-4 sm:p-5 rounded-2xl border border-neutral-900 shadow-sm flex flex-col justify-between">
-        <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">평균 반응률 (Avg ER)</span>
-        <p id="kpiTotalER" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight my-2">0.00%</p>
-        <span class="text-[10px] text-neutral-400 font-medium">Engagement Rate</span>
+      <!-- 총 조회수 -->
+      <div class="bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between min-h-[115px]">
+        <span class="text-xs font-bold text-neutral-500">총 조회수</span>
+        <div class="my-auto py-1">
+          <p id="kpiViews" class="text-2xl sm:text-[28px] font-extrabold text-neutral-950 tracking-tight leading-none truncate" title="0">0</p>
+        </div>
       </div>
 
-      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between">
-        <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">총 조회수 (Total Views)</span>
-        <p id="kpiViews" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
-        <span class="text-[10px] text-neutral-400 font-medium">Organic Impressions</span>
+      <!-- 좋아요 -->
+      <div class="bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between min-h-[115px]">
+        <span class="text-xs font-bold text-neutral-500">좋아요</span>
+        <div class="my-auto py-1">
+          <p id="kpiLikes" class="text-2xl sm:text-[28px] font-extrabold text-neutral-950 tracking-tight leading-none truncate">0</p>
+        </div>
       </div>
 
-      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between">
-        <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">좋아요 (Likes)</span>
-        <p id="kpiLikes" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
-        <span class="text-[10px] text-neutral-400 font-medium">Reactions</span>
-      </div>
-
-      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between">
-        <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">댓글 (Comments)</span>
-        <p id="kpiComments" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
-        <span class="text-[10px] text-neutral-400 font-medium">Comments</span>
-      </div>
-
-      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between col-span-2 sm:col-span-1">
-        <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">공유 / 저장 (Shares)</span>
-        <p id="kpiReposts" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
-        <span class="text-[10px] text-neutral-400 font-medium">Virality</span>
+      <!-- 댓글 -->
+      <div class="bg-white p-5 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between min-h-[115px] col-span-2 md:col-span-1">
+        <span class="text-xs font-bold text-neutral-500">댓글</span>
+        <div class="my-auto py-1">
+          <p id="kpiComments" class="text-2xl sm:text-[28px] font-extrabold text-neutral-950 tracking-tight leading-none truncate">0</p>
+        </div>
       </div>
     </section>
 
-    <!-- 주요 성공 사례 (Top Performing Highlights) -->
+    <!-- 주요 성공 사례 (Best 3 Reels) -->
     <section class="space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-neutral-200 pb-3">
         <div>
-          <span class="text-[10px] font-extrabold uppercase tracking-widest text-neutral-400">Best Performing Highlights</span>
           <h3 class="text-lg sm:text-xl font-extrabold text-neutral-950">주요 성공 사례</h3>
         </div>
-        <p class="text-xs text-neutral-500 font-medium">유기적 조회수(Views) 최상위 콘텐츠 릴스</p>
+        <p class="text-xs text-neutral-500 font-medium">유기적 조회수 최상위 성과 콘텐츠</p>
       </div>
 
       <div id="topViralCards" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
     </section>
 
-    <!-- Detailed Deliverables Table -->
+    <!-- 전체 크리에이터 성과 목록 -->
     <section class="bg-white rounded-2xl border border-neutral-200/80 shadow-xs overflow-hidden">
       <div class="p-5 sm:p-6 border-b border-neutral-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="space-y-1">
           <div class="flex items-center gap-2.5">
-            <h3 class="text-sm font-bold text-neutral-900">전체 크리에이터 성과 목록</h3>
+            <h3 class="text-sm sm:text-base font-bold text-neutral-900">전체 크리에이터 성과 목록</h3>
             <span id="uploadedCountBadge" class="text-[11px] font-semibold bg-neutral-100 text-neutral-700 px-2.5 py-0.5 rounded-full">0건</span>
           </div>
           <p class="text-xs text-neutral-400">각 브랜드별 발행된 인플루언서 지표 내역</p>
@@ -176,25 +171,23 @@
           <input 
             type="text" 
             id="searchInput" 
-            placeholder="인플루언서 @ID, 브랜드 검색..." 
+            placeholder="인스타 아이디, 브랜드 검색..." 
             class="pl-9 pr-3.5 py-2 text-xs bg-neutral-50 border border-neutral-200 rounded-full w-full focus:bg-white focus:border-neutral-950 outline-none transition"
           />
         </div>
       </div>
 
-      <div class="overflow-x-auto max-h-[580px]">
+      <div class="overflow-x-auto max-h-[600px]">
         <table class="w-full text-left text-xs text-neutral-600">
-          <thead class="sticky top-0 bg-neutral-50/95 backdrop-blur-md text-[10px] font-bold uppercase tracking-wider text-neutral-400 border-b border-neutral-100 z-10 select-none">
+          <thead class="sticky top-0 bg-neutral-50/95 backdrop-blur-md text-[11px] font-bold text-neutral-500 border-b border-neutral-200 z-10 select-none">
             <tr>
-              <th onclick="sortTable('brandTag')" class="py-3 px-5 cursor-pointer hover:text-neutral-900">Brand ↕</th>
-              <th onclick="sortTable('id')" class="py-3 px-4 cursor-pointer hover:text-neutral-900">Influencer ↕</th>
-              <th onclick="sortTable('type')" class="py-3 px-4">Type</th>
-              <th onclick="sortTable('views')" class="py-3 px-4 text-right cursor-pointer hover:text-neutral-900">Views ↕</th>
-              <th onclick="sortTable('likes')" class="py-3 px-4 text-right cursor-pointer hover:text-neutral-900">Likes ↕</th>
-              <th onclick="sortTable('comments')" class="py-3 px-4 text-right cursor-pointer hover:text-neutral-900">Comments ↕</th>
-              <th onclick="sortTable('reposts')" class="py-3 px-4 text-right cursor-pointer hover:text-neutral-900">Shares ↕</th>
-              <th onclick="sortTable('er')" class="py-3 px-4 text-right cursor-pointer hover:text-neutral-950 font-bold">ER ↕</th>
-              <th class="py-3 px-5 text-center">Content</th>
+              <th onclick="sortTable('brandTag')" class="py-3 px-5 cursor-pointer hover:text-neutral-900">브랜드 ↕</th>
+              <th onclick="sortTable('id')" class="py-3 px-4 cursor-pointer hover:text-neutral-900">인스타 아이디 ↕</th>
+              <th onclick="sortTable('type')" class="py-3 px-4">유형</th>
+              <th onclick="sortTable('views')" class="py-3 px-4 text-right cursor-pointer hover:text-neutral-900">조회수 ↕</th>
+              <th onclick="sortTable('likes')" class="py-3 px-4 text-right cursor-pointer hover:text-neutral-900">좋아요 ↕</th>
+              <th onclick="sortTable('comments')" class="py-3 px-4 text-right cursor-pointer hover:text-neutral-900">댓글 ↕</th>
+              <th class="py-3 px-5 text-center">링크</th>
             </tr>
           </thead>
           <tbody id="tableRows" class="divide-y divide-neutral-100 font-normal"></tbody>
@@ -209,16 +202,12 @@
       <div class="flex items-center gap-2">
         <span class="font-extrabold text-neutral-900">VIVELY GLOBAL</span>
         <span>•</span>
-        <span>Cross-Border Influencer Marketing Activation</span>
-      </div>
-      <div>
-        <span>Confidential Campaign Analytics</span>
+        <span>크리에이터 글로벌 마케팅 리포트</span>
       </div>
     </div>
   </footer>
 
   <script>
-    // Exact Spreadsheet ID and GID mapping for all 8 brands
     const SPREADSHEET_ID = "1EsMCxiMoAxPa5zGFalBqknM-lB7kC166twgHO9_I_dk";
 
     const BRAND_SHEETS = [
@@ -241,10 +230,10 @@
     let currentSortKey = 'views';
 
     function sanitizeRow(raw, brandTag) {
-      const views = Number(String(raw.views || raw.Views || 0).replace(/,/g, '')) || 0;
-      const likes = Number(String(raw.likes || raw.Likes || 0).replace(/,/g, '')) || 0;
-      const comments = Number(String(raw.comments || raw.Comments || 0).replace(/,/g, '')) || 0;
-      const reposts = Number(String(raw.reposts || raw.shares || raw.saves || 0).replace(/,/g, '')) || 0;
+      const views = Number(String(raw.views || 0).replace(/,/g, '')) || 0;
+      const likes = Number(String(raw.likes || 0).replace(/,/g, '')) || 0;
+      const comments = Number(String(raw.comments || 0).replace(/,/g, '')) || 0;
+      const reposts = Number(String(raw.reposts || raw.shares || 0).replace(/,/g, '')) || 0;
       
       let er = 0;
       if (raw.post_er !== undefined && raw.post_er !== null && String(raw.post_er).trim() !== "") {
@@ -253,18 +242,23 @@
         er = ((likes + comments + reposts) / views) * 100;
       }
 
-      const contentUrl = raw.post_url || raw.Link_Content || raw.url || "#";
+      const contentUrl = raw.post_url || raw.url || "#";
       const hasUrl = contentUrl && contentUrl !== "#" && String(contentUrl).startsWith("http");
+
+      // 확실하게 influencer_id 값만 추출 (dlv_ 아이디 완전 배제)
+      let cleanId = String(raw.influencer_id || "").replace(/^@/, '').trim();
+      if (!cleanId || cleanId.startsWith("dlv_")) {
+        cleanId = "creator";
+      }
 
       return {
         brandTag: brandTag,
-        id: String(raw.influencer_id || raw.id || "creator").replace(/^@/, '').trim(),
-        type: raw.type || "reel",
-        status: hasUrl ? "Uploaded" : "Waiting Upload",
+        id: cleanId,
+        type: (raw.type || "reel").toUpperCase(),
+        status: hasUrl ? "Uploaded" : "Other",
         likes: likes,
         comments: comments,
         views: views,
-        reposts: reposts,
         er: isNaN(er) ? 0 : er,
         contentUrl: contentUrl
       };
@@ -289,37 +283,52 @@
             const cols = resp.table.cols.map(c => (c.label || c.id || "").toLowerCase().trim());
             const rows = resp.table.rows;
 
-            let idIdx = cols.findIndex(c => c.includes("influencer_id") || c.includes("influencer") || c.includes("id"));
-            let typeIdx = cols.findIndex(c => c.includes("type"));
-            let urlIdx = cols.findIndex(c => c.includes("post_url") || c.includes("url") || c.includes("link"));
-            let viewsIdx = cols.findIndex(c => c === "views" || c.includes("view") || c.includes("조회수"));
-            let likesIdx = cols.findIndex(c => c === "likes" || c.includes("like") || c.includes("좋아요"));
-            let commentsIdx = cols.findIndex(c => c === "comments" || c.includes("comment") || c.includes("댓글"));
-            let sharesIdx = cols.findIndex(c => c === "reposts" || c === "shares" || c.includes("share") || c.includes("공유"));
-            let erIdx = cols.findIndex(c => c.includes("post_er") || c.includes("er"));
+            // 시트 헤더 매핑
+            let idIdx = -1;
+            let typeIdx = -1;
+            let urlIdx = -1;
+            let viewsIdx = -1;
+            let likesIdx = -1;
+            let commentsIdx = -1;
+            let erIdx = -1;
 
+            // 1) 0번 행에 헤더가 있는 경우
             let startRow = 0;
-            if (idIdx === -1 && rows.length > 0) {
-              const firstRowVals = rows[0].c ? rows[0].c.map(cell => cell && cell.v ? String(cell.v).toLowerCase().trim() : "") : [];
-              idIdx = firstRowVals.findIndex(c => c.includes("influencer_id") || c.includes("influencer") || c.includes("id"));
-              typeIdx = firstRowVals.findIndex(c => c.includes("type"));
-              urlIdx = firstRowVals.findIndex(c => c.includes("post_url") || c.includes("url") || c.includes("link"));
-              viewsIdx = firstRowVals.findIndex(c => c === "views" || c.includes("view"));
-              likesIdx = firstRowVals.findIndex(c => c === "likes" || c.includes("like"));
-              commentsIdx = firstRowVals.findIndex(c => c === "comments" || c.includes("comment"));
-              sharesIdx = firstRowVals.findIndex(c => c === "reposts" || c === "shares" || c.includes("share"));
-              erIdx = firstRowVals.findIndex(c => c.includes("post_er") || c.includes("er"));
-              startRow = 1;
+            if (rows.length > 0 && rows[0].c) {
+              const headerRowVals = rows[0].c.map(cell => cell && cell.v ? String(cell.v).toLowerCase().trim() : "");
+              
+              idIdx = headerRowVals.findIndex(c => c === "influencer_id" || c.includes("influencer"));
+              typeIdx = headerRowVals.findIndex(c => c === "type");
+              urlIdx = headerRowVals.findIndex(c => c === "post_url" || c.includes("url") || c.includes("link"));
+              viewsIdx = headerRowVals.findIndex(c => c === "views" || c.includes("view") || c.includes("조회"));
+              likesIdx = headerRowVals.findIndex(c => c === "likes" || c.includes("like") || c.includes("좋아요"));
+              commentsIdx = headerRowVals.findIndex(c => c === "comments" || c.includes("comment") || c.includes("댓글"));
+              erIdx = headerRowVals.findIndex(c => c === "post_er" || c.includes("er"));
+
+              if (idIdx !== -1) {
+                startRow = 1;
+              }
             }
 
-            // Fallbacks: C=2 (influencer_id), D=3 (type), E=4 (post_url), G=6 (likes), H=7 (comments), I=8 (views), R=17 (reposts), S=18 (post_er)
-            if (idIdx === -1) idIdx = 2;
-            if (typeIdx === -1) typeIdx = 3;
-            if (urlIdx === -1) urlIdx = 4;
-            if (likesIdx === -1) likesIdx = 6;
-            if (commentsIdx === -1) commentsIdx = 7;
-            if (viewsIdx === -1) viewsIdx = 8;
-            if (sharesIdx === -1) sharesIdx = 17;
+            // 2) cols에 매핑된 경우
+            if (idIdx === -1) {
+              idIdx = cols.findIndex(c => c === "influencer_id" || c.includes("influencer"));
+              typeIdx = cols.findIndex(c => c === "type");
+              urlIdx = cols.findIndex(c => c === "post_url" || c.includes("url") || c.includes("link"));
+              viewsIdx = cols.findIndex(c => c === "views" || c.includes("view") || c.includes("조회"));
+              likesIdx = cols.findIndex(c => c === "likes" || c.includes("like") || c.includes("좋아요"));
+              commentsIdx = cols.findIndex(c => c === "comments" || c.includes("comment") || c.includes("댓글"));
+              erIdx = cols.findIndex(c => c === "post_er" || c.includes("er"));
+            }
+
+            // 3) 구글시트 실제 기본 열 위치 Fallback:
+            // deliverable_id=0, cl_id=1, influencer_id=2 (C열), type=3 (D열), post_url=4 (E열), likes=6 (G열), comments=7 (H열), views=8 (I열)
+            if (idIdx === -1) idIdx = 2; // C열 (influencer_id)
+            if (typeIdx === -1) typeIdx = 3; // D열
+            if (urlIdx === -1) urlIdx = 4; // E열
+            if (likesIdx === -1) likesIdx = 6; // G열
+            if (commentsIdx === -1) commentsIdx = 7; // H열
+            if (viewsIdx === -1) viewsIdx = 8; // I열
             if (erIdx === -1) erIdx = 18;
 
             const parsedRows = [];
@@ -329,7 +338,8 @@
               const getVal = (idx) => (idx !== -1 && cells[idx] && cells[idx].v !== null && cells[idx].v !== undefined) ? cells[idx].v : "";
               
               const id = getVal(idIdx);
-              if (!id || String(id).trim() === "") continue;
+              // id가 없거나 dlv_로 시작하는 경우 제외
+              if (!id || String(id).trim() === "" || String(id).trim() === "influencer_id") continue;
 
               parsedRows.push(sanitizeRow({
                 influencer_id: id,
@@ -338,7 +348,6 @@
                 likes: getVal(likesIdx),
                 comments: getVal(commentsIdx),
                 views: getVal(viewsIdx),
-                reposts: getVal(sharesIdx),
                 post_er: getVal(erIdx)
               }, sheetConfig.label));
             }
@@ -370,7 +379,7 @@
         allExtractedData = results.flat();
 
         if (allExtractedData.length === 0) {
-          throw new Error("스프레드시트에서 데이터를 가져오지 못했습니다. '공유' 설정이 '링크가 있는 모든 사용자 - 뷰어'로 되어 있는지 다시 한번 확인해주세요.");
+          throw new Error("스프레드시트에서 데이터를 가져오지 못했습니다. '공유' 설정이 '링크가 있는 모든 사용자 - 뷰어'로 되어 있는지 확인해주세요.");
         }
 
         registeredBrands = Array.from(new Set(allExtractedData.map(d => d.brandTag)));
@@ -391,7 +400,7 @@
 
     function buildHeaderFilters(brands) {
       const select = document.getElementById("headerCampaignFilter");
-      select.innerHTML = `<option value="ALL">전체 브랜드 통합 (Total)</option>`;
+      select.innerHTML = `<option value="ALL">전체 브랜드 통합</option>`;
       brands.forEach(b => {
         select.innerHTML += `<option value="${b}">${b}</option>`;
       });
@@ -430,7 +439,7 @@
         document.getElementById("currentViewHeading").innerText = "전체 브랜드 통합 성과 요약";
       } else {
         activeFilteredData = allExtractedData.filter(d => d.brandTag === brand);
-        document.getElementById("currentViewHeading").innerText = `${brand} 브랜드 성과 보고`;
+        document.getElementById("currentViewHeading").innerText = `${brand} 브랜드 성과 요약`;
       }
 
       buildBrandTabBar(registeredBrands);
@@ -439,26 +448,29 @@
 
     function renderAllSections(data) {
       const uploadedData = data.filter(d => d.status === "Uploaded");
-      const waitingData = data.filter(d => d.status === "Waiting Upload");
 
       const totalViews = uploadedData.reduce((acc, c) => acc + c.views, 0);
       const totalLikes = uploadedData.reduce((acc, c) => acc + c.likes, 0);
       const totalComments = uploadedData.reduce((acc, c) => acc + c.comments, 0);
-      const totalReposts = uploadedData.reduce((acc, c) => acc + c.reposts, 0);
-      const avgEr = totalViews > 0 ? ((totalLikes + totalComments + totalReposts) / totalViews) * 100 : 0;
+      const avgEr = totalViews > 0 ? ((totalLikes + totalComments) / totalViews) * 100 : 0;
 
-      document.getElementById("kpiUploaded").innerText = uploadedData.length;
-      document.getElementById("kpiWaitingUpload").innerText = waitingData.length;
+      // 5개 핵심 KPI 카드 업데이트
+      document.getElementById("kpiUploaded").innerText = nf.format(uploadedData.length);
       document.getElementById("kpiTotalER").innerText = `${avgEr.toFixed(2)}%`;
-      document.getElementById("kpiViews").innerText = nf.format(totalViews);
+      
+      const viewsEl = document.getElementById("kpiViews");
+      const formattedViews = nf.format(totalViews);
+      viewsEl.innerText = formattedViews;
+      viewsEl.setAttribute("title", formattedViews);
+
       document.getElementById("kpiLikes").innerText = nf.format(totalLikes);
       document.getElementById("kpiComments").innerText = nf.format(totalComments);
-      document.getElementById("kpiReposts").innerText = nf.format(totalReposts);
 
       renderKeySuccessCases(uploadedData);
       renderTable(uploadedData);
     }
 
+    // 주요 성공 사례 (Top 3 Reels)
     function renderKeySuccessCases(data) {
       const container = document.getElementById("topViralCards");
       container.innerHTML = "";
@@ -471,7 +483,7 @@
       }
 
       const rankBadges = [
-        { label: "1위 BEST VIRAL", bg: "bg-neutral-950 text-white" },
+        { label: "1위 BEST", bg: "bg-neutral-950 text-white" },
         { label: "2위 HIGHLIGHT", bg: "bg-neutral-800 text-white" },
         { label: "3위 HIGHLIGHT", bg: "bg-neutral-700 text-white" }
       ];
@@ -496,7 +508,7 @@
               <h4 class="text-sm font-extrabold text-neutral-950 truncate">@${item.id}</h4>
             </div>
             <div class="text-right">
-              <span class="text-[10px] text-neutral-400 uppercase font-semibold block">Organic Views</span>
+              <span class="text-[10px] text-neutral-400 font-semibold block">조회수</span>
               <span class="text-base font-extrabold text-neutral-950">${nf.format(item.views)}</span>
             </div>
           </div>
@@ -519,22 +531,18 @@
             `}
           </div>
 
-          <div class="p-3.5 bg-neutral-50 border-t border-neutral-100 grid grid-cols-4 text-center divide-x divide-neutral-200/60 text-xs">
+          <div class="p-3 bg-neutral-50 border-t border-neutral-100 grid grid-cols-3 text-center divide-x divide-neutral-200/60 text-xs">
             <div>
-              <span class="text-[9px] text-neutral-400 uppercase font-bold block">ER</span>
+              <span class="text-[9px] text-neutral-400 font-bold block">반응률</span>
               <span class="font-extrabold text-neutral-950">${item.er.toFixed(2)}%</span>
             </div>
             <div>
-              <span class="text-[9px] text-neutral-400 uppercase font-bold block">Likes</span>
+              <span class="text-[9px] text-neutral-400 font-bold block">좋아요</span>
               <span class="font-semibold text-neutral-800">${nf.format(item.likes)}</span>
             </div>
             <div>
-              <span class="text-[9px] text-neutral-400 uppercase font-bold block">Comments</span>
+              <span class="text-[9px] text-neutral-400 font-bold block">댓글</span>
               <span class="font-semibold text-neutral-800">${nf.format(item.comments)}</span>
-            </div>
-            <div>
-              <span class="text-[9px] text-neutral-400 uppercase font-bold block">Shares</span>
-              <span class="font-semibold text-neutral-800">${nf.format(item.reposts)}</span>
             </div>
           </div>
         `;
@@ -542,13 +550,14 @@
       });
     }
 
+    // 전체 크리에이터 성과 목록 (인스타 아이디 정확 매핑, SHARES 및 ER 제거)
     function renderTable(rows) {
       document.getElementById("uploadedCountBadge").innerText = `${rows.length}건`;
       const tbody = document.getElementById("tableRows");
       tbody.innerHTML = "";
 
       if (rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-12 text-neutral-400 text-xs font-medium">데이터가 없습니다.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-12 text-neutral-400 text-xs font-medium">데이터가 없습니다.</td></tr>`;
         return;
       }
 
@@ -560,12 +569,10 @@
             <span class="px-2.5 py-0.5 bg-neutral-100 rounded-md text-[10px] font-bold text-neutral-800">${r.brandTag}</span>
           </td>
           <td class="py-3 px-4 font-bold text-neutral-900">@${r.id}</td>
-          <td class="py-3 px-4 uppercase text-neutral-500 font-semibold text-[10px]">${r.type}</td>
+          <td class="py-3 px-4 text-neutral-500 font-semibold text-[11px]">${r.type}</td>
           <td class="py-3 px-4 text-right font-extrabold text-neutral-900">${nf.format(r.views)}</td>
           <td class="py-3 px-4 text-right text-neutral-600">${nf.format(r.likes)}</td>
           <td class="py-3 px-4 text-right text-neutral-600">${nf.format(r.comments)}</td>
-          <td class="py-3 px-4 text-right text-neutral-600">${nf.format(r.reposts)}</td>
-          <td class="py-3 px-4 text-right font-bold text-neutral-950">${r.er.toFixed(2)}%</td>
           <td class="py-3 px-5 text-center">
             <a href="${r.contentUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-3 py-1 bg-neutral-100 text-neutral-800 rounded-full text-[11px] font-bold hover:bg-neutral-950 hover:text-white transition">
               콘텐츠 보기 ↗
@@ -607,15 +614,15 @@
 
     function downloadCSV() {
       const uploaded = activeFilteredData.filter(d => d.status === "Uploaded");
-      const headers = ["Brand", "Influencer ID", "Type", "Views", "Likes", "Comments", "Shares", "ER %", "Content Link"];
+      const headers = ["브랜드", "인스타 아이디", "유형", "조회수", "좋아요", "댓글", "콘텐츠 링크"];
       const rows = uploaded.map(d => [
-        `"${d.brandTag}"`, `"${d.id}"`, `"${d.type}"`, d.views, d.likes, d.comments, d.reposts, `"${d.er.toFixed(2)}%"`, `"${d.contentUrl}"`
+        `"${d.brandTag}"`, `"${d.id}"`, `"${d.type}"`, d.views, d.likes, d.comments, `"${d.contentUrl}"`
       ]);
       const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `VIVELY_MultiBrand_Report.csv`);
+      link.setAttribute("download", `VIVELY_보고서.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
