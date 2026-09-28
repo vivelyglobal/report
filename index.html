@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIVELY — Campaign Performance Report</title>
+  <title>VIVELY — Global Influencer Campaign Report</title>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
 
   <script>
     tailwind.config = {
       theme: {
         extend: {
           fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            sans: ['"Plus Jakarta Sans"', '"Noto Sans KR"', 'sans-serif'],
           }
         }
       }
@@ -26,13 +26,13 @@
 
   <style>
     body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-family: 'Plus Jakarta Sans', 'Noto Sans KR', sans-serif;
       background-color: #FAFAFA;
       color: #0A0A0A;
       -webkit-font-smoothing: antialiased;
     }
     .vively-glass {
-      background: rgba(255, 255, 255, 0.88);
+      background: rgba(255, 255, 255, 0.92);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
     }
@@ -44,201 +44,141 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-neutral-900 selection:text-white">
 
-  <!-- Top Navigation Header -->
-  <header class="sticky top-0 z-50 vively-glass border-b border-neutral-200/70 transition-all">
+  <!-- Header -->
+  <header class="sticky top-0 z-50 vively-glass border-b border-neutral-200/80">
     <div class="max-w-7xl mx-auto px-5 sm:px-8 py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-      
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-3">
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
             <span class="text-sm font-extrabold tracking-tight uppercase text-neutral-950">VIVELY</span>
             <span class="text-neutral-300">/</span>
-            <h1 id="brandTitle" class="text-xs sm:text-sm font-semibold text-neutral-700 tracking-tight">KOL Performance</h1>
+            <h1 id="brandTitle" class="text-xs sm:text-sm font-bold text-neutral-800 tracking-tight">KOL Performance Report</h1>
           </div>
-          <p id="sourceSubTitle" class="text-[10px] text-neutral-400 font-medium tracking-wide">Live Global Market Activation Report</p>
+          <p id="sourceSubTitle" class="text-[11px] text-neutral-400 font-medium">8개 브랜드 글로벌 마케팅 통합 성과 보고서</p>
         </div>
       </div>
 
-      <div class="flex flex-wrap items-center gap-2">
-        <div class="relative inline-flex items-center bg-white border border-neutral-200 rounded-full px-3 py-1.5 shadow-2xs hover:border-neutral-300 transition">
-          <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 mr-2">Campaign:</span>
-          <select id="headerCampaignFilter" onchange="switchActiveCampaign(this.value)" class="text-xs font-semibold text-neutral-800 bg-transparent outline-none cursor-pointer pr-1">
-            <option value="ALL">All Campaigns</option>
+      <div class="flex flex-wrap items-center gap-2.5">
+        <div class="inline-flex items-center bg-white border border-neutral-200 rounded-full px-3 py-1.5 shadow-xs">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400 mr-2">브랜드 선택:</span>
+          <select id="headerCampaignFilter" onchange="switchActiveBrand(this.value)" class="text-xs font-semibold text-neutral-900 bg-transparent outline-none cursor-pointer pr-1">
+            <option value="ALL">전체 브랜드 통합 (Total)</option>
           </select>
         </div>
 
-        <button onclick="toggleSetupModal()" class="px-3.5 py-1.5 bg-white border border-neutral-200 text-neutral-700 text-xs font-medium rounded-full hover:bg-neutral-50 transition shadow-2xs">
-          Sources
+        <button onclick="copyCurrentLink()" class="px-3.5 py-1.5 bg-white border border-neutral-200 text-neutral-700 text-xs font-semibold rounded-full hover:bg-neutral-50 transition shadow-xs">
+          링크 복사
         </button>
-        <button onclick="copyCurrentLink()" class="px-3.5 py-1.5 bg-white border border-neutral-200 text-neutral-700 text-xs font-medium rounded-full hover:bg-neutral-50 transition shadow-2xs">
-          Share
-        </button>
-        <button onclick="downloadCSV()" class="px-4 py-1.5 bg-neutral-950 text-white text-xs font-semibold rounded-full hover:bg-neutral-800 transition shadow-sm flex items-center gap-1.5">
+        <button onclick="downloadCSV()" class="px-4 py-1.5 bg-neutral-950 text-white text-xs font-semibold rounded-full hover:bg-neutral-800 transition shadow-xs flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-          Export CSV
+          CSV 내보내기
         </button>
       </div>
-
     </div>
   </header>
 
-  <!-- Sources Setup Modal -->
-  <div id="setupModal" class="fixed inset-0 bg-neutral-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white max-w-lg w-full p-7 rounded-2xl shadow-xl border border-neutral-100 space-y-5">
-      <div class="flex items-center justify-between border-b border-neutral-100 pb-3">
-        <div>
-          <h3 class="text-sm font-bold text-neutral-900 tracking-tight">Campaign Data Sources</h3>
-          <p class="text-[11px] text-neutral-400 mt-0.5">Connect custom Notion databases or Google Sheets</p>
-        </div>
-        <button onclick="toggleSetupModal()" class="text-neutral-400 hover:text-neutral-800 text-xs font-bold p-1">✕</button>
-      </div>
-
-      <div class="space-y-4">
-        <div>
-          <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5">Master Campaign Name / Slug</label>
-          <input id="inputBrandName" type="text" placeholder="e.g. apgujeong atau myeongdongkgalbi" class="w-full px-3.5 py-2 text-xs border border-neutral-200 rounded-xl outline-none focus:border-neutral-950 transition">
-        </div>
-        <div>
-          <label class="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5">Sources URL (1 per line)</label>
-          <p class="text-[10px] text-neutral-400 mb-2">Format: <code>Nama Campaign = Link Notion / Google Sheets</code></p>
-          <textarea id="inputSourceLink" rows="5" placeholder="NAAP = https://app.notion.com/...&#10;https://docs.google.com/spreadsheets/d/..." class="w-full px-3.5 py-2 text-xs font-mono border border-neutral-200 rounded-xl outline-none focus:border-neutral-950 transition resize-none"></textarea>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2 pt-2">
-        <button onclick="toggleSetupModal()" class="w-1/3 py-2.5 bg-neutral-100 text-neutral-600 font-semibold text-xs rounded-xl hover:bg-neutral-200 transition">Cancel</button>
-        <button onclick="applyMultiSource()" class="w-2/3 py-2.5 bg-neutral-950 text-white font-semibold text-xs rounded-xl hover:bg-neutral-800 transition shadow-sm">Save & Load Report</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Loading State -->
   <div id="loadingBox" class="max-w-7xl mx-auto px-6 py-32 text-center space-y-4">
-    <div class="inline-block h-6 w-6 animate-spin rounded-full border-2 border-neutral-900 border-r-transparent"></div>
-    <p id="loadingStatusText" class="text-[11px] font-medium tracking-widest text-neutral-400 uppercase">Synchronizing campaign data...</p>
+    <div class="inline-block h-7 w-7 animate-spin rounded-full border-2 border-neutral-900 border-r-transparent"></div>
+    <p id="loadingStatusText" class="text-xs font-semibold tracking-wider text-neutral-400 uppercase">8개 브랜드 구글 시트 데이터를 동기화하는 중입니다...</p>
   </div>
 
-  <!-- Main Dashboard Content -->
+  <!-- Main Dashboard -->
   <main id="dashboardContent" class="max-w-7xl mx-auto px-5 sm:px-8 py-8 space-y-10 hidden flex-1 w-full">
 
-    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-neutral-200/80 pb-6">
-      <div>
-        <p class="text-[10px] font-bold tracking-widest uppercase text-neutral-400">Overview</p>
-        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-950 mt-1">Campaign Analytics</h2>
+    <!-- Top Total Header & Brand Quick Nav -->
+    <div class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-neutral-200/90 pb-5">
+        <div>
+          <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-neutral-900 text-white mb-1.5">Executive Summary</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950" id="currentViewHeading">전체 브랜드 통합 성과 요약</h2>
+        </div>
+        <div class="text-xs text-neutral-500 font-medium">
+          <span id="activeBrandCountBadge" class="font-bold text-neutral-900">8</span>개 브랜드 실시간 집계
+        </div>
       </div>
-      <div class="text-xs text-neutral-400 font-medium">
-        Aggregated organic reach & creator conversions
-      </div>
+
+      <!-- Quick Brand Tabs -->
+      <div id="brandTabBar" class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none"></div>
     </div>
 
-    <!-- KPI Metric Cards -->
+    <!-- Top Total KPI Metrics (For All Brands Combined) -->
     <section class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 sm:gap-4">
-      
-      <!-- Published Posts (Status: Uploaded Only) -->
-      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between">
-        <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Published Posts</span>
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">발행 완료 (Uploaded)</span>
         <p id="kpiUploaded" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
-        <span class="text-[10px] text-neutral-400 font-medium">Status: Uploaded</span>
+        <span class="text-[10px] text-emerald-600 font-bold bg-emerald-50 self-start px-2 py-0.5 rounded-md">Live Deliverables</span>
       </div>
 
-      <!-- In Pipeline (Status: Waiting Upload Only) -->
-      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between">
-        <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">In Pipeline</span>
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">진행 중 (Pipeline)</span>
         <p id="kpiWaitingUpload" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
-        <span class="text-[10px] text-neutral-400 font-medium">Waiting Upload</span>
+        <span class="text-[10px] text-amber-600 font-bold bg-amber-50 self-start px-2 py-0.5 rounded-md">Waiting Upload</span>
       </div>
 
-      <!-- Total ER -->
       <div class="bg-neutral-950 text-white p-4 sm:p-5 rounded-2xl border border-neutral-900 shadow-sm flex flex-col justify-between">
-        <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Avg ER</span>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">평균 반응률 (Avg ER)</span>
         <p id="kpiTotalER" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight my-2">0.00%</p>
         <span class="text-[10px] text-neutral-400 font-medium">Engagement Rate</span>
       </div>
 
-      <!-- Total Views -->
-      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between">
-        <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Total Views</span>
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">총 조회수 (Total Views)</span>
         <p id="kpiViews" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
         <span class="text-[10px] text-neutral-400 font-medium">Organic Impressions</span>
       </div>
 
-      <!-- Likes -->
-      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between">
-        <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Likes</span>
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">좋아요 (Likes)</span>
         <p id="kpiLikes" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
         <span class="text-[10px] text-neutral-400 font-medium">Reactions</span>
       </div>
 
-      <!-- Comments -->
-      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between">
-        <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Comments</span>
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">댓글 (Comments)</span>
         <p id="kpiComments" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
-        <span class="text-[10px] text-neutral-400 font-medium">Discussions</span>
+        <span class="text-[10px] text-neutral-400 font-medium">Comments</span>
       </div>
 
-      <!-- Shares -->
-      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/70 shadow-2xs flex flex-col justify-between col-span-2 sm:col-span-1">
-        <span class="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">Shares / Saves</span>
+      <div class="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-xs flex flex-col justify-between col-span-2 sm:col-span-1">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">공유 / 저장 (Shares)</span>
         <p id="kpiReposts" class="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight my-2">0</p>
-        <span class="text-[10px] text-neutral-400 font-medium">Virality Factor</span>
+        <span class="text-[10px] text-neutral-400 font-medium">Virality</span>
       </div>
-
     </section>
 
-    <!-- Top Viral Campaigns (Top 3 Creators) -->
-    <section class="bg-white rounded-2xl border border-neutral-200/70 shadow-2xs overflow-hidden">
-      <div class="px-6 py-5 border-b border-neutral-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+    <!-- 주요 성공 사례 (Key Success Cases / Top Viral Highlights) -->
+    <section class="space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-neutral-200 pb-3">
         <div>
-          <span class="text-[10px] font-bold uppercase tracking-wider text-neutral-400">Performance Leaders</span>
-          <h3 class="text-sm font-bold text-neutral-900 mt-0.5">Top Viral Creators</h3>
+          <span class="text-[10px] font-extrabold uppercase tracking-widest text-neutral-400">Best Performing Highlights</span>
+          <h3 class="text-lg sm:text-xl font-extrabold text-neutral-950">주요 성공 사례</h3>
         </div>
-        <span class="text-[11px] text-neutral-400 font-medium">Top 3 creators by total organic views</span>
+        <p class="text-xs text-neutral-500 font-medium">유기적 조회수(Views) 최상위 콘텐츠 릴스</p>
       </div>
 
-      <div id="topViralGrid" class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-neutral-100"></div>
+      <!-- Top 3 Reel Cards (Splabab Style) -->
+      <div id="topViralCards" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
     </section>
 
-    <!-- Demographic Distribution -->
-    <section class="bg-white p-6 sm:p-7 rounded-2xl border border-neutral-200/70 shadow-2xs space-y-6">
-      <div class="flex items-center justify-between border-b border-neutral-100 pb-4">
-        <div>
-          <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-400">Demographic Distribution</h3>
-          <p class="text-sm font-semibold text-neutral-900 mt-0.5">Creator Nationality & Regional Footprint</p>
-        </div>
-        <span id="natTotalText" class="text-xs font-semibold px-3 py-1 bg-neutral-100 rounded-full text-neutral-700"></span>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-        <div class="md:col-span-4 flex flex-col items-center justify-center">
-          <div class="relative w-44 h-44 sm:w-52 sm:h-52">
-            <canvas id="demographicChart"></canvas>
-          </div>
-          <span class="text-[11px] text-neutral-400 font-medium mt-3">Regional Share (%)</span>
-        </div>
-        <div class="md:col-span-8 flex flex-col justify-center">
-          <div id="nationalityBadges" class="flex flex-wrap gap-2"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Deliverables Performance Table -->
-    <section class="bg-white rounded-2xl border border-neutral-200/70 shadow-2xs overflow-hidden">
+    <!-- Detailed Deliverables Table -->
+    <section class="bg-white rounded-2xl border border-neutral-200/80 shadow-xs overflow-hidden">
       <div class="p-5 sm:p-6 border-b border-neutral-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div class="space-y-1">
           <div class="flex items-center gap-2.5">
-            <h3 class="text-sm font-bold text-neutral-900">Creator Performance Breakdown</h3>
-            <span id="uploadedCountBadge" class="text-[11px] font-medium bg-neutral-100 text-neutral-600 px-2.5 py-0.5 rounded-full">0 posts</span>
+            <h3 class="text-sm font-bold text-neutral-900">전체 크리에이터 성과 목록</h3>
+            <span id="uploadedCountBadge" class="text-[11px] font-semibold bg-neutral-100 text-neutral-700 px-2.5 py-0.5 rounded-full">0건</span>
           </div>
-          <p class="text-xs text-neutral-400">Direct links & metrics for published deliverables</p>
+          <p class="text-xs text-neutral-400">각 브랜드별 발행된 인플루언서 지표 내역</p>
         </div>
         
-        <div class="relative w-full sm:w-64">
+        <div class="relative w-full sm:w-72">
           <svg class="w-3.5 h-3.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
           <input 
             type="text" 
             id="searchInput" 
-            placeholder="Search creator, country..." 
-            class="pl-9 pr-3.5 py-2 text-xs bg-neutral-50 border border-neutral-200 rounded-full w-full focus:bg-white focus:border-neutral-900 outline-none transition"
+            placeholder="인플루언서 @ID, 브랜드 검색..." 
+            class="pl-9 pr-3.5 py-2 text-xs bg-neutral-50 border border-neutral-200 rounded-full w-full focus:bg-white focus:border-neutral-950 outline-none transition"
           />
         </div>
       </div>
@@ -247,10 +187,9 @@
         <table class="w-full text-left text-xs text-neutral-600">
           <thead class="sticky top-0 bg-neutral-50/95 backdrop-blur-md text-[10px] font-bold uppercase tracking-wider text-neutral-400 border-b border-neutral-100 z-10 select-none">
             <tr>
-              <th onclick="sortTable('campaignTag')" class="py-3 px-5 cursor-pointer hover:text-neutral-900">Campaign ↕</th>
+              <th onclick="sortTable('brandTag')" class="py-3 px-5 cursor-pointer hover:text-neutral-900">Brand ↕</th>
               <th onclick="sortTable('id')" class="py-3 px-4 cursor-pointer hover:text-neutral-900">Influencer ↕</th>
-              <th onclick="sortTable('name')" class="py-3 px-4 cursor-pointer hover:text-neutral-900">Name</th>
-              <th onclick="sortTable('country')" class="py-3 px-4 cursor-pointer hover:text-neutral-900">Region</th>
+              <th onclick="sortTable('type')" class="py-3 px-4">Type</th>
               <th onclick="sortTable('views')" class="py-3 px-4 text-right cursor-pointer hover:text-neutral-900">Views ↕</th>
               <th onclick="sortTable('likes')" class="py-3 px-4 text-right cursor-pointer hover:text-neutral-900">Likes ↕</th>
               <th onclick="sortTable('comments')" class="py-3 px-4 text-right cursor-pointer hover:text-neutral-900">Comments ↕</th>
@@ -264,25 +203,14 @@
       </div>
     </section>
 
-    <!-- Creative Showcase: Top 3 Reels Only -->
-    <section class="space-y-4">
-      <div class="flex items-center justify-between border-b border-neutral-200/80 pb-3">
-        <div>
-          <h3 class="text-xs font-bold uppercase tracking-wider text-neutral-400">Creative Content Showcase</h3>
-          <p class="text-sm font-semibold text-neutral-900 mt-0.5">Top 3 Performing Video Reels</p>
-        </div>
-      </div>
-      <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-    </section>
-
   </main>
 
   <footer class="mt-auto border-t border-neutral-200/80 bg-white py-6">
     <div class="max-w-7xl mx-auto px-5 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-neutral-400">
       <div class="flex items-center gap-2">
-        <span class="font-bold text-neutral-900">VIVELY GLOBAL</span>
+        <span class="font-extrabold text-neutral-900">VIVELY GLOBAL</span>
         <span>•</span>
-        <span>Creator-Driven Global Market Activation</span>
+        <span>Cross-Border Influencer Marketing Activation</span>
       </div>
       <div>
         <span>Confidential Campaign Analytics</span>
@@ -291,164 +219,80 @@
   </footer>
 
   <script>
-    const APPS_SCRIPT_WEBAPP_URL = "https://script.google.com/macros/s/AKfycby8SwMfWyW1y6xDLh1yOX9c0PZ26IPLJr9PMgzxZpnBl9EgxybIqgWCkjK9vQihjXkFwA/exec";
-    const DEFAULT_NAAP_DB = "391ce5b809f980f2b664e3232612bf78";
-
     // =========================================================================
-    // REGISTRY SHORTLINK MAPPING
+    // 8 BRANDS GOOGLE SHEET MAPPING CONFIGURATION
+    // SPREADSHEET ID: 1EsMCXiMoAxPa5zGFalBqknM-lB7kc166twgHO9_l_dk
+    // Replace gid values below if they differ in your sheets.
     // =========================================================================
-    const CAMPAIGN_REGISTRY = {
-      "apgujeong": {
-        brand: "압구정닭한마리",
-        sources: [
-          { type: "notion", id: "8e7ce5b809f9839aa8b381d612b2bfe9", label: "압구정닭한마리" }
-        ]
-      },
-      "압구정닭한마리": {
-        brand: "압구정닭한마리",
-        sources: [
-          { type: "notion", id: "8e7ce5b809f9839aa8b381d612b2bfe9", label: "압구정닭한마리" }
-        ]
-      },
-      "naap": {
-        brand: "NAAP Global",
-        sources: [
-          { type: "notion", id: "391ce5b809f980f2b664e3232612bf78", label: "NAAP" }
-        ]
-      },
-      "juno": {
-        brand: "Juno Hair Seoul",
-        sources: [
-          { type: "notion", id: "0c9ce5b809f983368b2781a010d5f814", label: "Juno Hair" }
-        ]
-      }
-    };
+    const SPREADSHEET_ID = "1EsMCXiMoAxPa5zGFalBqknM-lB7kc166twgHO9_l_dk";
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const campaignParam = urlParams.get('campaign') || urlParams.get('brand_id');
-    const multiSourcesParam = urlParams.get('sources');
-    const singleDbParam = urlParams.get('db');
-    const singleSheetParam = urlParams.get('sheet');
-    let brandName = urlParams.get('brand') || "Master Campaign";
+    const BRAND_SHEETS = [
+      { label: "라밤", sheetName: "라밤" },
+      { label: "명동K-갈비", sheetName: "명동K-갈비" },
+      { label: "대서와막국수", sheetName: "대서와막국수" },
+      { label: "스시스라", sheetName: "스시스라" },
+      { label: "나이스카페", sheetName: "나이스카페" },
+      { label: "유담스토리", sheetName: "유담스토리" },
+      { label: "양문이네", sheetName: "양문이네" },
+      { label: "구봉각", sheetName: "구봉각" }
+    ];
 
     const nf = new Intl.NumberFormat();
-    let allCampaignData = [];
-    let currentFilteredData = [];
-    let pieChartInstance = null;
+    let allExtractedData = [];
+    let activeFilteredData = [];
+    let registeredBrands = [];
+    let currentActiveBrand = "ALL";
     let sortAsc = false;
     let currentSortKey = 'views';
-    let availableCampaignTags = [];
 
-    function normalizeCountry(raw) {
-      if (!raw) return "Global";
-      const str = String(raw).trim().toLowerCase();
-      if (str.includes("moroc")) return "Morocco";
-      if (str.includes("iran") || str.includes("persian")) return "Iran";
-      if (str.includes("korea")) return "South Korea";
-      if (str.includes("egypt")) return "Egypt";
-      if (str.includes("saudi")) return "Saudi Arabia";
-      if (str.includes("tajik")) return "Tajikistan";
-      if (str.includes("turk")) return "Turkey";
-      if (str.includes("nepal")) return "Nepal";
-      if (str.includes("pakistan")) return "Pakistan";
-      if (str.includes("bahrain")) return "Bahrain";
-      if (str.includes("japan")) return "Japan";
-      if (str.includes("singapore")) return "Singapore";
-      if (str.includes("philippin")) return "Philippines";
-      if (str.includes("indonesia")) return "Indonesia";
-      if (str.includes("uzbek")) return "Uzbekistan";
-      if (str.includes("jordan")) return "Jordan";
-      return str.charAt(0).toUpperCase() + str.slice(1);
-    }
-
-    // STRICT NORMALISASI STATUS: HANYA MENGENAL 'Uploaded' ATAU 'Waiting Upload'
-    function sanitizeRow(raw, sourceTag) {
-      const views = Number(raw.views || raw.Views || 0) || 0;
-      const likes = Number(raw.likes || raw.Likes || 0) || 0;
-      const comments = Number(raw.comments || raw.Comments || 0) || 0;
-      const reposts = Number(raw.reposts || raw.Reposts || 0) || 0;
+    function sanitizeRow(raw, brandTag) {
+      const views = Number(String(raw.views || raw.Views || 0).replace(/,/g, '')) || 0;
+      const likes = Number(String(raw.likes || raw.Likes || 0).replace(/,/g, '')) || 0;
+      const comments = Number(String(raw.comments || raw.Comments || 0).replace(/,/g, '')) || 0;
+      const reposts = Number(String(raw.reposts || raw.shares || raw.saves || 0).replace(/,/g, '')) || 0;
       
       let er = 0;
-      if (raw.post_er !== undefined && raw.post_er !== null && Number(raw.post_er) > 0) {
+      if (raw.post_er !== undefined && raw.post_er !== null && String(raw.post_er).trim() !== "") {
         er = parseFloat(String(raw.post_er).replace('%', ''));
       } else if (views > 0) {
         er = ((likes + comments + reposts) / views) * 100;
       }
 
-      // Ambil teks status murni dari Notion (lowercase & tanpa whitespace)
-      const rawStatus = String(raw.status || raw.Status || "").trim().toLowerCase();
-      
-      let finalStatus = "Other";
-      if (rawStatus === "uploaded") {
-        finalStatus = "Uploaded";
-      } else if (rawStatus === "waiting upload") {
-        finalStatus = "Waiting Upload";
-      }
+      const contentUrl = raw.post_url || raw.Link_Content || raw.url || "#";
+      const hasUrl = contentUrl && contentUrl !== "#" && contentUrl.startsWith("http");
 
       return {
-        campaignTag: sourceTag || "Campaign",
-        id: String(raw.id || raw.Formula || raw.influencer || "creator").replace(/^@/, ''),
-        name: raw.name || raw.Full_Name || raw["Full Name"] || "-",
-        country: normalizeCountry(raw.country || raw.Nationality || "Global"),
-        status: finalStatus,
+        brandTag: brandTag,
+        id: String(raw.influencer_id || raw.id || "creator").replace(/^@/, '').trim(),
+        type: raw.type || "reel",
+        status: hasUrl ? "Uploaded" : "Waiting Upload",
         likes: likes,
         comments: comments,
         views: views,
         reposts: reposts,
-        er: er,
-        contentUrl: raw.contentUrl || raw.Link_Content || raw["Link Content"] || raw.url || "#"
+        er: isNaN(er) ? 0 : er,
+        contentUrl: contentUrl
       };
     }
 
-    async function initDataLoading() {
-      let sourcesToFetch = [];
-
-      if (campaignParam && CAMPAIGN_REGISTRY[campaignParam]) {
-        const entry = CAMPAIGN_REGISTRY[campaignParam];
-        brandName = entry.brand;
-        sourcesToFetch = [...entry.sources];
-      } else if (campaignParam && CAMPAIGN_REGISTRY[decodeURIComponent(campaignParam)]) {
-        const entry = CAMPAIGN_REGISTRY[decodeURIComponent(campaignParam)];
-        brandName = entry.brand;
-        sourcesToFetch = [...entry.sources];
-      } else if (multiSourcesParam) {
-        const pairs = multiSourcesParam.split('|');
-        pairs.forEach((p, idx) => {
-          const [type, id, label] = p.split(':');
-          if (type && id) {
-            sourcesToFetch.push({ type, id, label: label ? decodeURIComponent(label) : `Campaign ${idx + 1}` });
-          }
-        });
-      } else if (singleSheetParam) {
-        sourcesToFetch.push({ type: 'sheet', id: singleSheetParam, label: brandName });
-      } else {
-        const dbId = singleDbParam || DEFAULT_NAAP_DB;
-        sourcesToFetch.push({ type: 'notion', id: dbId, label: brandName });
-      }
-
-      document.getElementById("brandTitle").innerText = `${brandName}`;
-      document.title = `${brandName} — VIVELY Report`;
-
-      availableCampaignTags = sourcesToFetch.map(s => s.label);
-      document.getElementById("sourceSubTitle").innerText = `Tracking ${sourcesToFetch.length} Campaign Stream(s)`;
-
-      const headerFilter = document.getElementById("headerCampaignFilter");
-      headerFilter.innerHTML = `<option value="ALL">All Campaigns Combined (${sourcesToFetch.length})</option>`;
-      availableCampaignTags.forEach(tag => {
-        headerFilter.innerHTML += `<option value="${tag}">${tag}</option>`;
-      });
-
+    async function initDashboard() {
       try {
-        const promises = sourcesToFetch.map(src => fetchSingleSource(src));
-        const results = await Promise.all(promises);
-        allCampaignData = results.flat();
+        const fetchPromises = BRAND_SHEETS.map(b => fetchSheetBySheetName(SPREADSHEET_ID, b.sheetName, b.label));
+        const results = await Promise.all(fetchPromises);
+        allExtractedData = results.flat();
 
-        if (allCampaignData.length === 0) {
-          throw new Error("No data found from configured sources.");
+        if (allExtractedData.length === 0) {
+          throw new Error("구글 시트에서 데이터를 불러오지 못했습니다. 스프레드시트 공유 권한('링크가 있는 모든 사용자에게 뷰어')을 확인해주세요.");
         }
 
-        currentFilteredData = allCampaignData;
-        processAndRender(currentFilteredData);
+        registeredBrands = BRAND_SHEETS.map(b => b.label);
+        document.getElementById("activeBrandCountBadge").innerText = registeredBrands.length;
+
+        buildHeaderFilters(registeredBrands);
+        buildBrandTabBar(registeredBrands);
+
+        activeFilteredData = allExtractedData;
+        renderAllSections(activeFilteredData);
 
         document.getElementById("loadingBox").classList.add("hidden");
         document.getElementById("dashboardContent").classList.remove("hidden");
@@ -457,35 +301,18 @@
       }
     }
 
-    async function fetchSingleSource(source) {
-      if (source.type === 'sheet') {
-        const csvUrl = `https://docs.google.com/spreadsheets/d/${source.id}/gviz/tq?tqx=out:csv`;
+    async function fetchSheetBySheetName(sheetId, sheetName, label) {
+      try {
+        const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
         const res = await fetch(csvUrl);
-        if (!res.ok) throw new Error(`Cannot load Google Sheet [${source.label}].`);
-        const csvText = await res.text();
-        const parsed = parseCSV(csvText);
-        return mapSheetRowsToObjects(parsed).map(r => sanitizeRow(r, source.label));
-      } else {
-        return new Promise((resolve) => {
-          const cb = "notion_cb_" + Math.random().toString(36).substring(2, 10);
-          window[cb] = function(resp) {
-            const scriptEl = document.getElementById(cb);
-            if (scriptEl) scriptEl.remove();
-            delete window[cb];
-
-            if (resp && resp.success && resp.data) {
-              resolve(resp.data.map(r => sanitizeRow(r, source.label)));
-            } else {
-              resolve([]);
-            }
-          };
-
-          const s = document.createElement("script");
-          s.id = cb;
-          s.src = `${APPS_SCRIPT_WEBAPP_URL}?db=${source.id}&callback=${cb}`;
-          s.onerror = () => resolve([]);
-          document.body.appendChild(s);
-        });
+        if (!res.ok) return [];
+        const text = await res.text();
+        const parsed = parseCSV(text);
+        const mapped = mapSheetRowsToObjects(parsed);
+        return mapped.map(r => sanitizeRow(r, label));
+      } catch (e) {
+        console.warn(`Could not load sheet ${label}`, e);
+        return [];
       }
     }
 
@@ -515,271 +342,223 @@
     function mapSheetRowsToObjects(rows) {
       if (rows.length <= 1) return [];
       const headers = rows[0].map(h => String(h).trim().toLowerCase());
-      
+
       const colMap = {
-        id: headers.findIndex(h => h.includes('influencer') || h.includes('username') || h === 'id' || h.includes('formula')),
-        name: headers.findIndex(h => h.includes('full name') || h.includes('nama') || h === 'name'),
-        country: headers.findIndex(h => h.includes('country') || h.includes('nationality') || h.includes('region')),
-        views: headers.findIndex(h => h.includes('view')),
-        likes: headers.findIndex(h => h.includes('like')),
-        comments: headers.findIndex(h => h.includes('comment')),
-        reposts: headers.findIndex(h => h.includes('repost') || h.includes('share')),
-        post_er: headers.findIndex(h => h.includes('er') || h.includes('engagement')),
-        url: headers.findIndex(h => h.includes('link') || h.includes('url') || h.includes('post_url')),
-        status: headers.findIndex(h => h.includes('status'))
+        influencer_id: headers.findIndex(h => h.includes('influencer_id') || h.includes('influencer') || h.includes('id')),
+        type: headers.findIndex(h => h.includes('type')),
+        post_url: headers.findIndex(h => h.includes('post_url') || h.includes('link') || h.includes('url')),
+        views: headers.findIndex(h => h === 'views' || h.includes('view') || h.includes('조회수')),
+        likes: headers.findIndex(h => h === 'likes' || h.includes('like') || h.includes('좋아요')),
+        comments: headers.findIndex(h => h === 'comments' || h.includes('comment') || h.includes('댓글')),
+        reposts: headers.findIndex(h => h === 'reposts' || h === 'shares' || h.includes('share')),
+        post_er: headers.findIndex(h => h.includes('post_er') || h.includes('er'))
       };
 
       const result = [];
       for (let r = 1; r < rows.length; r++) {
         const row = rows[r];
-        const idVal = colMap.id !== -1 ? row[colMap.id] : "";
-        if (!idVal) continue;
+        const idVal = colMap.influencer_id !== -1 ? row[colMap.influencer_id] : "";
+        if (!idVal || idVal.trim() === "") continue;
 
         result.push({
-          id: idVal,
-          name: colMap.name !== -1 ? row[colMap.name] : "-",
-          country: colMap.country !== -1 ? row[colMap.country] : "Global",
+          influencer_id: idVal,
+          type: colMap.type !== -1 ? row[colMap.type] : "reel",
+          post_url: colMap.post_url !== -1 ? row[colMap.post_url] : "",
           views: colMap.views !== -1 ? row[colMap.views] : 0,
           likes: colMap.likes !== -1 ? row[colMap.likes] : 0,
           comments: colMap.comments !== -1 ? row[colMap.comments] : 0,
           reposts: colMap.reposts !== -1 ? row[colMap.reposts] : 0,
-          post_er: colMap.post_er !== -1 ? row[colMap.post_er] : 0,
-          contentUrl: colMap.url !== -1 ? row[colMap.url] : "#",
-          status: colMap.status !== -1 && row[colMap.status] ? row[colMap.status] : "Other"
+          post_er: colMap.post_er !== -1 ? row[colMap.post_er] : 0
         });
       }
       return result;
     }
 
-    function renderTopViralCampaigns(data) {
-      const container = document.getElementById("topViralGrid");
-      container.innerHTML = "";
-
-      const uploaded = data.filter(d => d.status === "Uploaded");
-      const top3 = [...uploaded].sort((a, b) => b.views - a.views).slice(0, 3);
-
-      if (top3.length === 0) {
-        container.innerHTML = `<div class="p-8 text-center text-neutral-400 text-xs col-span-3">No viral creator data available.</div>`;
-        return;
-      }
-
-      const ranks = ["1ST", "2ND", "3RD"];
-      const badges = [
-        "bg-neutral-950 text-white",
-        "bg-neutral-200 text-neutral-800",
-        "bg-neutral-100 text-neutral-600"
-      ];
-
-      top3.forEach((item, index) => {
-        const col = document.createElement("div");
-        col.className = "p-6 flex flex-col justify-between hover:bg-neutral-50/50 transition";
-        col.innerHTML = `
-          <div>
-            <div class="flex items-center justify-between mb-3">
-              <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full ${badges[index]}">${ranks[index]} MOST VIRAL</span>
-              <span class="text-[10px] text-neutral-400 font-semibold uppercase tracking-wider">${item.campaignTag}</span>
-            </div>
-            <h4 class="text-base font-bold text-neutral-950 truncate">@${item.id}</h4>
-            <p class="text-xs text-neutral-500 font-medium">${item.name} • ${item.country}</p>
-          </div>
-
-          <div class="mt-6 pt-4 border-t border-neutral-100 flex items-center justify-between">
-            <div>
-              <span class="text-[10px] font-medium text-neutral-400 uppercase tracking-wider block">Impressions</span>
-              <span class="text-lg font-extrabold text-neutral-950">${nf.format(item.views)}</span>
-            </div>
-            <div class="text-right">
-              <span class="text-[10px] font-medium text-neutral-400 uppercase tracking-wider block">Engagement</span>
-              <span class="text-xs font-bold text-neutral-900">${item.er.toFixed(2)}% ER</span>
-            </div>
-          </div>
-        `;
-        container.appendChild(col);
+    function buildHeaderFilters(brands) {
+      const select = document.getElementById("headerCampaignFilter");
+      select.innerHTML = `<option value="ALL">전체 브랜드 통합 (Total)</option>`;
+      brands.forEach(b => {
+        select.innerHTML += `<option value="${b}">${b}</option>`;
       });
     }
 
-    function switchActiveCampaign(tag) {
-      document.getElementById("headerCampaignFilter").value = tag;
+    function buildBrandTabBar(brands) {
+      const container = document.getElementById("brandTabBar");
+      container.innerHTML = "";
 
-      if (tag === "ALL") {
-        currentFilteredData = allCampaignData;
-      } else {
-        currentFilteredData = allCampaignData.filter(d => d.campaignTag === tag);
-      }
+      const makeTab = (label, value, count) => {
+        const btn = document.createElement("button");
+        btn.onclick = () => switchActiveBrand(value);
+        const isActive = currentActiveBrand === value;
+        btn.className = `px-3.5 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
+          isActive 
+            ? "bg-neutral-950 text-white shadow-sm" 
+            : "bg-white text-neutral-600 border border-neutral-200 hover:bg-neutral-50"
+        }`;
+        btn.innerHTML = `<span>${label}</span><span class="${isActive ? 'bg-neutral-800 text-neutral-300' : 'bg-neutral-100 text-neutral-500'} text-[10px] px-1.5 py-0.2 rounded-full">${count}</span>`;
+        return btn;
+      };
 
-      processAndRender(currentFilteredData);
+      container.appendChild(makeTab("전체 통합", "ALL", allExtractedData.length));
+      brands.forEach(b => {
+        const count = allExtractedData.filter(d => d.brandTag === b).length;
+        container.appendChild(makeTab(b, b, count));
+      });
     }
 
-    function processAndRender(data) {
-      // HANYA STATUS PERSIS: "Uploaded" & "Waiting Upload"
-      const uploadedOnlyData = data.filter(d => d.status === "Uploaded");
-      const waitingList = data.filter(d => d.status === "Waiting Upload");
-      const activeCreators = [...uploadedOnlyData, ...waitingList];
+    function switchActiveBrand(brand) {
+      currentActiveBrand = brand;
+      document.getElementById("headerCampaignFilter").value = brand;
 
-      const totalViews = uploadedOnlyData.reduce((a, b) => a + b.views, 0);
-      const totalLikes = uploadedOnlyData.reduce((a, b) => a + b.likes, 0);
-      const totalComments = uploadedOnlyData.reduce((a, b) => a + b.comments, 0);
-      const totalReposts = uploadedOnlyData.reduce((a, b) => a + b.reposts, 0);
-      const totalER = totalViews > 0 ? ((totalLikes + totalComments + totalReposts) / totalViews) * 100 : 0;
+      if (brand === "ALL") {
+        activeFilteredData = allExtractedData;
+        document.getElementById("currentViewHeading").innerText = "전체 브랜드 통합 성과 요약";
+      } else {
+        activeFilteredData = allExtractedData.filter(d => d.brandTag === brand);
+        document.getElementById("currentViewHeading").innerText = `${brand} 브랜드 성과 보고`;
+      }
 
-      // Update KPI
-      document.getElementById("kpiUploaded").innerText = uploadedOnlyData.length;
-      document.getElementById("kpiWaitingUpload").innerText = waitingList.length;
-      document.getElementById("kpiTotalER").innerText = `${totalER.toFixed(2)}%`;
+      buildBrandTabBar(registeredBrands);
+      renderAllSections(activeFilteredData);
+    }
+
+    function renderAllSections(data) {
+      const uploadedData = data.filter(d => d.status === "Uploaded");
+      const waitingData = data.filter(d => d.status === "Waiting Upload");
+
+      const totalViews = uploadedData.reduce((acc, c) => acc + c.views, 0);
+      const totalLikes = uploadedData.reduce((acc, c) => acc + c.likes, 0);
+      const totalComments = uploadedData.reduce((acc, c) => acc + c.comments, 0);
+      const totalReposts = uploadedData.reduce((acc, c) => acc + c.reposts, 0);
+      const avgEr = totalViews > 0 ? ((totalLikes + totalComments + totalReposts) / totalViews) * 100 : 0;
+
+      document.getElementById("kpiUploaded").innerText = uploadedData.length;
+      document.getElementById("kpiWaitingUpload").innerText = waitingData.length;
+      document.getElementById("kpiTotalER").innerText = `${avgEr.toFixed(2)}%`;
       document.getElementById("kpiViews").innerText = nf.format(totalViews);
       document.getElementById("kpiLikes").innerText = nf.format(totalLikes);
       document.getElementById("kpiComments").innerText = nf.format(totalComments);
       document.getElementById("kpiReposts").innerText = nf.format(totalReposts);
 
-      renderTopViralCampaigns(data);
-
-      const natCounts = {};
-      activeCreators.forEach(d => {
-        natCounts[d.country] = (natCounts[d.country] || 0) + 1;
-      });
-
-      const sortedCountries = Object.entries(natCounts).sort((a, b) => b[1] - a[1]);
-      document.getElementById("natTotalText").innerText = `${sortedCountries.length} Countries (${activeCreators.length} Creators)`;
-
-      const natContainer = document.getElementById("nationalityBadges");
-      natContainer.innerHTML = "";
-      sortedCountries.forEach(([c, count]) => {
-        const badge = document.createElement("div");
-        badge.className = "px-3 py-1.5 rounded-full bg-neutral-100 text-xs font-medium text-neutral-800 flex items-center gap-2 border border-neutral-200/50";
-        badge.innerHTML = `<span>${c}</span><span class="bg-white px-1.5 py-0.5 rounded-full text-[10px] text-neutral-900 font-bold border border-neutral-200/70">${count}</span>`;
-        natContainer.appendChild(badge);
-      });
-
-      renderPieChart(sortedCountries);
-      renderTable(uploadedOnlyData);
-      renderVideoGrid(uploadedOnlyData);
+      renderKeySuccessCases(uploadedData);
+      renderTable(uploadedData);
     }
 
-    function renderPieChart(countryPairs) {
-      const ctx = document.getElementById('demographicChart').getContext('2d');
-      if (pieChartInstance) pieChartInstance.destroy();
+    // 주요 성공 사례 (Top 3 Performing Video Reels)
+    function renderKeySuccessCases(data) {
+      const container = document.getElementById("topViralCards");
+      container.innerHTML = "";
 
-      const labels = countryPairs.map(p => p[0]);
-      const counts = countryPairs.map(p => p[1]);
-      const palette = ['#0A0A0A', '#262626', '#404040', '#525252', '#737373', '#A3A3A3', '#D4D4D4', '#E5E5E5'];
+      const top3 = [...data].sort((a, b) => b.views - a.views).slice(0, 3);
 
-      pieChartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: labels,
-          datasets: [{
-            data: counts,
-            backgroundColor: palette.slice(0, labels.length),
-            borderWidth: 2,
-            borderColor: '#FFFFFF'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          cutout: '72%'
-        }
-      });
-    }
-
-    function renderTable(rows) {
-      document.getElementById("uploadedCountBadge").innerText = `${rows.length} ${rows.length === 1 ? 'post' : 'posts'}`;
-      const tableBody = document.getElementById("tableRows");
-      tableBody.innerHTML = "";
-
-      if (rows.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="10" class="text-center py-12 text-neutral-400 text-xs font-medium">No published records found.</td></tr>`;
+      if (top3.length === 0) {
+        container.innerHTML = `<div class="col-span-3 p-10 bg-white rounded-2xl border border-neutral-200 text-center text-xs text-neutral-400">등록된 주요 성공 사례 콘텐츠가 없습니다.</div>`;
         return;
       }
 
-      rows.forEach(row => {
-        const tr = document.createElement("tr");
-        tr.className = "hover:bg-neutral-50/60 transition-colors";
-        tr.innerHTML = `
-          <td class="py-3 px-5">
-            <span class="px-2.5 py-0.5 bg-neutral-100 rounded-md text-[10px] font-semibold text-neutral-700">${row.campaignTag}</span>
-          </td>
-          <td class="py-3 px-4 font-semibold text-neutral-900">
-            @${row.id}
-          </td>
-          <td class="py-3 px-4 text-neutral-600">${row.name}</td>
-          <td class="py-3 px-4"><span class="text-neutral-500 font-medium">${row.country}</span></td>
-          <td class="py-3 px-4 text-right font-semibold text-neutral-900">${nf.format(row.views)}</td>
-          <td class="py-3 px-4 text-right text-neutral-600">${nf.format(row.likes)}</td>
-          <td class="py-3 px-4 text-right text-neutral-600">${nf.format(row.comments)}</td>
-          <td class="py-3 px-4 text-right text-neutral-600">${nf.format(row.reposts)}</td>
-          <td class="py-3 px-4 text-right font-bold text-neutral-950">${row.er.toFixed(2)}%</td>
-          <td class="py-3 px-5 text-center">
-            <a href="${row.contentUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-3 py-1 bg-neutral-100 text-neutral-800 rounded-full text-[11px] font-semibold hover:bg-neutral-950 hover:text-white transition">
-              View Reel ↗
-            </a>
-          </td>
-        `;
-        tableBody.appendChild(tr);
-      });
-    }
+      const rankBadges = [
+        { label: "1위 BEST VIRAL", bg: "bg-neutral-950 text-white" },
+        { label: "2위 HIGHLIGHT", bg: "bg-neutral-800 text-white" },
+        { label: "3위 HIGHLIGHT", bg: "bg-neutral-700 text-white" }
+      ];
 
-    function renderVideoGrid(data) {
-      const videoGrid = document.getElementById("videoGrid");
-      videoGrid.innerHTML = "";
-      
-      const sortedReels = [...data].sort((a, b) => b.views - a.views);
-      const reels = sortedReels.slice(0, 3);
-
-      if (reels.length === 0) {
-        videoGrid.innerHTML = `<div class="col-span-3 text-center py-12 text-neutral-400 text-xs font-medium">No reels available for this selection.</div>`;
-        return;
-      }
-
-      reels.forEach(row => {
-        const rawUrl = (row.contentUrl || "").trim();
+      top3.forEach((item, index) => {
+        const rawUrl = (item.contentUrl || "").trim();
         let embedUrl = "";
-        
         if (rawUrl.includes("instagram.com")) {
           const clean = rawUrl.split('?')[0].replace(/\/$/, "");
           embedUrl = `${clean}/embed/?autoplay=1&muted=1`;
         }
 
         const card = document.createElement("div");
-        card.className = "bg-white rounded-2xl border border-neutral-200/70 shadow-2xs overflow-hidden flex flex-col hover:border-neutral-300 transition group";
+        card.className = "bg-white rounded-2xl border border-neutral-200/90 shadow-sm overflow-hidden flex flex-col hover:border-neutral-400 transition-all group";
         card.innerHTML = `
           <div class="p-4 border-b border-neutral-100 flex items-center justify-between">
-            <div class="truncate">
-              <span class="text-[9px] font-bold text-neutral-400 uppercase tracking-wider block">${row.campaignTag}</span>
-              <h4 class="font-bold text-xs text-neutral-900 truncate max-w-[150px]">@${row.id}</h4>
-              <p class="text-[10px] text-neutral-400 font-medium">${row.country} • ER ${row.er.toFixed(2)}%</p>
+            <div>
+              <div class="flex items-center gap-1.5 mb-1">
+                <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full ${rankBadges[index].bg}">${rankBadges[index].label}</span>
+                <span class="text-[10px] font-bold text-neutral-400 uppercase tracking-wide">${item.brandTag}</span>
+              </div>
+              <h4 class="text-sm font-extrabold text-neutral-950 truncate">@${item.id}</h4>
             </div>
-            <span class="text-[10px] font-semibold text-neutral-800 bg-neutral-100 px-2.5 py-1 rounded-full">${nf.format(row.views)} views</span>
+            <div class="text-right">
+              <span class="text-[10px] text-neutral-400 uppercase font-semibold block">Organic Views</span>
+              <span class="text-base font-extrabold text-neutral-950">${nf.format(item.views)}</span>
+            </div>
           </div>
-          
+
           <div class="w-full bg-neutral-950 aspect-[9/16] relative flex items-center justify-center overflow-hidden">
             ${embedUrl ? `
               <iframe 
                 src="${embedUrl}" 
                 loading="lazy" 
                 class="w-full h-full border-0 absolute inset-0 scale-[1.02] group-hover:scale-105 transition-transform duration-500" 
-                frameborder="0" 
                 scrolling="no" 
-                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
                 allowtransparency="true" 
                 allowfullscreen>
               </iframe>
             ` : `
               <div class="text-center p-6 text-neutral-400">
-                <p class="text-xs font-medium mb-2">Live Content</p>
-                <a href="${rawUrl}" target="_blank" class="px-4 py-2 bg-white text-neutral-900 font-semibold text-xs rounded-full shadow-sm">Open Reel ↗</a>
+                <p class="text-xs font-semibold mb-2">인스타그램 릴스</p>
+                <a href="${rawUrl}" target="_blank" class="px-4 py-2 bg-white text-neutral-900 font-bold text-xs rounded-full shadow-sm">릴스 열기 ↗</a>
               </div>
             `}
           </div>
 
-          <div class="p-3 bg-neutral-50/50 border-t border-neutral-100 grid grid-cols-3 text-center divide-x divide-neutral-100 text-xs">
-            <div><span class="text-[9px] text-neutral-400 block font-medium uppercase tracking-wider">Likes</span><span class="font-semibold text-neutral-800">${nf.format(row.likes)}</span></div>
-            <div><span class="text-[9px] text-neutral-400 block font-medium uppercase tracking-wider">Comments</span><span class="font-semibold text-neutral-800">${nf.format(row.comments)}</span></div>
-            <div><span class="text-[9px] text-neutral-400 block font-medium uppercase tracking-wider">Shares</span><span class="font-semibold text-neutral-800">${nf.format(row.reposts)}</span></div>
+          <div class="p-3.5 bg-neutral-50 border-t border-neutral-100 grid grid-cols-4 text-center divide-x divide-neutral-200/60 text-xs">
+            <div>
+              <span class="text-[9px] text-neutral-400 uppercase font-bold block">ER</span>
+              <span class="font-extrabold text-neutral-950">${item.er.toFixed(2)}%</span>
+            </div>
+            <div>
+              <span class="text-[9px] text-neutral-400 uppercase font-bold block">Likes</span>
+              <span class="font-semibold text-neutral-800">${nf.format(item.likes)}</span>
+            </div>
+            <div>
+              <span class="text-[9px] text-neutral-400 uppercase font-bold block">Comments</span>
+              <span class="font-semibold text-neutral-800">${nf.format(item.comments)}</span>
+            </div>
+            <div>
+              <span class="text-[9px] text-neutral-400 uppercase font-bold block">Shares</span>
+              <span class="font-semibold text-neutral-800">${nf.format(item.reposts)}</span>
+            </div>
           </div>
         `;
-        videoGrid.appendChild(card);
+        container.appendChild(card);
+      });
+    }
+
+    function renderTable(rows) {
+      document.getElementById("uploadedCountBadge").innerText = `${rows.length}건`;
+      const tbody = document.getElementById("tableRows");
+      tbody.innerHTML = "";
+
+      if (rows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-12 text-neutral-400 text-xs font-medium">데이터가 없습니다.</td></tr>`;
+        return;
+      }
+
+      rows.forEach(r => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-neutral-50 transition-colors";
+        tr.innerHTML = `
+          <td class="py-3 px-5">
+            <span class="px-2.5 py-0.5 bg-neutral-100 rounded-md text-[10px] font-bold text-neutral-800">${r.brandTag}</span>
+          </td>
+          <td class="py-3 px-4 font-bold text-neutral-900">@${r.id}</td>
+          <td class="py-3 px-4 uppercase text-neutral-500 font-semibold text-[10px]">${r.type}</td>
+          <td class="py-3 px-4 text-right font-extrabold text-neutral-900">${nf.format(r.views)}</td>
+          <td class="py-3 px-4 text-right text-neutral-600">${nf.format(r.likes)}</td>
+          <td class="py-3 px-4 text-right text-neutral-600">${nf.format(r.comments)}</td>
+          <td class="py-3 px-4 text-right text-neutral-600">${nf.format(r.reposts)}</td>
+          <td class="py-3 px-4 text-right font-bold text-neutral-950">${r.er.toFixed(2)}%</td>
+          <td class="py-3 px-5 text-center">
+            <a href="${r.contentUrl}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center px-3 py-1 bg-neutral-100 text-neutral-800 rounded-full text-[11px] font-bold hover:bg-neutral-950 hover:text-white transition">
+              콘텐츠 보기 ↗
+            </a>
+          </td>
+        `;
+        tbody.appendChild(tr);
       });
     }
 
@@ -791,7 +570,7 @@
         sortAsc = false;
       }
 
-      const uploaded = currentFilteredData.filter(d => d.status === "Uploaded");
+      const uploaded = activeFilteredData.filter(d => d.status === "Uploaded");
       uploaded.sort((a, b) => {
         let valA = a[key] ?? '';
         let valB = b[key] ?? '';
@@ -807,100 +586,48 @@
       renderTable(uploaded);
     }
 
-    function toggleSetupModal() {
-      document.getElementById("setupModal").classList.toggle("hidden");
-    }
-
-    function applyMultiSource() {
-      const input = document.getElementById("inputBrandName").value.trim();
-      const rawText = document.getElementById("inputSourceLink").value.trim();
-
-      if (CAMPAIGN_REGISTRY[input]) {
-        window.location.href = `${window.location.origin}${window.location.pathname}?campaign=${encodeURIComponent(input)}`;
-        return;
-      }
-
-      if (!rawText) {
-        alert("Please enter a registered campaign slug or paste a source URL.");
-        return;
-      }
-
-      const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-      const parsedSources = [];
-
-      lines.forEach((line, idx) => {
-        let label = `Campaign ${idx + 1}`;
-        let cleanUrl = line;
-
-        if (line.includes('=')) {
-          const parts = line.split('=');
-          label = parts[0].trim();
-          cleanUrl = parts.slice(1).join('=').trim();
-        }
-
-        const sheetMatch = cleanUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-        if (sheetMatch) {
-          parsedSources.push(`sheet:${sheetMatch[1]}:${encodeURIComponent(label)}`);
-          return;
-        }
-
-        const notionMatch = cleanUrl.match(/[a-f0-9]{32}/i);
-        const notionDashed = cleanUrl.match(/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/i);
-        const cleanNotionId = notionMatch ? notionMatch[0] : (notionDashed ? notionDashed[0].replace(/-/g, "") : "");
-
-        if (cleanNotionId) {
-          parsedSources.push(`notion:${cleanNotionId}:${encodeURIComponent(label)}`);
-        }
-      });
-
-      const sourcesQuery = encodeURIComponent(parsedSources.join('|'));
-      window.location.href = `${window.location.origin}${window.location.pathname}?sources=${sourcesQuery}&brand=${encodeURIComponent(input || 'Master Campaign')}`;
-    }
-
-    function showErrorNotice(msg) {
-      document.getElementById("loadingBox").innerHTML = `
-        <div class="p-6 bg-white border border-neutral-200 rounded-2xl max-w-md mx-auto text-xs text-center space-y-3 shadow-sm">
-          <p class="font-bold text-neutral-900">Failed to load data</p>
-          <p class="text-neutral-500">${msg}</p>
-          <button onclick="location.reload()" class="px-4 py-2 bg-neutral-900 text-white font-medium rounded-full hover:bg-neutral-800 transition">Try Again</button>
-        </div>
-      `;
-    }
-
     function copyCurrentLink() {
       navigator.clipboard.writeText(window.location.href);
-      alert("Report link copied to clipboard.");
+      alert("리포트 링크가 클립보드에 복사되었습니다.");
     }
 
     function downloadCSV() {
-      const uploaded = currentFilteredData.filter(d => d.status === "Uploaded");
-      const headers = ["Campaign", "Influencer ID", "Full Name", "Nationality", "Views", "Likes", "Comments", "Reposts", "ER %", "Content Link"];
+      const uploaded = activeFilteredData.filter(d => d.status === "Uploaded");
+      const headers = ["Brand", "Influencer ID", "Type", "Views", "Likes", "Comments", "Shares", "ER %", "Content Link"];
       const rows = uploaded.map(d => [
-        `"${d.campaignTag}"`, `"${d.id}"`, `"${d.name}"`, `"${d.country}"`, d.views, d.likes, d.comments, d.reposts, `"${d.er.toFixed(2)}%"`, `"${d.contentUrl}"`
+        `"${d.brandTag}"`, `"${d.id}"`, `"${d.type}"`, d.views, d.likes, d.comments, d.reposts, `"${d.er.toFixed(2)}%"`, `"${d.contentUrl}"`
       ]);
-      const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+      const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `${brandName}_Report.csv`);
+      link.setAttribute("download", `VIVELY_MultiBrand_Report.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     }
 
+    function showErrorNotice(msg) {
+      document.getElementById("loadingBox").innerHTML = `
+        <div class="p-6 bg-white border border-neutral-200 rounded-2xl max-w-md mx-auto text-xs text-center space-y-3 shadow-sm">
+          <p class="font-bold text-neutral-900">데이터 로드 실패</p>
+          <p class="text-neutral-500">${msg}</p>
+          <button onclick="location.reload()" class="px-4 py-2 bg-neutral-900 text-white font-medium rounded-full hover:bg-neutral-800 transition">다시 시도</button>
+        </div>
+      `;
+    }
+
     document.getElementById("searchInput").addEventListener("input", (e) => {
       const q = e.target.value.toLowerCase();
-      const uploaded = currentFilteredData.filter(d => d.status === "Uploaded");
+      const uploaded = activeFilteredData.filter(d => d.status === "Uploaded");
       const filtered = uploaded.filter(d => 
-        (d.campaignTag && d.campaignTag.toLowerCase().includes(q)) ||
-        (d.id && d.id.toLowerCase().includes(q)) || 
-        (d.name && d.name.toLowerCase().includes(q)) || 
-        (d.country && d.country.toLowerCase().includes(q))
+        (d.brandTag && d.brandTag.toLowerCase().includes(q)) ||
+        (d.id && d.id.toLowerCase().includes(q))
       );
       renderTable(filtered);
     });
 
-    initDataLoading();
+    initDashboard();
   </script>
 </body>
 </html>
