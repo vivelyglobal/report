@@ -147,7 +147,7 @@
       </div>
     </section>
 
-    <!-- 주요 성공 사례 (Key Success Cases / Top Viral Highlights) -->
+    <!-- 주요 성공 사례 (Top Performing Highlights) -->
     <section class="space-y-4">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-neutral-200 pb-3">
         <div>
@@ -157,7 +157,6 @@
         <p class="text-xs text-neutral-500 font-medium">유기적 조회수(Views) 최상위 콘텐츠 릴스</p>
       </div>
 
-      <!-- Top 3 Reel Cards (Splabab Style) -->
       <div id="topViralCards" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
     </section>
 
@@ -219,22 +218,18 @@
   </footer>
 
   <script>
-    // =========================================================================
-    // 8 BRANDS GOOGLE SHEET MAPPING CONFIGURATION
-    // SPREADSHEET ID: 1EsMCXiMoAxPa5zGFalBqknM-lB7kc166twgHO9_l_dk
-    // Replace gid values below if they differ in your sheets.
-    // =========================================================================
-    const SPREADSHEET_ID = "1EsMCXiMoAxPa5zGFalBqknM-lB7kc166twgHO9_l_dk";
+    // Exact Spreadsheet ID and GID mapping for all 8 brands
+    const SPREADSHEET_ID = "1EsMCxiMoAxPa5zGFalBqknM-lB7kC166twgHO9_I_dk";
 
     const BRAND_SHEETS = [
-      { label: "라밤", sheetName: "라밤" },
-      { label: "명동K-갈비", sheetName: "명동K-갈비" },
-      { label: "대서와막국수", sheetName: "대서와막국수" },
-      { label: "스시스라", sheetName: "스시스라" },
-      { label: "나이스카페", sheetName: "나이스카페" },
-      { label: "유담스토리", sheetName: "유담스토리" },
-      { label: "양문이네", sheetName: "양문이네" },
-      { label: "구봉각", sheetName: "구봉각" }
+      { label: "라밥", gid: "0" },
+      { label: "명동K-갈비", gid: "350126992" },
+      { label: "어서와칼국수", gid: "371346407" },
+      { label: "스시소라", gid: "1233354873" },
+      { label: "나이스카페인클럽", gid: "1392796569" },
+      { label: "유닭스토리", gid: "1256587114" },
+      { label: "양은이네", gid: "833543417" },
+      { label: "구룡각", gid: "1392616377" }
     ];
 
     const nf = new Intl.NumberFormat();
@@ -259,7 +254,7 @@
       }
 
       const contentUrl = raw.post_url || raw.Link_Content || raw.url || "#";
-      const hasUrl = contentUrl && contentUrl !== "#" && contentUrl.startsWith("http");
+      const hasUrl = contentUrl && contentUrl !== "#" && String(contentUrl).startsWith("http");
 
       return {
         brandTag: brandTag,
@@ -275,17 +270,110 @@
       };
     }
 
+    function fetchSheetViaGViz(sheetId, sheetConfig) {
+      return new Promise((resolve) => {
+        const callbackName = "gviz_cb_" + Math.random().toString(36).substring(2, 10);
+        const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=responseHandler:${callbackName}&gid=${sheetConfig.gid}`;
+
+        window[callbackName] = function(resp) {
+          try {
+            const scriptNode = document.getElementById(callbackName);
+            if (scriptNode) scriptNode.remove();
+            delete window[callbackName];
+
+            if (!resp || !resp.table || !resp.table.rows) {
+              resolve([]);
+              return;
+            }
+
+            const cols = resp.table.cols.map(c => (c.label || c.id || "").toLowerCase().trim());
+            const rows = resp.table.rows;
+
+            let idIdx = cols.findIndex(c => c.includes("influencer_id") || c.includes("influencer") || c.includes("id"));
+            let typeIdx = cols.findIndex(c => c.includes("type"));
+            let urlIdx = cols.findIndex(c => c.includes("post_url") || c.includes("url") || c.includes("link"));
+            let viewsIdx = cols.findIndex(c => c === "views" || c.includes("view") || c.includes("조회수"));
+            let likesIdx = cols.findIndex(c => c === "likes" || c.includes("like") || c.includes("좋아요"));
+            let commentsIdx = cols.findIndex(c => c === "comments" || c.includes("comment") || c.includes("댓글"));
+            let sharesIdx = cols.findIndex(c => c === "reposts" || c === "shares" || c.includes("share") || c.includes("공유"));
+            let erIdx = cols.findIndex(c => c.includes("post_er") || c.includes("er"));
+
+            let startRow = 0;
+            if (idIdx === -1 && rows.length > 0) {
+              const firstRowVals = rows[0].c ? rows[0].c.map(cell => cell && cell.v ? String(cell.v).toLowerCase().trim() : "") : [];
+              idIdx = firstRowVals.findIndex(c => c.includes("influencer_id") || c.includes("influencer") || c.includes("id"));
+              typeIdx = firstRowVals.findIndex(c => c.includes("type"));
+              urlIdx = firstRowVals.findIndex(c => c.includes("post_url") || c.includes("url") || c.includes("link"));
+              viewsIdx = firstRowVals.findIndex(c => c === "views" || c.includes("view"));
+              likesIdx = firstRowVals.findIndex(c => c === "likes" || c.includes("like"));
+              commentsIdx = firstRowVals.findIndex(c => c === "comments" || c.includes("comment"));
+              sharesIdx = firstRowVals.findIndex(c => c === "reposts" || c === "shares" || c.includes("share"));
+              erIdx = firstRowVals.findIndex(c => c.includes("post_er") || c.includes("er"));
+              startRow = 1;
+            }
+
+            // Fallbacks: C=2 (influencer_id), D=3 (type), E=4 (post_url), G=6 (likes), H=7 (comments), I=8 (views), R=17 (reposts), S=18 (post_er)
+            if (idIdx === -1) idIdx = 2;
+            if (typeIdx === -1) typeIdx = 3;
+            if (urlIdx === -1) urlIdx = 4;
+            if (likesIdx === -1) likesIdx = 6;
+            if (commentsIdx === -1) commentsIdx = 7;
+            if (viewsIdx === -1) viewsIdx = 8;
+            if (sharesIdx === -1) sharesIdx = 17;
+            if (erIdx === -1) erIdx = 18;
+
+            const parsedRows = [];
+            for (let i = startRow; i < rows.length; i++) {
+              const cells = rows[i].c;
+              if (!cells) continue;
+              const getVal = (idx) => (idx !== -1 && cells[idx] && cells[idx].v !== null && cells[idx].v !== undefined) ? cells[idx].v : "";
+              
+              const id = getVal(idIdx);
+              if (!id || String(id).trim() === "") continue;
+
+              parsedRows.push(sanitizeRow({
+                influencer_id: id,
+                type: getVal(typeIdx),
+                post_url: getVal(urlIdx),
+                likes: getVal(likesIdx),
+                comments: getVal(commentsIdx),
+                views: getVal(viewsIdx),
+                reposts: getVal(sharesIdx),
+                post_er: getVal(erIdx)
+              }, sheetConfig.label));
+            }
+
+            resolve(parsedRows);
+          } catch (e) {
+            console.warn("Parse error for tab", sheetConfig.label, e);
+            resolve([]);
+          }
+        };
+
+        const script = document.createElement("script");
+        script.id = callbackName;
+        script.src = url;
+        script.onerror = function() {
+          const s = document.getElementById(callbackName);
+          if (s) s.remove();
+          delete window[callbackName];
+          resolve([]);
+        };
+        document.body.appendChild(script);
+      });
+    }
+
     async function initDashboard() {
       try {
-        const fetchPromises = BRAND_SHEETS.map(b => fetchSheetBySheetName(SPREADSHEET_ID, b.sheetName, b.label));
+        const fetchPromises = BRAND_SHEETS.map(b => fetchSheetViaGViz(SPREADSHEET_ID, b));
         const results = await Promise.all(fetchPromises);
         allExtractedData = results.flat();
 
         if (allExtractedData.length === 0) {
-          throw new Error("구글 시트에서 데이터를 불러오지 못했습니다. 스프레드시트 공유 권한('링크가 있는 모든 사용자에게 뷰어')을 확인해주세요.");
+          throw new Error("스프레드시트에서 데이터를 가져오지 못했습니다. '공유' 설정이 '링크가 있는 모든 사용자 - 뷰어'로 되어 있는지 다시 한번 확인해주세요.");
         }
 
-        registeredBrands = BRAND_SHEETS.map(b => b.label);
+        registeredBrands = Array.from(new Set(allExtractedData.map(d => d.brandTag)));
         document.getElementById("activeBrandCountBadge").innerText = registeredBrands.length;
 
         buildHeaderFilters(registeredBrands);
@@ -299,79 +387,6 @@
       } catch (err) {
         showErrorNotice(err.message);
       }
-    }
-
-    async function fetchSheetBySheetName(sheetId, sheetName, label) {
-      try {
-        const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
-        const res = await fetch(csvUrl);
-        if (!res.ok) return [];
-        const text = await res.text();
-        const parsed = parseCSV(text);
-        const mapped = mapSheetRowsToObjects(parsed);
-        return mapped.map(r => sanitizeRow(r, label));
-      } catch (e) {
-        console.warn(`Could not load sheet ${label}`, e);
-        return [];
-      }
-    }
-
-    function parseCSV(text) {
-      const p = [];
-      let row = [''];
-      let inQuotes = false;
-      for (let i = 0; i < text.length; i++) {
-        let c = text[i], next = text[i+1];
-        if (c === '"') {
-          if (inQuotes && next === '"') { row[row.length - 1] += '"'; i++; }
-          else { inQuotes = !inQuotes; }
-        } else if (c === ',' && !inQuotes) {
-          row.push('');
-        } else if ((c === '\r' || c === '\n') && !inQuotes) {
-          if (c === '\r' && next === '\n') { i++; }
-          p.push(row);
-          row = [''];
-        } else {
-          row[row.length - 1] += c;
-        }
-      }
-      if (row.length > 1 || row[0] !== '') p.push(row);
-      return p;
-    }
-
-    function mapSheetRowsToObjects(rows) {
-      if (rows.length <= 1) return [];
-      const headers = rows[0].map(h => String(h).trim().toLowerCase());
-
-      const colMap = {
-        influencer_id: headers.findIndex(h => h.includes('influencer_id') || h.includes('influencer') || h.includes('id')),
-        type: headers.findIndex(h => h.includes('type')),
-        post_url: headers.findIndex(h => h.includes('post_url') || h.includes('link') || h.includes('url')),
-        views: headers.findIndex(h => h === 'views' || h.includes('view') || h.includes('조회수')),
-        likes: headers.findIndex(h => h === 'likes' || h.includes('like') || h.includes('좋아요')),
-        comments: headers.findIndex(h => h === 'comments' || h.includes('comment') || h.includes('댓글')),
-        reposts: headers.findIndex(h => h === 'reposts' || h === 'shares' || h.includes('share')),
-        post_er: headers.findIndex(h => h.includes('post_er') || h.includes('er'))
-      };
-
-      const result = [];
-      for (let r = 1; r < rows.length; r++) {
-        const row = rows[r];
-        const idVal = colMap.influencer_id !== -1 ? row[colMap.influencer_id] : "";
-        if (!idVal || idVal.trim() === "") continue;
-
-        result.push({
-          influencer_id: idVal,
-          type: colMap.type !== -1 ? row[colMap.type] : "reel",
-          post_url: colMap.post_url !== -1 ? row[colMap.post_url] : "",
-          views: colMap.views !== -1 ? row[colMap.views] : 0,
-          likes: colMap.likes !== -1 ? row[colMap.likes] : 0,
-          comments: colMap.comments !== -1 ? row[colMap.comments] : 0,
-          reposts: colMap.reposts !== -1 ? row[colMap.reposts] : 0,
-          post_er: colMap.post_er !== -1 ? row[colMap.post_er] : 0
-        });
-      }
-      return result;
     }
 
     function buildHeaderFilters(brands) {
@@ -444,7 +459,6 @@
       renderTable(uploadedData);
     }
 
-    // 주요 성공 사례 (Top 3 Performing Video Reels)
     function renderKeySuccessCases(data) {
       const container = document.getElementById("topViralCards");
       container.innerHTML = "";
