@@ -45,7 +45,7 @@
 
   <!-- Header -->
   <header class="sticky top-0 z-50 vively-glass border-b border-neutral-200/80">
-    <div class="max-w-7xl mx-auto px-5 sm:px-8 py-3.5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="max-w-7xl mx-auto px-5 sm:px-8 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div class="flex items-center gap-3">
         <div class="flex flex-col">
           <div class="flex items-center gap-2">
@@ -57,65 +57,82 @@
         </div>
       </div>
 
-      <div class="flex flex-wrap items-center gap-2.5">
-        <!-- Tombol Buka Modal Input Sheet -->
-        <button onclick="toggleSetupModal()" class="px-3.5 py-1.5 bg-neutral-900 text-white text-xs font-semibold rounded-full hover:bg-neutral-800 transition shadow-xs flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-          시트 입력 / 변경
+      <!-- Action Buttons (Hanya muncul saat di halaman Report) -->
+      <div id="headerActions" class="flex flex-wrap items-center gap-2.5 hidden">
+        <button onclick="goToFormView()" class="px-3.5 py-1.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-xs font-semibold rounded-full transition shadow-xs flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/></svg>
+          다른 브랜드 입력
         </button>
-
-        <!-- Tombol Copy Link -->
-        <button onclick="copyCurrentLink()" class="px-3.5 py-1.5 bg-white border border-neutral-200 text-neutral-700 text-xs font-semibold rounded-full hover:bg-neutral-50 transition shadow-xs flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        <button onclick="copyCurrentLink()" class="px-3.5 py-1.5 bg-neutral-950 text-white text-xs font-semibold rounded-full hover:bg-neutral-800 transition shadow-xs flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
           링크 복사
         </button>
-
-        <!-- Tombol CSV -->
-        <button onclick="downloadCSV()" class="px-4 py-1.5 bg-neutral-100 border border-neutral-200 text-neutral-800 text-xs font-semibold rounded-full hover:bg-neutral-200 transition shadow-xs flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        <button onclick="downloadCSV()" class="px-3.5 py-1.5 bg-white border border-neutral-200 text-neutral-700 text-xs font-semibold rounded-full hover:bg-neutral-50 transition shadow-xs flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
           CSV 내보내기
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Modal Box: Input Nama Brand & Link Sheet -->
-  <div id="setupModal" class="fixed inset-0 bg-neutral-950/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white max-w-md w-full p-6 sm:p-7 rounded-2xl shadow-2xl border border-neutral-100 space-y-4">
-      <div class="flex items-center justify-between border-b border-neutral-100 pb-3">
-        <div>
-          <h3 class="text-sm font-bold text-neutral-900">브랜드 시트 연동 설정</h3>
-          <p class="text-[11px] text-neutral-400 mt-0.5">브랜드 이름과 해당 구글 시트 탭의 링크를 입력하세요.</p>
-        </div>
-        <button onclick="toggleSetupModal()" class="text-neutral-400 hover:text-neutral-800 text-xs font-bold p-1">✕</button>
+  <!-- ========================================== -->
+  <!-- 1. FORM INPUT VIEW (Muncul saat pertama buka) -->
+  <!-- ========================================== -->
+  <section id="landingFormSection" class="flex-1 flex items-center justify-center p-6">
+    <div class="bg-white max-w-lg w-full p-8 sm:p-10 rounded-3xl shadow-xl border border-neutral-100 space-y-6">
+      
+      <div class="space-y-1.5 text-center">
+        <span class="inline-block px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-neutral-900 text-white mb-2">Vively Campaign Report</span>
+        <h2 class="text-xl sm:text-2xl font-extrabold text-neutral-950">브랜드 성과 보고서 생성</h2>
+        <p class="text-xs text-neutral-400">보고서를 확인할 브랜드 이름과 구글 시트 링크를 입력하세요.</p>
       </div>
 
-      <div class="space-y-3.5">
+      <div class="space-y-4 pt-2">
         <div>
-          <label class="block text-[11px] font-bold text-neutral-600 mb-1">브랜드 이름</label>
-          <input id="inputBrandName" type="text" placeholder="예: 어서와칼국수, 라밥, 스시소라" class="w-full px-3.5 py-2.5 text-xs border border-neutral-200 rounded-xl outline-none focus:border-neutral-950 transition">
+          <label class="block text-xs font-bold text-neutral-700 mb-1.5">브랜드 이름</label>
+          <input 
+            id="brandNameInput" 
+            type="text" 
+            placeholder="예: 어서와칼국수, 라밥, 스시소라" 
+            class="w-full px-4 py-3 text-xs bg-neutral-50 border border-neutral-200 rounded-2xl outline-none focus:bg-white focus:border-neutral-950 transition"
+          />
         </div>
+
         <div>
-          <label class="block text-[11px] font-bold text-neutral-600 mb-1">구글 시트 링크 (해당 탭 주소 붙여넣기)</label>
-          <input id="inputSheetUrl" type="text" placeholder="https://docs.google.com/spreadsheets/d/.../edit#gid=371346407" class="w-full px-3.5 py-2.5 text-xs font-mono border border-neutral-200 rounded-xl outline-none focus:border-neutral-950 transition">
-          <p class="text-[10px] text-neutral-400 mt-1">💡 구글 시트에서 해당 브랜드 탭을 누른 후 주소창의 전체 URL을 그대로 복사해 붙여넣으면 됩니다.</p>
+          <label class="block text-xs font-bold text-neutral-700 mb-1.5">구글 시트 링크 (해당 탭 전체 URL)</label>
+          <input 
+            id="sheetUrlInput" 
+            type="text" 
+            placeholder="https://docs.google.com/spreadsheets/d/.../edit#gid=371346407" 
+            class="w-full px-4 py-3 text-xs font-mono bg-neutral-50 border border-neutral-200 rounded-2xl outline-none focus:bg-white focus:border-neutral-950 transition"
+          />
+          <p class="text-[11px] text-neutral-400 mt-1.5">
+            구글 시트의 해당 브랜드 탭을 누른 후, 브라우저 주소창의 링크를 복사해 붙여넣으면 됩니다.
+          </p>
         </div>
       </div>
 
-      <div class="flex items-center gap-2 pt-2">
-        <button onclick="toggleSetupModal()" class="w-1/3 py-2.5 bg-neutral-100 text-neutral-600 font-semibold text-xs rounded-xl hover:bg-neutral-200 transition">취소</button>
-        <button onclick="applyManualSource()" class="w-2/3 py-2.5 bg-neutral-950 text-white font-semibold text-xs rounded-xl hover:bg-neutral-800 transition shadow-sm">보고서 생성 및 불러오기</button>
-      </div>
+      <button 
+        onclick="generateReportFromForm()" 
+        class="w-full py-3.5 bg-neutral-950 text-white font-bold text-xs rounded-2xl hover:bg-neutral-800 transition shadow-md flex items-center justify-center gap-2">
+        <span>보고서 생성 및 불러오기</span>
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+      </button>
+
     </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- 2. LOADING STATE -->
+  <!-- ========================================== -->
+  <div id="loadingBox" class="max-w-7xl mx-auto px-6 py-32 text-center space-y-4 hidden">
+    <div class="inline-block h-8 w-8 animate-spin rounded-full border-2 border-neutral-900 border-r-transparent"></div>
+    <p id="loadingStatusText" class="text-xs font-semibold tracking-wider text-neutral-400">구글 시트 데이터를 동기화하는 중입니다...</p>
   </div>
 
-  <!-- Loading State -->
-  <div id="loadingBox" class="max-w-7xl mx-auto px-6 py-32 text-center space-y-4">
-    <div class="inline-block h-7 w-7 animate-spin rounded-full border-2 border-neutral-900 border-r-transparent"></div>
-    <p id="loadingStatusText" class="text-xs font-semibold tracking-wider text-neutral-400">데이터를 불러오는 중입니다...</p>
-  </div>
-
-  <!-- Main Dashboard -->
+  <!-- ========================================== -->
+  <!-- 3. REPORT DASHBOARD VIEW -->
+  <!-- ========================================== -->
   <main id="dashboardContent" class="max-w-7xl mx-auto px-5 sm:px-8 py-8 space-y-10 hidden flex-1 w-full">
 
     <!-- Top Brand Header -->
@@ -231,47 +248,116 @@
   </footer>
 
   <script>
-    const DEFAULT_SPREADSHEET_ID = "1EsMCxiMoAxPa5zGFalBqknM-lB7kC166twgHO9_I_dk";
-
-    // 8 Brand Sheet Pre-registry
-    const PRESET_BRANDS = {
-      "라밥": { id: DEFAULT_SPREADSHEET_ID, gid: "0" },
-      "labab": { id: DEFAULT_SPREADSHEET_ID, gid: "0" },
-      "명동K-갈비": { id: DEFAULT_SPREADSHEET_ID, gid: "350126992" },
-      "어서와칼국수": { id: DEFAULT_SPREADSHEET_ID, gid: "371346407" },
-      "스시소라": { id: DEFAULT_SPREADSHEET_ID, gid: "1233354873" },
-      "나이스카페인클럽": { id: DEFAULT_SPREADSHEET_ID, gid: "1392796569" },
-      "유닭스토리": { id: DEFAULT_SPREADSHEET_ID, gid: "1256587114" },
-      "양은이네": { id: DEFAULT_SPREADSHEET_ID, gid: "833543417" },
-      "구룡각": { id: DEFAULT_SPREADSHEET_ID, gid: "1392616377" }
-    };
-
     const nf = new Intl.NumberFormat();
-    let currentBrandName = "라밥";
-    let currentSheetId = DEFAULT_SPREADSHEET_ID;
+    let currentBrandName = "";
+    let currentSheetId = "";
     let currentGid = "0";
     let activeFilteredData = [];
     let sortAsc = false;
     let currentSortKey = 'views';
 
-    // Parse URL Parameters
-    function parseCurrentUrlParams() {
+    // Inisialisasi: Cek apakah ada parameter di URL
+    function init() {
       const params = new URLSearchParams(window.location.search);
-      const brandParam = params.get('brand') || params.get('name') || "라밥";
+      const brandParam = params.get('brand') || params.get('name');
       const sheetParam = params.get('sheet');
       const gidParam = params.get('gid');
 
-      currentBrandName = brandParam;
-
-      if (sheetParam) {
-        currentSheetId = sheetParam;
+      // Jika URL memiliki brand & sheet (atau gid), langsung load report!
+      if (brandParam && (sheetParam || gidParam !== null)) {
+        currentBrandName = brandParam;
+        currentSheetId = sheetParam || "1EsMCxiMoAxPa5zGFalBqknM-lB7kC166twgHO9_I_dk";
         currentGid = gidParam || "0";
-      } else if (PRESET_BRANDS[brandParam]) {
-        currentSheetId = PRESET_BRANDS[brandParam].id;
-        currentGid = PRESET_BRANDS[brandParam].gid;
+        showReportView();
       } else {
-        currentSheetId = DEFAULT_SPREADSHEET_ID;
-        currentGid = gidParam || "0";
+        // Jika tidak ada parameter (baru buka web https://vivelyglobal.github.io/report/), tampilkan form input
+        goToFormView();
+      }
+    }
+
+    // Tampilkan View Form Input
+    function goToFormView() {
+      document.getElementById("landingFormSection").classList.remove("hidden");
+      document.getElementById("dashboardContent").classList.add("hidden");
+      document.getElementById("loadingBox").classList.add("hidden");
+      document.getElementById("headerActions").classList.add("hidden");
+      
+      document.title = "VIVELY — 인플루언서 캠페인 성과 보고서";
+      document.getElementById("brandTitle").innerText = "KOL Performance Report";
+      document.getElementById("sourceSubTitle").innerText = "글로벌 마케팅 성과 보고서";
+
+      // Isi input jika sebelumnya sudah ada
+      if (currentBrandName) document.getElementById("brandNameInput").value = currentBrandName;
+      if (currentSheetId) {
+        document.getElementById("sheetUrlInput").value = `https://docs.google.com/spreadsheets/d/${currentSheetId}/edit#gid=${currentGid}`;
+      }
+    }
+
+    // Eksekusi ketika klik tombol "보고서 생성 및 불러오기" di Form
+    function generateReportFromForm() {
+      const brandInput = document.getElementById("brandNameInput").value.trim();
+      const urlInput = document.getElementById("sheetUrlInput").value.trim();
+
+      if (!brandInput) {
+        alert("브랜드 이름을 입력해주세요.");
+        return;
+      }
+      if (!urlInput) {
+        alert("구글 시트 링크를 붙여넣어주세요.");
+        return;
+      }
+
+      // Ekstrak spreadsheet ID
+      const sheetMatch = urlInput.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+      if (!sheetMatch) {
+        alert("올바른 구글 시트 링크 형식이 아닙니다.");
+        return;
+      }
+      const sheetId = sheetMatch[1];
+
+      // Ekstrak gid
+      const gidMatch = urlInput.match(/gid=([0-9]+)/);
+      const gid = gidMatch ? gidMatch[1] : "0";
+
+      // Ubah URL di address bar browser agar bisa di-copy & reload
+      const newUrl = `${window.location.origin}${window.location.pathname}?brand=${encodeURIComponent(brandInput)}&sheet=${sheetId}&gid=${gid}`;
+      window.history.pushState({ path: newUrl }, '', newUrl);
+
+      currentBrandName = brandInput;
+      currentSheetId = sheetId;
+      currentGid = gid;
+
+      showReportView();
+    }
+
+    // Tampilkan View Dashboard Report
+    async function showReportView() {
+      document.getElementById("landingFormSection").classList.add("hidden");
+      document.getElementById("loadingBox").classList.remove("hidden");
+      document.getElementById("dashboardContent").classList.add("hidden");
+      document.getElementById("headerActions").classList.remove("hidden");
+
+      // Update Header Text
+      document.title = `${currentBrandName} — VIVELY 성과 보고서`;
+      document.getElementById("brandTitle").innerText = `${currentBrandName} 캠페인`;
+      document.getElementById("currentViewHeading").innerText = `${currentBrandName} 마케팅 성과 요약`;
+      document.getElementById("sourceSubTitle").innerText = `${currentBrandName} 실시간 데이터 분석`;
+      document.getElementById("footerBrandName").innerText = `${currentBrandName} 캠페인 성과 보고서`;
+
+      try {
+        const rows = await fetchSheetViaGViz(currentSheetId, currentGid, currentBrandName);
+
+        if (rows.length === 0) {
+          throw new Error(`[${currentBrandName}] 시트에서 데이터를 불러오지 못했습니다. 스프레드시트 공유 권한('링크가 있는 모든 사용자 - 뷰어')을 확인해주세요.`);
+        }
+
+        activeFilteredData = rows.filter(d => d.status === "Uploaded");
+        renderAllSections(activeFilteredData);
+
+        document.getElementById("loadingBox").classList.add("hidden");
+        document.getElementById("dashboardContent").classList.remove("hidden");
+      } catch (err) {
+        showErrorNotice(err.message);
       }
     }
 
@@ -363,12 +449,13 @@
               erIdx = cols.findIndex(c => c === "post_er" || c.includes("er"));
             }
 
-            if (idIdx === -1) idIdx = 2; // C열 (influencer_id)
-            if (typeIdx === -1) typeIdx = 3;
-            if (urlIdx === -1) urlIdx = 4;
-            if (likesIdx === -1) likesIdx = 6;
-            if (commentsIdx === -1) commentsIdx = 7;
-            if (viewsIdx === -1) viewsIdx = 8;
+            // Fallback index kolom
+            if (idIdx === -1) idIdx = 2; // C=influencer_id
+            if (typeIdx === -1) typeIdx = 3; // D=type
+            if (urlIdx === -1) urlIdx = 4; // E=post_url
+            if (likesIdx === -1) likesIdx = 6; // G=likes
+            if (commentsIdx === -1) commentsIdx = 7; // H=comments
+            if (viewsIdx === -1) viewsIdx = 8; // I=views
             if (erIdx === -1) erIdx = 18;
 
             const parsedRows = [];
@@ -409,37 +496,6 @@
         };
         document.body.appendChild(script);
       });
-    }
-
-    async function initDashboard() {
-      parseCurrentUrlParams();
-
-      // UI Text Setting
-      document.title = `${currentBrandName} — VIVELY 성과 보고서`;
-      document.getElementById("brandTitle").innerText = `${currentBrandName} 캠페인`;
-      document.getElementById("currentViewHeading").innerText = `${currentBrandName} 마케팅 성과 요약`;
-      document.getElementById("sourceSubTitle").innerText = `${currentBrandName} 실시간 데이터 분석`;
-      document.getElementById("footerBrandName").innerText = `${currentBrandName} 캠페인 성과 보고서`;
-
-      // Prefill Modal Inputs
-      document.getElementById("inputBrandName").value = currentBrandName;
-      document.getElementById("inputSheetUrl").value = `https://docs.google.com/spreadsheets/d/${currentSheetId}/edit#gid=${currentGid}`;
-
-      try {
-        const rows = await fetchSheetViaGViz(currentSheetId, currentGid, currentBrandName);
-        
-        if (rows.length === 0) {
-          throw new Error(`[${currentBrandName}] 시트에서 데이터를 불러오지 못했습니다. 스프레드시트 공유 권한을 확인해주세요.`);
-        }
-
-        activeFilteredData = rows.filter(d => d.status === "Uploaded");
-        renderAllSections(activeFilteredData);
-
-        document.getElementById("loadingBox").classList.add("hidden");
-        document.getElementById("dashboardContent").classList.remove("hidden");
-      } catch (err) {
-        showErrorNotice(err.message);
-      }
     }
 
     function renderAllSections(uploadedData) {
@@ -593,43 +649,6 @@
       renderTable(activeFilteredData);
     }
 
-    // Modal Control
-    function toggleSetupModal() {
-      document.getElementById("setupModal").classList.toggle("hidden");
-    }
-
-    // Form Action: Membaca input Nama Brand dan Link Sheet
-    function applyManualSource() {
-      const brandInput = document.getElementById("inputBrandName").value.trim();
-      const urlInput = document.getElementById("inputSheetUrl").value.trim();
-
-      if (!brandInput) {
-        alert("브랜드 이름을 입력해주세요.");
-        return;
-      }
-      if (!urlInput) {
-        alert("구글 시트 링크를 붙여넣어주세요.");
-        return;
-      }
-
-      // Ekstrak spreadsheet ID
-      const sheetMatch = urlInput.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
-      if (!sheetMatch) {
-        alert("올바른 구글 시트 링크 형식이 아닙니다.");
-        return;
-      }
-      const sheetId = sheetMatch[1];
-
-      // Ekstrak gid
-      const gidMatch = urlInput.match(/gid=([0-9]+)/);
-      const gid = gidMatch ? gidMatch[1] : "0";
-
-      // Arahkan URL ke brand & sheet yang baru
-      const targetUrl = `${window.location.origin}${window.location.pathname}?brand=${encodeURIComponent(brandInput)}&sheet=${sheetId}&gid=${gid}`;
-      window.location.href = targetUrl;
-    }
-
-    // Copy Link untuk diberikan ke brand
     function copyCurrentLink() {
       const url = new URL(window.location.href);
       url.searchParams.set("brand", currentBrandName);
@@ -637,7 +656,7 @@
       url.searchParams.set("gid", currentGid);
 
       navigator.clipboard.writeText(url.toString());
-      alert(`[${currentBrandName}] 전용 리포트 링크가 클립보드에 복사되었습니다.\n\n복사된 주소:\n${url.toString()}`);
+      alert(`[${currentBrandName}] 전용 리포트 링크가 클립보드에 복사되었습니다.\n\n${url.toString()}`);
     }
 
     function downloadCSV() {
@@ -660,7 +679,7 @@
         <div class="p-6 bg-white border border-neutral-200 rounded-2xl max-w-md mx-auto text-xs text-center space-y-3 shadow-sm">
           <p class="font-bold text-neutral-900">데이터 로드 실패</p>
           <p class="text-neutral-500">${msg}</p>
-          <button onclick="toggleSetupModal()" class="px-4 py-2 bg-neutral-900 text-white font-medium rounded-full hover:bg-neutral-800 transition">시트 링크 다시 입력</button>
+          <button onclick="goToFormView()" class="px-4 py-2 bg-neutral-900 text-white font-medium rounded-full hover:bg-neutral-800 transition">다시 입력하기</button>
         </div>
       `;
     }
@@ -673,7 +692,8 @@
       renderTable(filtered);
     });
 
-    initDashboard();
+    // Jalankan saat halaman dibuka
+    init();
   </script>
 </body>
 </html>
