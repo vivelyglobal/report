@@ -53,19 +53,13 @@
             <span class="text-neutral-300">/</span>
             <h1 id="brandTitle" class="text-xs sm:text-sm font-bold text-neutral-800 tracking-tight">KOL Performance Report</h1>
           </div>
-          <p id="sourceSubTitle" class="text-[11px] text-neutral-400 font-medium">8개 브랜드 글로벌 마케팅 통합 성과 보고서</p>
+          <p id="sourceSubTitle" class="text-[11px] text-neutral-400 font-medium">글로벌 마케팅 성과 보고서</p>
         </div>
       </div>
 
       <div class="flex flex-wrap items-center gap-2.5">
-        <div class="inline-flex items-center bg-white border border-neutral-200 rounded-full px-3 py-1.5 shadow-xs">
-          <span class="text-[10px] font-bold text-neutral-400 mr-2">브랜드 선택:</span>
-          <select id="headerCampaignFilter" onchange="switchActiveBrand(this.value)" class="text-xs font-bold text-neutral-900 bg-transparent outline-none cursor-pointer pr-1">
-            <option value="ALL">전체 브랜드 통합</option>
-          </select>
-        </div>
-
-        <button onclick="copyCurrentLink()" class="px-3.5 py-1.5 bg-white border border-neutral-200 text-neutral-700 text-xs font-semibold rounded-full hover:bg-neutral-50 transition shadow-xs">
+        <button onclick="copyCurrentLink()" class="px-4 py-1.5 bg-white border border-neutral-200 text-neutral-700 text-xs font-semibold rounded-full hover:bg-neutral-50 transition shadow-xs flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
           링크 복사
         </button>
         <button onclick="downloadCSV()" class="px-4 py-1.5 bg-neutral-950 text-white text-xs font-semibold rounded-full hover:bg-neutral-800 transition shadow-xs flex items-center gap-1.5">
@@ -85,19 +79,10 @@
   <!-- Main Dashboard -->
   <main id="dashboardContent" class="max-w-7xl mx-auto px-5 sm:px-8 py-8 space-y-10 hidden flex-1 w-full">
 
-    <!-- Top Total Header & Brand Quick Nav -->
-    <div class="space-y-4">
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-neutral-200/90 pb-5">
-        <div>
-          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950" id="currentViewHeading">전체 브랜드 통합 성과 요약</h2>
-        </div>
-        <div class="text-xs text-neutral-500 font-medium">
-          <span id="activeBrandCountBadge" class="font-bold text-neutral-900">8</span>개 브랜드 실시간 집계
-        </div>
-      </div>
-
-      <!-- Quick Brand Tabs -->
-      <div id="brandTabBar" class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none"></div>
+    <!-- Top Brand Header -->
+    <div class="space-y-2 border-b border-neutral-200/90 pb-5">
+      <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-neutral-900 text-white">Brand Performance</span>
+      <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-neutral-950" id="currentViewHeading">브랜드 성과 요약</h2>
     </div>
 
     <!-- Top Total KPI Metrics (딱 맞는 5개 핵심 지표 카드) -->
@@ -163,7 +148,7 @@
             <h3 class="text-sm sm:text-base font-bold text-neutral-900">전체 크리에이터 성과 목록</h3>
             <span id="uploadedCountBadge" class="text-[11px] font-semibold bg-neutral-100 text-neutral-700 px-2.5 py-0.5 rounded-full">0건</span>
           </div>
-          <p class="text-xs text-neutral-400">각 브랜드별 발행된 인플루언서 지표 내역</p>
+          <p class="text-xs text-neutral-400">발행 완료된 인플루언서 성과 내역</p>
         </div>
         
         <div class="relative w-full sm:w-72">
@@ -171,7 +156,7 @@
           <input 
             type="text" 
             id="searchInput" 
-            placeholder="인스타 아이디, 브랜드 검색..." 
+            placeholder="인스타 아이디 검색..." 
             class="pl-9 pr-3.5 py-2 text-xs bg-neutral-50 border border-neutral-200 rounded-full w-full focus:bg-white focus:border-neutral-950 outline-none transition"
           />
         </div>
@@ -181,8 +166,7 @@
         <table class="w-full text-left text-xs text-neutral-600">
           <thead class="sticky top-0 bg-neutral-50/95 backdrop-blur-md text-[11px] font-bold text-neutral-500 border-b border-neutral-200 z-10 select-none">
             <tr>
-              <th onclick="sortTable('brandTag')" class="py-3 px-5 cursor-pointer hover:text-neutral-900">브랜드 ↕</th>
-              <th onclick="sortTable('id')" class="py-3 px-4 cursor-pointer hover:text-neutral-900">인스타 아이디 ↕</th>
+              <th onclick="sortTable('id')" class="py-3 px-5 cursor-pointer hover:text-neutral-900">인스타 아이디 ↕</th>
               <th onclick="sortTable('type')" class="py-3 px-4">유형</th>
               <th onclick="sortTable('views')" class="py-3 px-4 text-right cursor-pointer hover:text-neutral-900">조회수 ↕</th>
               <th onclick="sortTable('likes')" class="py-3 px-4 text-right cursor-pointer hover:text-neutral-900">좋아요 ↕</th>
@@ -202,7 +186,7 @@
       <div class="flex items-center gap-2">
         <span class="font-extrabold text-neutral-900">VIVELY GLOBAL</span>
         <span>•</span>
-        <span>크리에이터 글로벌 마케팅 리포트</span>
+        <span id="footerBrandName">인플루언서 마케팅 성과 보고서</span>
       </div>
     </div>
   </footer>
@@ -210,24 +194,47 @@
   <script>
     const SPREADSHEET_ID = "1EsMCxiMoAxPa5zGFalBqknM-lB7kC166twgHO9_I_dk";
 
+    // 8 Brand Sheet Registry with aliases (Korean & English slug support)
     const BRAND_SHEETS = [
-      { label: "라밥", gid: "0" },
-      { label: "명동K-갈비", gid: "350126992" },
-      { label: "어서와칼국수", gid: "371346407" },
-      { label: "스시소라", gid: "1233354873" },
-      { label: "나이스카페인클럽", gid: "1392796569" },
-      { label: "유닭스토리", gid: "1256587114" },
-      { label: "양은이네", gid: "833543417" },
-      { label: "구룡각", gid: "1392616377" }
+      { key: "labab", label: "라밥", gid: "0", aliases: ["labab", "라밥", "rabab"] },
+      { key: "myeongdong", label: "명동K-갈비", gid: "350126992", aliases: ["myeongdong", "명동", "명동k-갈비", "명동갈비", "myeongdong-k-galbi"] },
+      { key: "kalguksu", label: "어서와칼국수", gid: "371346407", aliases: ["kalguksu", "어서와칼국수", "칼국수", "eoseowa"] },
+      { key: "sushisora", label: "스시소라", gid: "1233354873", aliases: ["sushisora", "스시소라", "스시"] },
+      { key: "nicecaffeine", label: "나이스카페인클럽", gid: "1392796569", aliases: ["nicecaffeine", "나이스카페인클럽", "나이스카페", "nicecaffeineclub"] },
+      { key: "yoodak", label: "유닭스토리", gid: "1256587114", aliases: ["yoodak", "유닭스토리", "유닭", "yoodakstory"] },
+      { key: "yangeun", label: "양은이네", gid: "833543417", aliases: ["yangeun", "양은이네", "양문이네", "yangeunine"] },
+      { key: "guryonggak", label: "구룡각", gid: "1392616377", aliases: ["guryonggak", "구룡각", "구봉각"] }
     ];
 
     const nf = new Intl.NumberFormat();
-    let allExtractedData = [];
+    let currentBrandConfig = null;
     let activeFilteredData = [];
-    let registeredBrands = [];
-    let currentActiveBrand = "ALL";
     let sortAsc = false;
     let currentSortKey = 'views';
+
+    // URL 파라미터에서 brand 또는 gid 확인 (?brand=라밥 또는 ?brand=labab atau ?gid=0)
+    function resolveTargetBrand() {
+      const params = new URLSearchParams(window.location.search);
+      const brandParam = (params.get('brand') || params.get('campaign') || params.get('name') || "").trim().toLowerCase();
+      const gidParam = params.get('gid');
+
+      if (gidParam !== null && gidParam !== "") {
+        const foundByGid = BRAND_SHEETS.find(b => b.gid === gidParam);
+        if (foundByGid) return foundByGid;
+      }
+
+      if (brandParam) {
+        const found = BRAND_SHEETS.find(b => 
+          b.key.toLowerCase() === brandParam || 
+          b.label.toLowerCase() === brandParam || 
+          b.aliases.some(a => a.toLowerCase() === brandParam)
+        );
+        if (found) return found;
+      }
+
+      // Default jika tidak ada parameter: 라밥
+      return BRAND_SHEETS[0];
+    }
 
     function sanitizeRow(raw, brandTag) {
       const views = Number(String(raw.views || 0).replace(/,/g, '')) || 0;
@@ -245,7 +252,6 @@
       const contentUrl = raw.post_url || raw.url || "#";
       const hasUrl = contentUrl && contentUrl !== "#" && String(contentUrl).startsWith("http");
 
-      // 확실하게 influencer_id 값만 추출 (dlv_ 아이디 완전 배제)
       let cleanId = String(raw.influencer_id || "").replace(/^@/, '').trim();
       if (!cleanId || cleanId.startsWith("dlv_")) {
         cleanId = "creator";
@@ -264,10 +270,10 @@
       };
     }
 
-    function fetchSheetViaGViz(sheetId, sheetConfig) {
+    function fetchSheetViaGViz(sheetId, gid, label) {
       return new Promise((resolve) => {
         const callbackName = "gviz_cb_" + Math.random().toString(36).substring(2, 10);
-        const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=responseHandler:${callbackName}&gid=${sheetConfig.gid}`;
+        const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=responseHandler:${callbackName}&gid=${gid}`;
 
         window[callbackName] = function(resp) {
           try {
@@ -283,7 +289,6 @@
             const cols = resp.table.cols.map(c => (c.label || c.id || "").toLowerCase().trim());
             const rows = resp.table.rows;
 
-            // 시트 헤더 매핑
             let idIdx = -1;
             let typeIdx = -1;
             let urlIdx = -1;
@@ -292,7 +297,6 @@
             let commentsIdx = -1;
             let erIdx = -1;
 
-            // 1) 0번 행에 헤더가 있는 경우
             let startRow = 0;
             if (rows.length > 0 && rows[0].c) {
               const headerRowVals = rows[0].c.map(cell => cell && cell.v ? String(cell.v).toLowerCase().trim() : "");
@@ -310,7 +314,6 @@
               }
             }
 
-            // 2) cols에 매핑된 경우
             if (idIdx === -1) {
               idIdx = cols.findIndex(c => c === "influencer_id" || c.includes("influencer"));
               typeIdx = cols.findIndex(c => c === "type");
@@ -321,14 +324,13 @@
               erIdx = cols.findIndex(c => c === "post_er" || c.includes("er"));
             }
 
-            // 3) 구글시트 실제 기본 열 위치 Fallback:
-            // deliverable_id=0, cl_id=1, influencer_id=2 (C열), type=3 (D열), post_url=4 (E열), likes=6 (G열), comments=7 (H열), views=8 (I열)
-            if (idIdx === -1) idIdx = 2; // C열 (influencer_id)
-            if (typeIdx === -1) typeIdx = 3; // D열
-            if (urlIdx === -1) urlIdx = 4; // E열
-            if (likesIdx === -1) likesIdx = 6; // G열
-            if (commentsIdx === -1) commentsIdx = 7; // H열
-            if (viewsIdx === -1) viewsIdx = 8; // I열
+            // Fallback 기본 순서: C=2 (influencer_id), D=3 (type), E=4 (post_url), G=6 (likes), H=7 (comments), I=8 (views)
+            if (idIdx === -1) idIdx = 2;
+            if (typeIdx === -1) typeIdx = 3;
+            if (urlIdx === -1) urlIdx = 4;
+            if (likesIdx === -1) likesIdx = 6;
+            if (commentsIdx === -1) commentsIdx = 7;
+            if (viewsIdx === -1) viewsIdx = 8;
             if (erIdx === -1) erIdx = 18;
 
             const parsedRows = [];
@@ -338,7 +340,6 @@
               const getVal = (idx) => (idx !== -1 && cells[idx] && cells[idx].v !== null && cells[idx].v !== undefined) ? cells[idx].v : "";
               
               const id = getVal(idIdx);
-              // id가 없거나 dlv_로 시작하는 경우 제외
               if (!id || String(id).trim() === "" || String(id).trim() === "influencer_id") continue;
 
               parsedRows.push(sanitizeRow({
@@ -349,12 +350,12 @@
                 comments: getVal(commentsIdx),
                 views: getVal(viewsIdx),
                 post_er: getVal(erIdx)
-              }, sheetConfig.label));
+              }, label));
             }
 
             resolve(parsedRows);
           } catch (e) {
-            console.warn("Parse error for tab", sheetConfig.label, e);
+            console.warn("Parse error for sheet", label, e);
             resolve([]);
           }
         };
@@ -373,22 +374,24 @@
     }
 
     async function initDashboard() {
-      try {
-        const fetchPromises = BRAND_SHEETS.map(b => fetchSheetViaGViz(SPREADSHEET_ID, b));
-        const results = await Promise.all(fetchPromises);
-        allExtractedData = results.flat();
+      currentBrandConfig = resolveTargetBrand();
 
-        if (allExtractedData.length === 0) {
-          throw new Error("스프레드시트에서 데이터를 가져오지 못했습니다. '공유' 설정이 '링크가 있는 모든 사용자 - 뷰어'로 되어 있는지 확인해주세요.");
+      // UI 텍스트 및 제목을 해당 브랜드 이름으로 설정
+      document.title = `${currentBrandConfig.label} — VIVELY 성과 보고서`;
+      document.getElementById("brandTitle").innerText = `${currentBrandConfig.label} 캠페인`;
+      document.getElementById("currentViewHeading").innerText = `${currentBrandConfig.label} 마케팅 성과 요약`;
+      document.getElementById("sourceSubTitle").innerText = `${currentBrandConfig.label} 실시간 데이터 분석`;
+      document.getElementById("footerBrandName").innerText = `${currentBrandConfig.label} 캠페인 성과 보고서`;
+
+      try {
+        // hanya fetch sheet brand yang dipilih
+        const rows = await fetchSheetViaGViz(SPREADSHEET_ID, currentBrandConfig.gid, currentBrandConfig.label);
+        
+        if (rows.length === 0) {
+          throw new Error(`[${currentBrandConfig.label}] 시트에서 데이터를 불러오지 못했습니다. 스프레드시트 공유 권한을 확인해주세요.`);
         }
 
-        registeredBrands = Array.from(new Set(allExtractedData.map(d => d.brandTag)));
-        document.getElementById("activeBrandCountBadge").innerText = registeredBrands.length;
-
-        buildHeaderFilters(registeredBrands);
-        buildBrandTabBar(registeredBrands);
-
-        activeFilteredData = allExtractedData;
+        activeFilteredData = rows.filter(d => d.status === "Uploaded");
         renderAllSections(activeFilteredData);
 
         document.getElementById("loadingBox").classList.add("hidden");
@@ -398,57 +401,7 @@
       }
     }
 
-    function buildHeaderFilters(brands) {
-      const select = document.getElementById("headerCampaignFilter");
-      select.innerHTML = `<option value="ALL">전체 브랜드 통합</option>`;
-      brands.forEach(b => {
-        select.innerHTML += `<option value="${b}">${b}</option>`;
-      });
-    }
-
-    function buildBrandTabBar(brands) {
-      const container = document.getElementById("brandTabBar");
-      container.innerHTML = "";
-
-      const makeTab = (label, value, count) => {
-        const btn = document.createElement("button");
-        btn.onclick = () => switchActiveBrand(value);
-        const isActive = currentActiveBrand === value;
-        btn.className = `px-3.5 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
-          isActive 
-            ? "bg-neutral-950 text-white shadow-sm" 
-            : "bg-white text-neutral-600 border border-neutral-200 hover:bg-neutral-50"
-        }`;
-        btn.innerHTML = `<span>${label}</span><span class="${isActive ? 'bg-neutral-800 text-neutral-300' : 'bg-neutral-100 text-neutral-500'} text-[10px] px-1.5 py-0.2 rounded-full">${count}</span>`;
-        return btn;
-      };
-
-      container.appendChild(makeTab("전체 통합", "ALL", allExtractedData.length));
-      brands.forEach(b => {
-        const count = allExtractedData.filter(d => d.brandTag === b).length;
-        container.appendChild(makeTab(b, b, count));
-      });
-    }
-
-    function switchActiveBrand(brand) {
-      currentActiveBrand = brand;
-      document.getElementById("headerCampaignFilter").value = brand;
-
-      if (brand === "ALL") {
-        activeFilteredData = allExtractedData;
-        document.getElementById("currentViewHeading").innerText = "전체 브랜드 통합 성과 요약";
-      } else {
-        activeFilteredData = allExtractedData.filter(d => d.brandTag === brand);
-        document.getElementById("currentViewHeading").innerText = `${brand} 브랜드 성과 요약`;
-      }
-
-      buildBrandTabBar(registeredBrands);
-      renderAllSections(activeFilteredData);
-    }
-
-    function renderAllSections(data) {
-      const uploadedData = data.filter(d => d.status === "Uploaded");
-
+    function renderAllSections(uploadedData) {
       const totalViews = uploadedData.reduce((acc, c) => acc + c.views, 0);
       const totalLikes = uploadedData.reduce((acc, c) => acc + c.likes, 0);
       const totalComments = uploadedData.reduce((acc, c) => acc + c.comments, 0);
@@ -503,7 +456,6 @@
             <div>
               <div class="flex items-center gap-1.5 mb-1">
                 <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full ${rankBadges[index].bg}">${rankBadges[index].label}</span>
-                <span class="text-[10px] font-bold text-neutral-400 uppercase tracking-wide">${item.brandTag}</span>
               </div>
               <h4 class="text-sm font-extrabold text-neutral-950 truncate">@${item.id}</h4>
             </div>
@@ -550,14 +502,14 @@
       });
     }
 
-    // 전체 크리에이터 성과 목록 (인스타 아이디 정확 매핑, SHARES 및 ER 제거)
+    // 전체 크리에이터 성과 목록
     function renderTable(rows) {
       document.getElementById("uploadedCountBadge").innerText = `${rows.length}건`;
       const tbody = document.getElementById("tableRows");
       tbody.innerHTML = "";
 
       if (rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-12 text-neutral-400 text-xs font-medium">데이터가 없습니다.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-12 text-neutral-400 text-xs font-medium">데이터가 없습니다.</td></tr>`;
         return;
       }
 
@@ -565,10 +517,7 @@
         const tr = document.createElement("tr");
         tr.className = "hover:bg-neutral-50 transition-colors";
         tr.innerHTML = `
-          <td class="py-3 px-5">
-            <span class="px-2.5 py-0.5 bg-neutral-100 rounded-md text-[10px] font-bold text-neutral-800">${r.brandTag}</span>
-          </td>
-          <td class="py-3 px-4 font-bold text-neutral-900">@${r.id}</td>
+          <td class="py-3 px-5 font-bold text-neutral-900">@${r.id}</td>
           <td class="py-3 px-4 text-neutral-500 font-semibold text-[11px]">${r.type}</td>
           <td class="py-3 px-4 text-right font-extrabold text-neutral-900">${nf.format(r.views)}</td>
           <td class="py-3 px-4 text-right text-neutral-600">${nf.format(r.likes)}</td>
@@ -591,8 +540,7 @@
         sortAsc = false;
       }
 
-      const uploaded = activeFilteredData.filter(d => d.status === "Uploaded");
-      uploaded.sort((a, b) => {
+      activeFilteredData.sort((a, b) => {
         let valA = a[key] ?? '';
         let valB = b[key] ?? '';
         const numA = Number(valA);
@@ -604,25 +552,27 @@
         return sortAsc ? String(valA).localeCompare(String(valB)) : String(valB).localeCompare(String(valA));
       });
 
-      renderTable(uploaded);
+      renderTable(activeFilteredData);
     }
 
     function copyCurrentLink() {
-      navigator.clipboard.writeText(window.location.href);
-      alert("리포트 링크가 클립보드에 복사되었습니다.");
+      // pastikan menyalin link spesifik brand saat ini
+      const url = new URL(window.location.href);
+      url.searchParams.set("brand", currentBrandConfig.label);
+      navigator.clipboard.writeText(url.toString());
+      alert(`[${currentBrandConfig.label}] 전용 리포트 링크가 클립보드에 복사되었습니다.`);
     }
 
     function downloadCSV() {
-      const uploaded = activeFilteredData.filter(d => d.status === "Uploaded");
-      const headers = ["브랜드", "인스타 아이디", "유형", "조회수", "좋아요", "댓글", "콘텐츠 링크"];
-      const rows = uploaded.map(d => [
-        `"${d.brandTag}"`, `"${d.id}"`, `"${d.type}"`, d.views, d.likes, d.comments, `"${d.contentUrl}"`
+      const headers = ["인스타 아이디", "유형", "조회수", "좋아요", "댓글", "콘텐츠 링크"];
+      const rows = activeFilteredData.map(d => [
+        `"${d.id}"`, `"${d.type}"`, d.views, d.likes, d.comments, `"${d.contentUrl}"`
       ]);
       const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `VIVELY_보고서.csv`);
+      link.setAttribute("download", `${currentBrandConfig.label}_캠페인_보고서.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -640,10 +590,8 @@
 
     document.getElementById("searchInput").addEventListener("input", (e) => {
       const q = e.target.value.toLowerCase();
-      const uploaded = activeFilteredData.filter(d => d.status === "Uploaded");
-      const filtered = uploaded.filter(d => 
-        (d.brandTag && d.brandTag.toLowerCase().includes(q)) ||
-        (d.id && d.id.toLowerCase().includes(q))
+      const filtered = activeFilteredData.filter(d => 
+        d.id && d.id.toLowerCase().includes(q)
       );
       renderTable(filtered);
     });
