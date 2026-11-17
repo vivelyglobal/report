@@ -130,7 +130,6 @@ $('connectForm').addEventListener('submit',e=>{
   const brand=$('brandInput').value.trim();if(!brand)return;
   source={brand,sheet:match[1],gid};const params=new URLSearchParams(source);history.pushState(null,'',`${location.pathname}?${params}#overview`);load();
 });
-$('changeSource').onclick=()=>{requestVersion++;$('setup').hidden=false;$('main').hidden=true;status('');$('brandInput').focus();};
 $('refresh').onclick=load;
 $('search').addEventListener('input',renderTable);$('metric').addEventListener('change',renderChart);
 $('tableHead').onclick=e=>{const b=e.target.closest('[data-sort]');if(!b)return;ascending=sortKey===b.dataset.sort?!ascending:false;sortKey=b.dataset.sort;renderTable();};
